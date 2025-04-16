@@ -1,0 +1,28 @@
+
+Showing Recent Issues
+
+Prepare build
+note: Building targets in dependency order
+error: Multiple commands produce '/Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist'
+    note: Target 'TechnicallyPilates' (project 'TechnicallyPilates') has copy command from '/Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist' to '/Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist'
+    note: Target 'TechnicallyPilates' (project 'TechnicallyPilates') has process command with output '/Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist'
+
+
+Building targets in dependency order
+
+Multiple commands produce '/Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist'
+
+
+Build target TechnicallyPilates of project TechnicallyPilates with configuration Debug
+warning: duplicate output file '/Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist' on task: ProcessInfoPlistFile /Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/TechnicallyPilates/Info.plist
+
+ (in target 'TechnicallyPilates' from project 'TechnicallyPilates')
+
+
+duplicate output file '/Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist' on task: ProcessInfoPlistFile /Users/patrickorourke/Library/Developer/Xcode/DerivedData/TechnicallyPilates-eghgvbilqpymsdhihkohxnwldmzr/Build/Products/Debug-iphonesimulator/TechnicallyPilates.app/Info.plist /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/TechnicallyPilates/Info.plist
+
+
+
+
+
+Build failed    09/04/2025, 6:08 PM    0.1 seconds

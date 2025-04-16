@@ -7,13 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1DB397612D8F540E001BA26F /* TechnicallyPilatesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */; };
+		1D2F8B402DAC2D8800268601 /* PoseClassifier.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */; };
+		1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */; };
+		1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */; };
+		1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */; };
 		1DB397632D8F540E001BA26F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397622D8F540E001BA26F /* ContentView.swift */; };
 		1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DB397642D8F5410001BA26F /* Assets.xcassets */; };
 		1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DB397672D8F5410001BA26F /* Preview Assets.xcassets */; };
 		1DB397722D8F5410001BA26F /* TechnicallyPilatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397712D8F5410001BA26F /* TechnicallyPilatesTests.swift */; };
-		1DB3977C2D8F5410001BA26F /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB3977B2D8F5410001BA26F /* TechnicallyPilatesUITests.swift */; };
-		1DB3977E2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB3977D2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift */; };
+		1DB3978C2D8F55F7001BA26F /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978B2D8F55F7001BA26F /* CoreML.framework */; };
+		1DB3978E2D94A17C001BA26F /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978D2D94A17C001BA26F /* CoreML.framework */; };
+		1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978F2D94A18B001BA26F /* Vision.framework */; };
+		1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897D02DA304FE00FEF7E1 /* CameraView.swift */; };
+		1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */; };
+		1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,16 +41,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = PoseClassifier.mlpackage; sourceTree = "<group>"; };
+		1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesApp.swift; sourceTree = "<group>"; };
+		1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseLogView.swift; sourceTree = "<group>"; };
+		1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCoach.swift; sourceTree = "<group>"; };
 		1DB3975D2D8F540E001BA26F /* TechnicallyPilates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TechnicallyPilates.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesApp.swift; sourceTree = "<group>"; };
 		1DB397622D8F540E001BA26F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1DB397642D8F5410001BA26F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1DB397672D8F5410001BA26F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1DB3976D2D8F5410001BA26F /* TechnicallyPilatesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TechnicallyPilatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DB397712D8F5410001BA26F /* TechnicallyPilatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesTests.swift; sourceTree = "<group>"; };
 		1DB397772D8F5410001BA26F /* TechnicallyPilatesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TechnicallyPilatesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		1DB3977B2D8F5410001BA26F /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
-		1DB3977D2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1DB3978B2D8F55F7001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
+		1DB3978D2D94A17C001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/CoreML.framework; sourceTree = DEVELOPER_DIR; };
+		1DB3978F2D94A18B001BA26F /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
+		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		1DB897D72DA6E0A000FEF7E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseEstimator.swift; sourceTree = "<group>"; };
+		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1DB3978C2D8F55F7001BA26F /* CoreML.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +74,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */,
+				1DB3978E2D94A17C001BA26F /* CoreML.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,13 +89,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */,
+			);
+			path = TechnicallyPilatesUITests;
+			sourceTree = "<group>";
+		};
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
+				1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */,
+				1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */,
+				1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */,
+				1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */,
+				1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */,
+				1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */,
+				1DB897D72DA6E0A000FEF7E1 /* Info.plist */,
+				1DB897D02DA304FE00FEF7E1 /* CameraView.swift */,
 				1DB3975F2D8F540E001BA26F /* TechnicallyPilates */,
 				1DB397702D8F5410001BA26F /* TechnicallyPilatesTests */,
-				1DB3977A2D8F5410001BA26F /* TechnicallyPilatesUITests */,
 				1DB3975E2D8F540E001BA26F /* Products */,
+				1DB3978A2D8F55F7001BA26F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,7 +128,6 @@
 		1DB3975F2D8F540E001BA26F /* TechnicallyPilates */ = {
 			isa = PBXGroup;
 			children = (
-				1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */,
 				1DB397622D8F540E001BA26F /* ContentView.swift */,
 				1DB397642D8F5410001BA26F /* Assets.xcassets */,
 				1DB397662D8F5410001BA26F /* Preview Content */,
@@ -118,13 +151,14 @@
 			path = TechnicallyPilatesTests;
 			sourceTree = "<group>";
 		};
-		1DB3977A2D8F5410001BA26F /* TechnicallyPilatesUITests */ = {
+		1DB3978A2D8F55F7001BA26F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1DB3977B2D8F5410001BA26F /* TechnicallyPilatesUITests.swift */,
-				1DB3977D2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift */,
+				1DB3978F2D94A18B001BA26F /* Vision.framework */,
+				1DB3978D2D94A17C001BA26F /* CoreML.framework */,
+				1DB3978B2D8F55F7001BA26F /* CoreML.framework */,
 			);
-			path = TechnicallyPilatesUITests;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -202,6 +236,7 @@
 					};
 					1DB397762D8F5410001BA26F = {
 						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1420;
 						TestTargetID = 1DB3975C2D8F540E001BA26F;
 					};
 				};
@@ -257,8 +292,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */,
 				1DB397632D8F540E001BA26F /* ContentView.swift in Sources */,
-				1DB397612D8F540E001BA26F /* TechnicallyPilatesApp.swift in Sources */,
+				1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */,
+				1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */,
+				1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */,
+				1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */,
+				1D2F8B402DAC2D8800268601 /* PoseClassifier.mlpackage in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,8 +314,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1DB3977E2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift in Sources */,
-				1DB3977C2D8F5410001BA26F /* TechnicallyPilatesUITests.swift in Sources */,
+				1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,8 +456,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TechnicallyPilates/Preview Content\"";
+				DEVELOPMENT_TEAM = 8LV65T7CC5;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -445,8 +486,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TechnicallyPilates/Preview Content\"";
+				DEVELOPMENT_TEAM = 8LV65T7CC5;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -477,6 +520,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "driverkit iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -496,6 +542,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "driverkit iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -507,13 +556,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = TechnicallyPilates;
@@ -524,9 +580,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
