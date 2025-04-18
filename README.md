@@ -1,82 +1,77 @@
-TechnicallyPilates 🧘‍♀️📱
-A smart iOS Pilates app that uses real-time camera pose detection, repetition counting, streaks, XP leveling, and fun rewards to keep users engaged and progressing! Built entirely in SwiftUI, Vision, and CoreML.
+# 📋 TechnicallyPilates - Daily Regression Test Checklist
 
-✨ Features
-Real-Time Pose Detection (using CoreML + Vision)
+## General UI
+- [ ] App launches without crashing
+- [ ] "Choose Your Focus" label appears above the routine picker
+- [ ] Routine picker is visible and working before Start Detection
+- [ ] CameraView visible with "Pose: Waiting..." and "Reps: 0" labels
+- [ ] Padding and background styling are applied correctly to picker and labels
 
-Live Pose Feedback (Color-coded labels, accessibility-friendly)
+---
 
-Animated Countdown (beep... beep... beep... GO! 🔔)
+## Countdown & Start
+- [ ] Tapping "Start Detection" triggers animated countdown (beep... beep... beep... GO! 🔔)
+- [ ] Countdown includes sound effects at each step
+- [ ] CameraView slightly zooms in after countdown ends
+- [ ] Routine picker and label fade + slide out smoothly
+- [ ] "Camera Starting..." spinner shows during transition
 
-Repetition Counting (Detect and count completed reps automatically)
+---
 
-Streak Tracking (🔥 Daily login streak bonuses)
+## Detection Phase
+- [ ] Camera detection starts after countdown
+- [ ] CameraView has subtle glowing border during active detection
+- [ ] Pose label background color animates (green/red/gray) correctly
+- [ ] Rep count updates properly after correct pose detection
+- [ ] Flash/white blink appears briefly after successful rep
 
-XP & Level System (Gain XP and level up with workouts)
+---
 
-Achievements (Unlock badges for streaks, levels, routines)
+## Streaks & Combos
+- [ ] Correct consecutive reps trigger Combo Streak Bonus animation (fire trail, zooming)
+- [ ] Combo Streak Bonus visual shows behind CameraView during streaks
+- [ ] Combo Score / Bonus message briefly appears on screen
+- [ ] If streak broken, combo effects gracefully reset
 
-Routine Unlocking (New categories unlock as you progress)
+---
 
-Combo Bonus Mode (Perfect streak = bonus XP, fire animations! 🚀🔥)
+## Rewards & Achievements
+- [ ] Success chime plays after each rep completion
+- [ ] Medal popup appears after every 10 reps
+- [ ] New achievements unlock properly (e.g., "3-Day Streak", "Level Up")
+- [ ] Achievement popup appears when a new Routine (e.g., Core, Stretch) unlocks
+- [ ] XP and Level update correctly
+- [ ] Streak counter updates correctly per day
 
-Cinematic Transitions (Zoom, tilt, glow, sparkle effects)
+---
 
-Success Sound Effects (Chime after successful reps, countdown beeps)
+## Reset / Restart
+- [ ] "Reset" button stops detection immediately
+- [ ] UI resets (Pose Label back to "Waiting...", Reps: 0, Colors reset)
+- [ ] Picker and label fade back into view after Reset
+- [ ] CameraView returns to normal (no zoom, no glow)
 
-Progress Chart View (Track your improvement over time 📈)
+---
 
-📲 How It Works
-Choose a Focus Area:
-Select a Routine (Standing, Core, Stretching, etc.) from a simple picker.
+# 🎯 Daily Mini Test Plan
+- Launch app and check starting UI ✔️
+- Run full workout session (Countdown → Detection → Combo → Rewards) ✔️
+- Test reset and second session ✔️
+- Force-break streak to test fallback ✔️
+- Unlock at least 1 achievement ✔️
+- Test on simulator + physical device ✔️
 
-Start Detection:
-A smooth animated countdown plays (3..2..1..GO!), with sound.
+---
 
-Workout Time:
+# 🚀 Notes for the Day
+- If UI freezes, check for animation conflicts
+- If sounds don't play, ensure AVFoundation permissions
+- If streak/XP not updating, debug pose rep counting
+- Remember: Every rep triggers XP, every level unlocks routines!
 
-Pose label and rep count are big, bold, and color coded.
+---
 
-CameraView glows subtly during active detection.
+# ✅ Done? 
+- Celebrate with a perfect combo streak 🔥🏆
 
-Combo bonuses trigger fire animations and zoom effects!
 
-Celebrate Wins:
-
-After every 10 reps, medals pop up! 🏅
-
-Flash effects when reps complete! 📸
-
-Achievement unlocks for reaching milestones.
-
-Reset / Repeat:
-New day, new streak — rack up XP and climb the leaderboards!
-
-🛠 Tech Stack
-SwiftUI
-
-CoreML (PoseClassifier model)
-
-Vision (Real-time pose keypoints detection)
-
-AVFoundation (Camera input)
-
-Local Storage (UserDefaults, Codable)
-
-🧪 Daily Regression Test Checklist
-
-Test    Result (✅/❌)
-App launches successfully    
-Routine picker shows and fades on Start Detection    
-Countdown beeps and countdown text animate correctly    
-Pose detection starts only after countdown    
-Pose label updates with correct pose    
-Rep counter increases on holding correct pose    
-XP increases per rep    
-Level updates based on XP    
-Streak counter updates if active across days    
-Medal popup shows after 10 reps    
-Achievement popup shows when unlocked    
-Flash effect plays on rep success    
-Combo streak fire effect triggers correctly    
-Reset button resets everything properly
