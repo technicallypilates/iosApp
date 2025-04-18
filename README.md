@@ -63,6 +63,24 @@
 
 ---
 
+# 📱 Best Phone Positioning for TechnicallyPilates
+
+To get the best experience, please follow these guidelines when setting up your device:
+
+## 📋 Instructions
+
+|   |   |
+|---|---|
+| 📏 **Distance** | Place your phone about 2-3 meters (6-10 feet) away from you. |
+| 🔼 **Height** | Ideally, mount the phone around hip to chest height. A chair, low table, or adjustable stand works well. |
+| 🎥 **Angle** | Tilt the phone slightly upwards, about 15°, so it captures your full body without needing to move much. |
+| 💡 **Lighting** | Ensure you're in a well-lit area (natural light or strong room light). Avoid strong backlight (like bright windows behind you). |
+| 🌟 **Background** | Try to stand in front of a simple background (plain wall is ideal) to make body detection easier and more accurate. |
+| 📵 **Stability** | Keep the phone steady (use a tripod, or secure it against something stable). Avoid handheld usage. |
+| ✅ **Pro Tip** | Test by walking back into the camera frame and checking the preview before starting detection. Your full body (including hands and feet) should be visible. |
+
+---
+
 # 🚀 Notes for the Day
 - If UI freezes, check for animation conflicts
 - If sounds don't play, ensure AVFoundation permissions
@@ -73,5 +91,4 @@
 
 # ✅ Done? 
 - Celebrate with a perfect combo streak 🔥🏆
-
 
