@@ -3,13 +3,6 @@ import AVFoundation
 import Vision
 import UIKit
 
-// Assume Models.swift is already part of the project and includes:
-// - UserProfile
-// - Routine
-// - Pose
-// - PoseLogEntry
-// - FireTrailView (also assumed to be moved into Models.swift if needed)
-
 struct ContentView: View {
     @State private var poseLabel: String = "Waiting..."
     @State private var poseColor: Color = .gray
@@ -34,6 +27,9 @@ struct ContentView: View {
 
     @State private var showAchievement = false
     @State private var achievementText = ""
+
+    @State private var showFlash = false
+    @State private var showSpinner = false
 
     let beepPlayer = SoundPlayer()
 
@@ -79,13 +75,14 @@ struct ContentView: View {
                         .animation(.easeInOut(duration: 0.5), value: cameraGlow)
                 )
                 .rotation3DEffect(.degrees(cameraTilt ? 10 : 0), axis: (x: 0.0, y: 1.0, z: 0.0))
-                .scaleEffect(cameraTilt ? 1.08 : 1.0)
+                .scaleEffect(cameraTilt ? 1.1 : 1.0)
                 .animation(.easeInOut(duration: 0.8), value: cameraTilt)
 
                 if showComboBonus {
                     FireTrailView()
                         .frame(width: 350, height: 350)
                         .offset(y: -20)
+                        .transition(.scale)
                 }
 
                 if countdownActive {
@@ -94,6 +91,16 @@ struct ContentView: View {
                         .foregroundColor(.red)
                         .transition(.scale)
                         .animation(.easeInOut, value: countdownNumber)
+                }
+
+                if showSpinner {
+                    ProgressView("Camera Starting...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                        .scaleEffect(1.5)
+                        .padding()
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(12)
+                        .transition(.opacity)
                 }
 
                 if showAchievement {
@@ -108,6 +115,14 @@ struct ContentView: View {
                         Spacer()
                     }
                     .transition(.move(edge: .bottom))
+                }
+
+                if showFlash {
+                    Color.white
+                        .edgesIgnoringSafeArea(.all)
+                        .opacity(0.8)
+                        .transition(.opacity)
+                        .animation(.easeOut(duration: 0.2), value: showFlash)
                 }
             }
 
@@ -178,10 +193,18 @@ struct ContentView: View {
             beepPlayer.playGo()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 countdownActive = false
-                startDetection = true
-                cameraTilt = true
-                cameraGlow = true
+                startCamera()
             }
+        }
+    }
+
+    func startCamera() {
+        showSpinner = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            showSpinner = false
+            startDetection = true
+            cameraTilt = true
+            cameraGlow = true
         }
     }
 
@@ -197,6 +220,7 @@ struct ContentView: View {
                     showComboBonus = false
                 }
             }
+            flashScreen()
         } else {
             currentStreak = 0
             cameraTilt = false
@@ -211,6 +235,13 @@ struct ContentView: View {
         }
     }
 
+    func flashScreen() {
+        showFlash = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            showFlash = false
+        }
+    }
+
     func resetSession() {
         startDetection = false
         repCount = 0
@@ -222,6 +253,9 @@ struct ContentView: View {
         cameraGlow = false
         showComboBonus = false
         currentStreak = 0
+        showAchievement = false
+        showFlash = false
+        showSpinner = false
     }
 }
 
