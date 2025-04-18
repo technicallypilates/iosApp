@@ -1,80 +1,172 @@
+//  CameraView.swift
+
 import SwiftUI
 import AVFoundation
 import Vision
 import UIKit
 
-struct CameraView: UIViewRepresentable {
+struct CameraView: View {
     @Binding var poseLabel: String
     @Binding var poseColor: Color
     @Binding var startDetection: Bool
-    var selectedRoutine: Routine  // 👈 NEW
+    @Binding var repCount: Int
+    @Binding var logEntries: [PoseLogEntry]
 
-    class CameraCoordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-        var parent: CameraView
-        let poseEstimator = PoseEstimator()
+    var selectedRoutine: Routine
+    var currentPoseIndex: Int
+    var onNewEntry: (PoseLogEntry) -> Void
 
-        init(parent: CameraView) {
-            self.parent = parent
-        }
+    @State private var comboCount = 0
+    @State private var showComboText = false
+    @State private var comboTitle = ""
+    @State private var showMedal = false
+    @State private var sparkleAnimation = false
 
-        func captureOutput(_ output: AVCaptureOutput,
-                           didOutput sampleBuffer: CMSampleBuffer,
-                           from connection: AVCaptureConnection) {
+    var body: some View {
+        ZStack {
+            CameraPreviewView(
+                poseLabel: $poseLabel,
+                poseColor: $poseColor,
+                startDetection: $startDetection,
+                repCount: $repCount,
+                logEntries: $logEntries,
+                selectedRoutine: selectedRoutine,
+                currentPoseIndex: currentPoseIndex,
+                onNewEntry: { entry in
+                    onNewEntry(entry)
+                    handleComboSuccess()
+                },
+                onComboBroken: handleComboBreak
+            )
 
-            guard parent.startDetection else { return } // ⛔️ Ignore frames until detection starts
-            guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-
-            poseEstimator.performPoseDetection(pixelBuffer: pixelBuffer) { observations, predictedLabel in
-                guard let first = observations.first else { return }
-
-                let angles = self.poseEstimator.computeAngles(from: first)
-
-                // ✅ Print angles (optional debugging)
-                if let leftHip = angles["leftHipAngle"] {
-                    print("🦵 Left Hip Angle: \(Int(leftHip))°")
-                }
-                if let rightHip = angles["rightHipAngle"] {
-                    print("🦵 Right Hip Angle: \(Int(rightHip))°")
-                }
-                if let leftElbow = angles["leftElbowAngle"] {
-                    print("💪 Left Elbow Angle: \(Int(leftElbow))°")
-                }
-                if let rightElbow = angles["rightElbowAngle"] {
-                    print("💪 Right Elbow Angle: \(Int(rightElbow))°")
-                }
-
-                // ✅ Log selected routine (optional)
-                print("📋 Routine in use: \(self.parent.selectedRoutine.rawValue)")
-
-                // ✅ Update label and color in UI thread
-                DispatchQueue.main.async {
-                    if let label = predictedLabel {
-                        self.parent.poseLabel = label
-
-                        if label.lowercased().contains("correct") {
-                            self.parent.poseColor = .green
-                        } else {
-                            self.parent.poseColor = .red
-                            self.triggerVibration()
-                        }
-                    } else {
-                        self.parent.poseLabel = "Analyzing..."
-                        self.parent.poseColor = .gray
-                    }
+            if !startDetection {
+                VStack {
+                    Text("📷 Camera will activate when you tap Start Detection")
+                        .foregroundColor(.gray)
+                        .padding()
+                        .background(Color.white.opacity(0.7))
+                        .cornerRadius(12)
                 }
             }
-        }
 
-        /// 📳 Haptic vibration for incorrect pose
-        private func triggerVibration() {
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.error)
+            VStack {
+                Spacer()
+                VStack(spacing: 12) {
+                    ZStack {
+                        if sparkleAnimation {
+                            Circle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: 140, height: 140)
+                                .scaleEffect(sparkleAnimation ? 1.2 : 0.8)
+                                .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: sparkleAnimation)
+                        }
+
+                        Text("Pose: \(poseLabel)")
+                            .font(.title.bold())
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(poseColor.opacity(0.8))
+                            .cornerRadius(20)
+                            .padding(.horizontal)
+                            .shadow(color: poseColor.opacity(0.7), radius: 15) // Glow effect
+                            .animation(.easeInOut(duration: 0.5), value: poseColor)
+                    }
+
+                    Text("Reps: \(repCount)")
+                        .font(.title2.bold())
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(16)
+                }
+
+                if showComboText {
+                    Text(comboTitle)
+                        .font(.largeTitle.bold())
+                        .foregroundColor(.yellow)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(12)
+                        .transition(.scale)
+                        .animation(.easeOut, value: showComboText)
+                        .padding(.top)
+                }
+
+                if showMedal {
+                    Image(systemName: "medal.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.yellow)
+                        .transition(.scale)
+                        .animation(.spring(), value: showMedal)
+                        .padding(.top)
+                }
+
+                Spacer()
+            }
+        }
+        .onAppear {
+            sparkleAnimation = true
         }
     }
 
-    func makeCoordinator() -> CameraCoordinator {
-        return CameraCoordinator(parent: self)
+    private func handleComboSuccess() {
+        comboCount += 1
+
+        if comboCount % 5 == 0 {
+            comboTitle = titleForCombo(comboCount)
+            showComboText = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showComboText = false
+            }
+            playChimeSound()
+        }
+
+        if comboCount % 10 == 0 {
+            showMedal = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showMedal = false
+            }
+        }
     }
+
+    private func handleComboBreak() {
+        if comboCount > 0 {
+            AudioServicesPlaySystemSound(1104) // Sad sound
+        }
+        comboCount = 0
+    }
+
+    private func titleForCombo(_ count: Int) -> String {
+        switch count {
+        case 5: return "Nice Streak! 🌟"
+        case 10: return "On Fire! 🔥"
+        case 20: return "Unstoppable!! 🚀"
+        default: return "Combo x\(count)!"
+        }
+    }
+
+    private func playChimeSound() {
+        AudioServicesPlaySystemSound(1025) // Success chime
+    }
+}
+
+// MARK: - CameraPreviewView (Coordinator updated)
+
+struct CameraPreviewView: UIViewRepresentable {
+    @Binding var poseLabel: String
+    @Binding var poseColor: Color
+    @Binding var startDetection: Bool
+    @Binding var repCount: Int
+    @Binding var logEntries: [PoseLogEntry]
+
+    var selectedRoutine: Routine
+    var currentPoseIndex: Int
+    var onNewEntry: (PoseLogEntry) -> Void
+    var onComboBroken: () -> Void
+
+    let speechCoach = SpeechCoach()
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
@@ -83,9 +175,7 @@ struct CameraView: UIViewRepresentable {
 
         guard let device = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: device),
-              session.canAddInput(input) else {
-            return view
-        }
+              session.canAddInput(input) else { return view }
 
         session.addInput(input)
 
@@ -102,8 +192,90 @@ struct CameraView: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
-        // You could use this to update the view dynamically later if needed
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    func makeCoordinator() -> CameraCoordinator {
+        return CameraCoordinator(parent: self)
+    }
+
+    class CameraCoordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+        var parent: CameraPreviewView
+        let poseEstimator = PoseEstimator()
+        var lastPoseLabel: String = ""
+        var isPoseHeld = false
+        var holdFrameCount = 0
+
+        init(parent: CameraPreviewView) {
+            self.parent = parent
+        }
+
+        func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+            guard parent.startDetection,
+                  let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
+            poseEstimator.performPoseDetection(pixelBuffer: pixelBuffer) { observations, predictedLabel in
+                guard observations.first != nil else { return }
+
+                DispatchQueue.main.async {
+                    guard let label = predictedLabel else {
+                        self.parent.poseLabel = "Analyzing..."
+                        self.parent.poseColor = .gray
+                        self.resetState()
+                        return
+                    }
+
+                    self.parent.poseLabel = label
+                    let expectedPose = self.parent.selectedRoutine.poses[self.parent.currentPoseIndex].name
+
+                    if label.lowercased().contains("correct") && label.lowercased().contains(expectedPose.lowercased()) {
+
+                        self.parent.poseColor = .green
+
+                        if label == self.lastPoseLabel {
+                            self.holdFrameCount += 1
+
+                            if self.holdFrameCount >= 10 && !self.isPoseHeld {
+                                self.parent.repCount += 1
+                                self.isPoseHeld = true
+
+                                let newEntry = PoseLogEntry(
+                                    routine: self.parent.selectedRoutine.rawValue,
+                                    pose: label,
+                                    timestamp: Date(),
+                                    repsCompleted: self.parent.repCount
+                                )
+                                self.parent.logEntries.append(newEntry)
+                                self.parent.speechCoach.speak("Good job!")
+                                self.parent.onNewEntry(newEntry)
+                            }
+                        } else {
+                            self.resetHold()
+                        }
+                    } else {
+                        self.parent.poseColor = .red
+                        self.parent.onComboBroken()
+                        self.triggerVibration()
+                        self.resetHold()
+                    }
+
+                    self.lastPoseLabel = label
+                }
+            }
+        }
+
+        private func resetHold() {
+            holdFrameCount = 0
+            isPoseHeld = false
+        }
+
+        private func resetState() {
+            resetHold()
+            lastPoseLabel = ""
+        }
+
+        private func triggerVibration() {
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        }
     }
 }
 

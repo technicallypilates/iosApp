@@ -1,4 +1,4 @@
-// !$*UTF8*$!
+Ω≈// !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
@@ -7,34 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D2F8B402DAC2D8800268601 /* PoseClassifier.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */; };
-		1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */; };
-		1D544AB02DB199F80044A916 /* go.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AAE2DB199F80044A916 /* go.wav */; };
-		1D544AB12DB199F80044A916 /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AAF2DB199F80044A916 /* beep.wav */; };
-		1D544AB32DB19E570044A916 /* FireTrailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AB22DB19E570044A916 /* FireTrailView.swift */; };
-		1D544AB52DB19E800044A916 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AB42DB19E800044A916 /* ConfettiView.swift */; };
-		1D544AB72DB1A2940044A916 /* beep_countdown.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AB62DB1A2940044A916 /* beep_countdown.wav */; };
-		1D544AB92DB1A3340044A916 /* success_chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AB82DB1A3340044A916 /* success_chime.wav */; };
-		1D544ABB2DB1A3980044A916 /* combo_fire..wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544ABA2DB1A3980044A916 /* combo_fire..wav */; };
-		1D544ABD2DB1A4510044A916 /* achievement_unlock.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */; };
-		1D544ABF2DB1A9690044A916 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544ABE2DB1A9690044A916 /* SoundManager.swift */; };
-		1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AC02DB1AA0F0044A916 /* chime.wav */; };
-		1D544AC32DB1AE350044A916 /* ParticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AC22DB1AE350044A916 /* ParticleView.swift */; };
-		1D544AC52DB1B8850044A916 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AC42DB1B8850044A916 /* Models.swift */; };
-		1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */; };
-		1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */; };
+<<<<<<< HEAD
+		1D2F8AFF2DAAF2F100268601 /* PoseClassifier.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8AFE2DAAF2F100268601 /* PoseClassifier.mlpackage */; };
+=======
+>>>>>>> 5607d49 (Initial Commit)
+		1DB397612D8F540E001BA26F /* TechnicallyPilatesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */; };
 		1DB397632D8F540E001BA26F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397622D8F540E001BA26F /* ContentView.swift */; };
 		1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DB397642D8F5410001BA26F /* Assets.xcassets */; };
 		1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DB397672D8F5410001BA26F /* Preview Assets.xcassets */; };
 		1DB397722D8F5410001BA26F /* TechnicallyPilatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397712D8F5410001BA26F /* TechnicallyPilatesTests.swift */; };
+		1DB3977C2D8F5410001BA26F /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB3977B2D8F5410001BA26F /* TechnicallyPilatesUITests.swift */; };
+		1DB3977E2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB3977D2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift */; };
+<<<<<<< HEAD
 		1DB3978C2D8F55F7001BA26F /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978B2D8F55F7001BA26F /* CoreML.framework */; };
 		1DB3978E2D94A17C001BA26F /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978D2D94A17C001BA26F /* CoreML.framework */; };
 		1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978F2D94A18B001BA26F /* Vision.framework */; };
 		1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897D02DA304FE00FEF7E1 /* CameraView.swift */; };
 		1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */; };
-		1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */; };
-		1DF810EA2DB046A3008C5B49 /* PerformanceChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */; };
-		1DF810EC2DB0499A008C5B49 /* UserProfileManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */; };
+=======
+>>>>>>> 5607d49 (Initial Commit)
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,38 +46,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = PoseClassifier.mlpackage; sourceTree = "<group>"; };
-		1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesApp.swift; sourceTree = "<group>"; };
-		1D544AAE2DB199F80044A916 /* go.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = go.wav; sourceTree = "<group>"; };
-		1D544AAF2DB199F80044A916 /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
-		1D544AB22DB19E570044A916 /* FireTrailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireTrailView.swift; sourceTree = "<group>"; };
-		1D544AB42DB19E800044A916 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
-		1D544AB62DB1A2940044A916 /* beep_countdown.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep_countdown.wav; sourceTree = "<group>"; };
-		1D544AB82DB1A3340044A916 /* success_chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = success_chime.wav; sourceTree = "<group>"; };
-		1D544ABA2DB1A3980044A916 /* combo_fire..wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = combo_fire..wav; sourceTree = "<group>"; };
-		1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = achievement_unlock.wav; sourceTree = "<group>"; };
-		1D544ABE2DB1A9690044A916 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
-		1D544AC02DB1AA0F0044A916 /* chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = chime.wav; sourceTree = "<group>"; };
-		1D544AC22DB1AE350044A916 /* ParticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticleView.swift; sourceTree = "<group>"; };
-		1D544AC42DB1B8850044A916 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseLogView.swift; sourceTree = "<group>"; };
-		1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCoach.swift; sourceTree = "<group>"; };
+<<<<<<< HEAD
+		1D2F8AFE2DAAF2F100268601 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; name = PoseClassifier.mlpackage; path = ../../../PycharmProjects/TechnicallyPilates/PoseClassifier.mlpackage; sourceTree = "<group>"; };
+=======
+>>>>>>> 5607d49 (Initial Commit)
 		1DB3975D2D8F540E001BA26F /* TechnicallyPilates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TechnicallyPilates.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesApp.swift; sourceTree = "<group>"; };
 		1DB397622D8F540E001BA26F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1DB397642D8F5410001BA26F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1DB397672D8F5410001BA26F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1DB3976D2D8F5410001BA26F /* TechnicallyPilatesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TechnicallyPilatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DB397712D8F5410001BA26F /* TechnicallyPilatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesTests.swift; sourceTree = "<group>"; };
 		1DB397772D8F5410001BA26F /* TechnicallyPilatesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TechnicallyPilatesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DB3977B2D8F5410001BA26F /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
+		1DB3977D2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITestsLaunchTests.swift; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		1DB3978B2D8F55F7001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		1DB3978D2D94A17C001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/CoreML.framework; sourceTree = DEVELOPER_DIR; };
 		1DB3978F2D94A18B001BA26F /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		1DB897D72DA6E0A000FEF7E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseEstimator.swift; sourceTree = "<group>"; };
-		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
-		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceChartView.swift; sourceTree = "<group>"; };
-		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManagerView.swift; sourceTree = "<group>"; };
+=======
+>>>>>>> 5607d49 (Initial Commit)
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +76,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< HEAD
 				1DB3978C2D8F55F7001BA26F /* CoreML.framework in Frameworks */,
+=======
+>>>>>>> 5607d49 (Initial Commit)
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,8 +87,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< HEAD
 				1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */,
 				1DB3978E2D94A17C001BA26F /* CoreML.framework in Frameworks */,
+=======
+>>>>>>> 5607d49 (Initial Commit)
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,51 +105,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */ = {
-			isa = PBXGroup;
-			children = (
-				1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */,
-			);
-			path = TechnicallyPilatesUITests;
-			sourceTree = "<group>";
-		};
-		1D544AAD2DB199D70044A916 /* Sounds */ = {
-			isa = PBXGroup;
-			children = (
-				1D544AC02DB1AA0F0044A916 /* chime.wav */,
-				1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */,
-				1D544ABA2DB1A3980044A916 /* combo_fire..wav */,
-				1D544AB82DB1A3340044A916 /* success_chime.wav */,
-				1D544AB62DB1A2940044A916 /* beep_countdown.wav */,
-				1D544AAF2DB199F80044A916 /* beep.wav */,
-				1D544AAE2DB199F80044A916 /* go.wav */,
-			);
-			path = Sounds;
-			sourceTree = "<group>";
-		};
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
-				1D544AC42DB1B8850044A916 /* Models.swift */,
-				1D544AC22DB1AE350044A916 /* ParticleView.swift */,
-				1D544ABE2DB1A9690044A916 /* SoundManager.swift */,
-				1D544AB42DB19E800044A916 /* ConfettiView.swift */,
-				1D544AB22DB19E570044A916 /* FireTrailView.swift */,
-				1D544AAD2DB199D70044A916 /* Sounds */,
-				1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */,
-				1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */,
-				1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */,
-				1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */,
-				1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */,
-				1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */,
-				1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */,
+<<<<<<< HEAD
+				1D2F8AFE2DAAF2F100268601 /* PoseClassifier.mlpackage */,
 				1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */,
 				1DB897D72DA6E0A000FEF7E1 /* Info.plist */,
+				1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */,
 				1DB897D02DA304FE00FEF7E1 /* CameraView.swift */,
+=======
+>>>>>>> 5607d49 (Initial Commit)
 				1DB3975F2D8F540E001BA26F /* TechnicallyPilates */,
 				1DB397702D8F5410001BA26F /* TechnicallyPilatesTests */,
+				1DB3977A2D8F5410001BA26F /* TechnicallyPilatesUITests */,
 				1DB3975E2D8F540E001BA26F /* Products */,
+<<<<<<< HEAD
 				1DB3978A2D8F55F7001BA26F /* Frameworks */,
+=======
+>>>>>>> 5607d49 (Initial Commit)
 			);
 			sourceTree = "<group>";
 		};
@@ -178,6 +140,10 @@
 		1DB3975F2D8F540E001BA26F /* TechnicallyPilates */ = {
 			isa = PBXGroup;
 			children = (
+<<<<<<< HEAD
+=======
+				1DB397602D8F540E001BA26F /* TechnicallyPilatesApp.swift */,
+>>>>>>> 5607d49 (Initial Commit)
 				1DB397622D8F540E001BA26F /* ContentView.swift */,
 				1DB397642D8F5410001BA26F /* Assets.xcassets */,
 				1DB397662D8F5410001BA26F /* Preview Content */,
@@ -201,6 +167,16 @@
 			path = TechnicallyPilatesTests;
 			sourceTree = "<group>";
 		};
+		1DB3977A2D8F5410001BA26F /* TechnicallyPilatesUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1DB3977B2D8F5410001BA26F /* TechnicallyPilatesUITests.swift */,
+				1DB3977D2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift */,
+			);
+			path = TechnicallyPilatesUITests;
+			sourceTree = "<group>";
+		};
+<<<<<<< HEAD
 		1DB3978A2D8F55F7001BA26F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -211,6 +187,8 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+=======
+>>>>>>> 5607d49 (Initial Commit)
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -286,7 +264,6 @@
 					};
 					1DB397762D8F5410001BA26F = {
 						CreatedOnToolsVersion = 14.2;
-						LastSwiftMigration = 1420;
 						TestTargetID = 1DB3975C2D8F540E001BA26F;
 					};
 				};
@@ -316,15 +293,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */,
-				1D544AB12DB199F80044A916 /* beep.wav in Resources */,
-				1D544AB92DB1A3340044A916 /* success_chime.wav in Resources */,
-				1D544AB02DB199F80044A916 /* go.wav in Resources */,
 				1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */,
 				1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */,
-				1D544ABB2DB1A3980044A916 /* combo_fire..wav in Resources */,
-				1D544ABD2DB1A4510044A916 /* achievement_unlock.wav in Resources */,
-				1D544AB72DB1A2940044A916 /* beep_countdown.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,20 +319,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D544AB52DB19E800044A916 /* ConfettiView.swift in Sources */,
-				1D544AC32DB1AE350044A916 /* ParticleView.swift in Sources */,
+<<<<<<< HEAD
 				1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */,
-				1DF810EC2DB0499A008C5B49 /* UserProfileManagerView.swift in Sources */,
 				1DB397632D8F540E001BA26F /* ContentView.swift in Sources */,
 				1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */,
-				1D544ABF2DB1A9690044A916 /* SoundManager.swift in Sources */,
-				1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */,
-				1DF810EA2DB046A3008C5B49 /* PerformanceChartView.swift in Sources */,
-				1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */,
-				1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */,
-				1D2F8B402DAC2D8800268601 /* PoseClassifier.mlpackage in Sources */,
-				1D544AB32DB19E570044A916 /* FireTrailView.swift in Sources */,
-				1D544AC52DB1B8850044A916 /* Models.swift in Sources */,
+				1D2F8AFF2DAAF2F100268601 /* PoseClassifier.mlpackage in Sources */,
+=======
+				1DB397632D8F540E001BA26F /* ContentView.swift in Sources */,
+>>>>>>> 5607d49 (Initial Commit)
+				1DB397612D8F540E001BA26F /* TechnicallyPilatesApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,7 +343,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */,
+				1DB3977E2D8F5410001BA26F /* TechnicallyPilatesUITestsLaunchTests.swift in Sources */,
+				1DB3977C2D8F5410001BA26F /* TechnicallyPilatesUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,10 +486,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TechnicallyPilates/Preview Content\"";
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = 8LV65T7CC5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist;
+=======
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+>>>>>>> 5607d49 (Initial Commit)
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -550,10 +521,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TechnicallyPilates/Preview Content\"";
+<<<<<<< HEAD
 				DEVELOPMENT_TEAM = 8LV65T7CC5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist;
+=======
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+>>>>>>> 5607d49 (Initial Commit)
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -584,9 +560,6 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "driverkit iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -606,9 +579,6 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "driverkit iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -620,20 +590,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = TechnicallyPilates;
@@ -644,15 +607,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = TechnicallyPilates.TechnicallyPilatesUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

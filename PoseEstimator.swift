@@ -11,8 +11,11 @@ class PoseEstimator {
         self.classifier = try? PoseClassifier(configuration: MLModelConfiguration())
     }
 
-    func performPoseDetection(pixelBuffer: CVPixelBuffer, completion: @escaping ([VNHumanBodyPoseObservation], String?) -> Void) {
+    /// Detects body pose and returns both the VN observations and predicted label
+    func performPoseDetection(pixelBuffer: CVPixelBuffer,
+                              completion: @escaping ([VNHumanBodyPoseObservation], String?) -> Void) {
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:])
+        
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try handler.perform([self.request])
@@ -39,7 +42,6 @@ class PoseEstimator {
                     return
                 }
 
-                // 👇 Build MLMultiArray to match model input
                 let inputArray = try MLMultiArray(shape: [4], dataType: .double)
                 inputArray[0] = NSNumber(value: Double(leftHip))
                 inputArray[1] = NSNumber(value: Double(rightHip))
@@ -50,15 +52,19 @@ class PoseEstimator {
                 let prediction = try classifier.prediction(input: modelInput)
                 let label = prediction.classLabel
 
+                /// 🔁 Integrate repetition tracking and transitions here
+                /// e.g. update counter based on `label` or `angles`
+
                 completion(results, label)
 
             } catch {
-                print("Vision or ML error: \(error)")
+                print("⚠️ Vision or ML error: \(error.localizedDescription)")
                 completion([], nil)
             }
         }
     }
 
+    /// Extracts angles between joints for use in classification
     func computeAngles(from observation: VNHumanBodyPoseObservation) -> [String: CGFloat] {
         do {
             let points = try observation.recognizedPoints(.all)
@@ -71,14 +77,11 @@ class PoseEstimator {
             let leftShoulder = convert(points[.leftShoulder])
             let leftHip = convert(points[.leftHip])
             let leftKnee = convert(points[.leftKnee])
-
             let rightShoulder = convert(points[.rightShoulder])
             let rightHip = convert(points[.rightHip])
             let rightKnee = convert(points[.rightKnee])
-
             let leftElbow = convert(points[.leftElbow])
             let leftWrist = convert(points[.leftWrist])
-
             let rightElbow = convert(points[.rightElbow])
             let rightWrist = convert(points[.rightWrist])
 
@@ -108,6 +111,7 @@ class PoseEstimator {
         }
     }
 
+    /// Calculates angle at jointB formed by A-B-C
     private func angleBetween(jointA: CGPoint, jointB: CGPoint, jointC: CGPoint) -> CGFloat {
         let vector1 = CGVector(dx: jointA.x - jointB.x, dy: jointA.y - jointB.y)
         let vector2 = CGVector(dx: jointC.x - jointB.x, dy: jointC.y - jointB.y)
@@ -117,6 +121,7 @@ class PoseEstimator {
         let mag2 = sqrt(vector2.dx * vector2.dx + vector2.dy * vector2.dy)
 
         guard mag1 > 0, mag2 > 0 else { return 0 }
+
         let cosTheta = dot / (mag1 * mag2)
         let clamped = max(min(cosTheta, 1), -1)
         return acos(clamped) * 180 / .pi

@@ -1,235 +1,251 @@
 import SwiftUI
 import AVFoundation
+import Vision
+import UIKit
 
-// 💡 Routine + Pose definitions
-struct RoutinePose {
-    let name: String
-    let targetReps: Int
-}
-
-enum Routine: String, CaseIterable, Identifiable {
-    case standing = "Standing"
-    case core = "Core"
-    case stretching = "Stretching"
-
-    var id: String { rawValue }
-
-    var poses: [RoutinePose] {
-        switch self {
-        case .core:
-            return [RoutinePose(name: "Correct Core Pose", targetReps: 3)]
-        case .standing:
-            return [RoutinePose(name: "Correct Standing Pose", targetReps: 3)]
-        case .stretching:
-            return [RoutinePose(name: "Correct Stretch Pose", targetReps: 3)]
-        }
-    }
-}
-
-struct PoseLogEntry: Codable, Identifiable {
-    var id = UUID() // ✅ Made mutable
-    let routine: String
-    let pose: String
-    let timestamp: Date
-    let repsCompleted: Int
-}
+// Assume Models.swift is already part of the project and includes:
+// - UserProfile
+// - Routine
+// - Pose
+// - PoseLogEntry
+// - FireTrailView (also assumed to be moved into Models.swift if needed)
 
 struct ContentView: View {
-    @State private var poseLabel: String = "Waiting for pose..."
+    @State private var poseLabel: String = "Waiting..."
     @State private var poseColor: Color = .gray
-    @State private var countdown: Int = 3
-    @State private var repetitions: Int = 0
-    @State private var countdownFinished = false
-    @State private var holdFrames = 0
+    @State private var startDetection: Bool = false
+    @State private var repCount: Int = 0
+    @State private var logEntries: [PoseLogEntry] = []
 
     @State private var selectedRoutine: Routine = .standing
     @State private var currentPoseIndex: Int = 0
-    @State private var routineComplete = false
-    @State private var routineSelected = false
-    @State private var showingLog = false
 
-    @State private var progressLog: [PoseLogEntry] = [] {
-        didSet { saveProgressLog() }
-    }
+    @State private var userProfile = UserProfile(name: "User1")
 
-    let speechCoach = SpeechCoach()  // 🎧 Already defined in SpeechCoach.swift
+    @State private var pickerVisible = true
+    @State private var cameraTilt = false
+    @State private var cameraGlow = false
+
+    @State private var countdownActive = false
+    @State private var countdownNumber = 3
+
+    @State private var showComboBonus = false
+    @State private var currentStreak = 0
+
+    @State private var showAchievement = false
+    @State private var achievementText = ""
+
+    let beepPlayer = SoundPlayer()
 
     var body: some View {
-        ZStack {
-            if routineSelected {
-                if countdownFinished {
-                    CameraView(
-                        poseLabel: $poseLabel,
-                        poseColor: $poseColor,
-                        startDetection: $countdownFinished, // ✅ Binding fixed
-                        selectedRoutine: selectedRoutine
-                    )
-                    .edgesIgnoringSafeArea(.all)
-                    .onChange(of: poseLabel) { newValue in
-                        guard !routineComplete else { return }
-
-                        let currentPose = selectedRoutine.poses[currentPoseIndex]
-
-                        if newValue.lowercased().contains(currentPose.name.lowercased()) {
-                            if repetitions == 0 && holdFrames == 0 {
-                                speechCoach.speak("Start \(currentPose.name)")
-                            }
-
-                            holdFrames += 1
-                            if holdFrames == 10 {
-                                repetitions += 1
-                                holdFrames = 0
-                                AudioServicesPlaySystemSound(SystemSoundID(1013))
-
-                                if repetitions >= currentPose.targetReps {
-                                    progressLog.append(PoseLogEntry(
-                                        routine: selectedRoutine.rawValue,
-                                        pose: currentPose.name,
-                                        timestamp: Date(),
-                                        repsCompleted: currentPose.targetReps
-                                    ))
-
-                                    repetitions = 0
-                                    currentPoseIndex += 1
-
-                                    if currentPoseIndex >= selectedRoutine.poses.count {
-                                        routineComplete = true
-                                        speechCoach.speak("Routine complete. Great job!")
-                                    }
-                                }
-                            }
-                        } else {
-                            holdFrames = 0
-                        }
-                    }
-                } else {
-                    Color.black.edgesIgnoringSafeArea(.all)
-                }
-
-                VStack {
-                    if countdownFinished {
-                        HStack {
-                            Text("Reps: \(repetitions)")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading)
-                            Spacer()
-                        }
-
-                        Spacer()
-
-                        Text(poseLabel)
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(poseColor.opacity(0.8))
-                            .cornerRadius(12)
-                            .padding(.bottom, 10)
-
-                        if routineComplete {
-                            Text("✅ Routine Complete!")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.green)
-                                .padding()
-                        }
-
-                        Button("🔄 Restart Routine") {
-                            countdown = 3
-                            countdownFinished = false
-                            repetitions = 0
-                            currentPoseIndex = 0
-                            routineComplete = false
-                            routineSelected = false
-                            holdFrames = 0
-                        }
-                        .padding(.bottom)
-                    } else {
-                        Spacer()
-                        Text("\(countdown)")
-                            .font(.system(size: 80, weight: .bold))
-                            .foregroundColor(.white)
-                        Spacer()
-                    }
-                }
-            } else {
-                VStack {
-                    Text("🧘‍♀️ Select Your Routine")
-                        .font(.largeTitle)
-                        .padding()
-
+        VStack(spacing: 16) {
+            if pickerVisible {
+                VStack(spacing: 8) {
+                    Text("🎯 Choose Your Focus")
+                        .font(.headline)
                     Picker("Routine", selection: $selectedRoutine) {
-                        ForEach(Routine.allCases) { routine in
-                            Text(routine.rawValue).tag(routine)
+                        ForEach(userProfile.unlockedRoutines) { routine in
+                            Text(routine.displayName).tag(routine)
                         }
                     }
-                    .pickerStyle(.wheel)
+                    .pickerStyle(SegmentedPickerStyle())
                     .padding()
-
-                    Button("Start") {
-                        routineSelected = true
-                        startCountdown()
-                    }
-                    .font(.headline)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
+                    .background(Color.white.opacity(0.9))
                     .cornerRadius(10)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+                .padding(.top, 10)
+            }
 
-                    Button("📖 View Progress Log") {
-                        showingLog = true
+            ZStack {
+                CameraView(
+                    poseLabel: $poseLabel,
+                    poseColor: $poseColor,
+                    startDetection: $startDetection,
+                    repCount: $repCount,
+                    logEntries: $logEntries,
+                    selectedRoutine: selectedRoutine,
+                    currentPoseIndex: currentPoseIndex,
+                    onNewEntry: { entry in
+                        handleNewEntry(entry)
                     }
-                    .font(.subheadline)
-                    .padding(.top, 10)
+                )
+                .frame(height: 300)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(cameraGlow ? Color.blue.opacity(0.7) : Color.clear, lineWidth: 8)
+                        .blur(radius: 4)
+                        .animation(.easeInOut(duration: 0.5), value: cameraGlow)
+                )
+                .rotation3DEffect(.degrees(cameraTilt ? 10 : 0), axis: (x: 0.0, y: 1.0, z: 0.0))
+                .scaleEffect(cameraTilt ? 1.08 : 1.0)
+                .animation(.easeInOut(duration: 0.8), value: cameraTilt)
+
+                if showComboBonus {
+                    FireTrailView()
+                        .frame(width: 350, height: 350)
+                        .offset(y: -20)
+                }
+
+                if countdownActive {
+                    Text(countdownNumber > 0 ? "\(countdownNumber)" : "GO!")
+                        .font(.system(size: 72, weight: .bold))
+                        .foregroundColor(.red)
+                        .transition(.scale)
+                        .animation(.easeInOut, value: countdownNumber)
+                }
+
+                if showAchievement {
+                    VStack {
+                        Spacer()
+                        Text("🏆 \(achievementText)")
+                            .font(.title2)
+                            .padding()
+                            .background(Color.yellow.opacity(0.9))
+                            .cornerRadius(10)
+                            .shadow(radius: 10)
+                        Spacer()
+                    }
+                    .transition(.move(edge: .bottom))
+                }
+            }
+
+            VStack {
+                Text("Pose: \(poseLabel)").font(.title2).foregroundColor(poseColor)
+                Text("Reps: \(repCount)").font(.title3)
+            }
+
+            if !startDetection && !countdownActive {
+                Button("Start Detection") {
+                    beginCountdown()
                 }
                 .padding()
+                .background(Color.green.opacity(0.8))
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+
+            Button("Reset") {
+                resetSession()
+            }
+            .padding()
+            .background(Color.red.opacity(0.8))
+            .foregroundColor(.white)
+            .cornerRadius(8)
+
+            List(logEntries) { entry in
+                VStack(alignment: .leading) {
+                    Text("Pose: \(entry.pose)")
+                    Text("Reps: \(entry.repsCompleted)")
+                    Text("Time: \(entry.timestamp.formatted(.dateTime.hour().minute().second()))")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
+            .frame(maxHeight: 200)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("XP: \(userProfile.xp)")
+                Text("Level: \(userProfile.level)")
+                Text("🔥 Streak: \(userProfile.streakCount) days")
+                Text("🏅 Achievements: \(userProfile.unlockedAchievements.joined(separator: ", "))")
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(10)
+        }
+        .padding()
+    }
+
+    // MARK: - Logic
+
+    func beginCountdown() {
+        pickerVisible = false
+        countdownActive = true
+        countdownNumber = 3
+        countdownStep()
+    }
+
+    func countdownStep() {
+        if countdownNumber > 0 {
+            beepPlayer.playBeep()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                countdownNumber -= 1
+                countdownStep()
+            }
+        } else {
+            beepPlayer.playGo()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                countdownActive = false
+                startDetection = true
+                cameraTilt = true
+                cameraGlow = true
             }
         }
-        .onAppear { loadProgressLog() }
-        .sheet(isPresented: $showingLog) {
-            PoseLogView(logEntries: progressLog)
-        }
     }
 
-    func startCountdown() {
-        countdown = 3
-        countdownFinished = false
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            if countdown > 1 {
-                countdown -= 1
-            } else {
-                timer.invalidate()
-                countdownFinished = true
+    func handleNewEntry(_ entry: PoseLogEntry) {
+        userProfile.updateProgress(with: entry)
+
+        if entry.pose.lowercased().contains("correct") {
+            currentStreak += 1
+            if currentStreak >= 3 {
+                showComboBonus = true
+                cameraTilt = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showComboBonus = false
+                }
+            }
+        } else {
+            currentStreak = 0
+            cameraTilt = false
+        }
+
+        if let newUnlock = userProfile.unlockedAchievements.last {
+            achievementText = newUnlock
+            showAchievement = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showAchievement = false
             }
         }
     }
 
-    func saveProgressLog() {
-        do {
-            let url = getLogFileURL()
-            let data = try JSONEncoder().encode(progressLog)
-            try data.write(to: url)
-        } catch {
-            print("⚠️ Failed to save progress log: \(error)")
-        }
-    }
-
-    func loadProgressLog() {
-        do {
-            let url = getLogFileURL()
-            let data = try Data(contentsOf: url)
-            let decoded = try JSONDecoder().decode([PoseLogEntry].self, from: data)
-            progressLog = decoded
-        } catch {
-            print("⚠️ No existing log found or failed to decode: \(error)")
-        }
-    }
-
-    func getLogFileURL() -> URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("PoseLog.json")
+    func resetSession() {
+        startDetection = false
+        repCount = 0
+        poseLabel = "Waiting..."
+        poseColor = .gray
+        logEntries.removeAll()
+        pickerVisible = true
+        cameraTilt = false
+        cameraGlow = false
+        showComboBonus = false
+        currentStreak = 0
     }
 }
 
+// MARK: - Sound Effects
+
+class SoundPlayer {
+    var beepSound: AVAudioPlayer?
+    var goSound: AVAudioPlayer?
+
+    init() {
+        if let beep = Bundle.main.url(forResource: "beep", withExtension: "wav") {
+            beepSound = try? AVAudioPlayer(contentsOf: beep)
+        }
+        if let go = Bundle.main.url(forResource: "go", withExtension: "wav") {
+            goSound = try? AVAudioPlayer(contentsOf: go)
+        }
+    }
+
+    func playBeep() {
+        beepSound?.play()
+    }
+
+    func playGo() {
+        goSound?.play()
+    }
+}
 
