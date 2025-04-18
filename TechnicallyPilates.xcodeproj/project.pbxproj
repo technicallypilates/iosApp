@@ -85,6 +85,7 @@
 		1DB897D72DA6E0A000FEF7E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseEstimator.swift; sourceTree = "<group>"; };
 		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
+		1DF63DCA2DB2EFF500ADD4CD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceChartView.swift; sourceTree = "<group>"; };
 		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManagerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -142,6 +143,7 @@
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
+				1DF63DCA2DB2EFF500ADD4CD /* README.md */,
 				1D544AC42DB1B8850044A916 /* Models.swift */,
 				1D544AC22DB1AE350044A916 /* ParticleView.swift */,
 				1D544ABE2DB1A9690044A916 /* SoundManager.swift */,
