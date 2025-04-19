@@ -163,11 +163,13 @@ This is a lightweight, fast, real-time classifier judging if a user’s pose is 
 ```mermaid
 flowchart LR
     A[Camera Feed] --> B[Pose Detection]
-    B --> C[Feature Extraction (Angles, etc.)]
+    B --> C[Feature Extraction \[Angles, etc.\]]
     C --> D[PoseClassifier.mlpackage]
-    D --> E[Is Pose Correct?]
+    D --> E{Is Pose Correct?}
     E -->|Yes| F[Positive Feedback + Count Rep]
     E -->|No| G[Error Feedback + Encourage Adjustment]
     F & G --> H[Update XP, Streaks, Achievements]
     H --> I[Display Feedback to User]
+```
+
 
