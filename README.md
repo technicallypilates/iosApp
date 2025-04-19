@@ -160,16 +160,40 @@ This is a lightweight, fast, real-time classifier judging if a user’s pose is 
 
 ## 🛠️ Part 3: System Flowchart
 
+
 ```mermaid
-flowchart LR
-    A[Camera Feed] --> B[Pose Detection]
-    B --> C[Feature Extraction \[Angles, etc.\]]
-    C --> D[PoseClassifier.mlpackage]
-    D --> E{Is Pose Correct?}
-    E -->|Yes| F[Positive Feedback + Count Rep]
-    E -->|No| G[Error Feedback + Encourage Adjustment]
-    F & G --> H[Update XP, Streaks, Achievements]
-    H --> I[Display Feedback to User]
+flowchart TD
+    A([App Launch 🚀]) --> B(Choose Routine 📋)
+    B --> C(Start Detection ▶️)
+    C --> D{Countdown ⏳}
+    D --> E(3... Beep 🔊)
+    E --> F(2... Beep 🔊)
+    F --> G(1... Beep 🔊)
+    G --> H(GO! 🔔)
+
+    H --> I(Camera Detection Active 🎥)
+    I --> J{Pose Detected? 🤔}
+
+    J -- Yes --> K{Correct Pose? ✅❌}
+    K -- Yes --> L[+1 Rep 🏋️‍♂️ Flash Effect ✨]
+    K -- No --> M[Error Vibration 🔴]
+
+    L --> N{Combo Streak? 🔥}
+    N -- Yes --> O[Fire Trail Animation 🚀🔥]
+    O --> P(Show "Combo Bonus!" 🎉)
+    N -- No --> I
+
+    P --> I
+
+    M --> I
+
+    L --> Q{10 Reps Completed? 🏆}
+    Q -- Yes --> R(Medal Popup 🥇 + Achievement Unlocked 🎖️)
+    Q -- No --> I
+
+    R --> S(Reset / New Routine 🔄)
+    S --> B
+
 ```
 
 
