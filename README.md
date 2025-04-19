@@ -103,7 +103,7 @@ $$
 \text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}
 $$
 
-Where \( z_i \) are the raw outputs (logits) of the final dense layer.
+Where $$\( z_i \)$$ are the raw outputs (logits) of the final dense layer.
 
 
 **Output:**
