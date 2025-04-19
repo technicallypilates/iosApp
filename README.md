@@ -193,6 +193,10 @@ flowchart TD
 
     R --> S([Reset / New Routine] 🔄)
     S --> B
+```
 
+## 🧠 App Flow
 
+Here’s a visual flow of the user experience:
 
+![Flowchart](FLOWCHART.png)
