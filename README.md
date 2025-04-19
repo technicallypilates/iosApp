@@ -92,3 +92,45 @@ To get the best experience, please follow these guidelines when setting up your 
 # ✅ Done? 
 - Celebrate with a perfect combo streak 🔥🏆
 
+---
+
+# 📈 Part 1: Full Mechanics + Mathematics of PoseClassifier.mlpackage
+
+- **Input**: 4 joint angles: `leftHipAngle`, `rightHipAngle`, `leftElbowAngle`, `rightElbowAngle`
+- **Process**: These angles are normalized and fed into a lightweight multi-class classifier.
+- **Output**: A predicted pose label, such as `"Correct Standing Pose"` or `"Incorrect Form"`.
+- **Mathematical Basis**:
+  - Angles are computed using dot products and arccosine functions.
+  - The model uses simple supervised classification (likely a lightweight neural network or decision tree).
+  - Softmax activation produces the confidence score over pose classes.
+
+---
+
+# 🛠️ Part 2: Next Steps to Improve PoseClassifier.mlpackage
+
+- Collect more diverse training data (different body types, lighting conditions).
+- Expand input features (include more joints like knees, shoulders, etc.).
+- Use time-series smoothing (track poses over multiple frames, not just frame-by-frame).
+- Integrate a confidence threshold (only count reps if >90% confidence).
+- Add more pose variations (levels of difficulty, partial poses).
+- Potentially upgrade to a more complex sequence model like an LSTM or Transformer-lite if necessary.
+
+---
+
+# 🔄 Part 3: Full Flowchart of Pose Detection
+
+```plaintext
+Camera Feed
+    ↓
+Pose Detection (Vision Framework)
+    ↓
+Feature Extraction (Joint Angles Calculation)
+    ↓
+PoseClassifier.mlpackage
+    ↓
+Predicted Pose Label
+    ↓
+Feedback (Color / Sound / Animation)
+    ↓
+Display to User (UI updated)
+
