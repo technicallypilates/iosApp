@@ -117,37 +117,24 @@ Where \( z_i \) are the raw outputs (logits) of the final dense layer.
 
 ---
 
-## Mathematics Flow
+## 🧠 Mathematics Flow
 
 At prediction time:
 
-Input:
+**Input:**  
+Vector **x** ∈ ℝ⁶
 
-\[
-\vec{x} \in \mathbb{R}^6
-\]
+**First Dense Layer:**  
+h₁ = ReLU(x × W₁ + b₁), where W₁ ∈ ℝ⁶ˣ¹⁶
 
-First Dense Layer:
+**Second Dense Layer:**  
+h₂ = ReLU(h₁ × W₂ + b₂), where W₂ ∈ ℝ¹⁶ˣ⁸
 
-\[
-\vec{h}_1 = \text{ReLU}(\vec{x} W_1 + b_1), \quad W_1 \in \mathbb{R}^{6 \times 16}
-\]
+**Third Dense Layer:**  
+h₃ = Softmax(h₂ × W₃ + b₃), where W₃ ∈ ℝ⁸ˣ²
 
-Second Dense Layer:
-
-\[
-\vec{h}_2 = \text{ReLU}(\vec{h}_1 W_2 + b_2), \quad W_2 \in \mathbb{R}^{16 \times 8}
-\]
-
-Third Dense Layer:
-
-\[
-\vec{h}_3 = \text{Softmax}(\vec{h}_2 W_3 + b_3), \quad W_3 \in \mathbb{R}^{8 \times 2}
-\]
-
-Output:
-
-- Two numbers (probabilities) summing to 1 → representing "Incorrect" and "Correct".
+**Output:**  
+Two numbers (probabilities) summing to 1 → representing "Incorrect" and "Correct".
 
 ---
 
@@ -171,14 +158,14 @@ This is a lightweight, fast, real-time classifier judging if a user’s pose is 
 
 ---
 
-# 🛠 Part 3: System Flowchart
+## 🛠️ Part 3: System Flowchart
 
 ```mermaid
 flowchart LR
     A[Camera Feed] --> B[Pose Detection]
     B --> C[Feature Extraction (Angles, etc.)]
     C --> D[PoseClassifier.mlpackage]
-    D --> E{Is Pose Correct?}
+    D --> E[Is Pose Correct?]
     E -->|Yes| F[Positive Feedback + Count Rep]
     E -->|No| G[Error Feedback + Encourage Adjustment]
     F & G --> H[Update XP, Streaks, Achievements]
