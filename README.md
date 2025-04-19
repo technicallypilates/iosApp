@@ -67,8 +67,6 @@
 
 To get the best experience, please follow these guidelines when setting up your device:
 
-## 📋 Instructions
-
 |   |   |
 |---|---|
 | 📏 **Distance** | Place your phone about 2-3 meters (6-10 feet) away from you. |
@@ -81,56 +79,108 @@ To get the best experience, please follow these guidelines when setting up your 
 
 ---
 
-# 🚀 Notes for the Day
-- If UI freezes, check for animation conflicts
-- If sounds don't play, ensure AVFoundation permissions
-- If streak/XP not updating, debug pose rep counting
-- Remember: Every rep triggers XP, every level unlocks routines!
+# 📚 Part 1: Full Mechanics + Mathematics of PoseClassifier.mlpackage
+
+Your `PoseClassifier.mlpackage` (originally trained via `ml_model.py`) works as follows:
+
+## Mechanics
+
+**Input:**  
+- 6 pose features (likely key joint angles, such as hips, elbows, etc.)  
+Example input: `[45.3, 120.5, 90.0, 135.0, 80.0, 110.0]`
+
+**Neural Network Architecture:**
+- **Dense Layer 1:** 16 neurons, **ReLU** activation  
+- **Dense Layer 2:** 8 neurons, **ReLU** activation  
+- **Dense Layer 3:** 2 neurons, **Softmax** activation
+
+Softmax function:
+
+\[
+\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}
+\]
+
+Where \( z_i \) are the raw outputs (logits) of the final dense layer.
+
+**Output:**
+- Two probabilities:
+  - Class 0 → Incorrect Pose
+  - Class 1 → Correct Pose
+
+**Prediction Decision:**
+- `np.argmax(prediction)` → Picks the class (0 or 1) with the highest probability.
+
+**Feedback Output:**
+- If Class 1 (correct): `"Good pose!"`
+- If Class 0 (incorrect): `"Adjust posture."`
+- Confidence score = maximum probability.
 
 ---
 
-# ✅ Done? 
-- Celebrate with a perfect combo streak 🔥🏆
+## Mathematics Flow
+
+At prediction time:
+
+Input:
+
+\[
+\vec{x} \in \mathbb{R}^6
+\]
+
+First Dense Layer:
+
+\[
+\vec{h}_1 = \text{ReLU}(\vec{x} W_1 + b_1), \quad W_1 \in \mathbb{R}^{6 \times 16}
+\]
+
+Second Dense Layer:
+
+\[
+\vec{h}_2 = \text{ReLU}(\vec{h}_1 W_2 + b_2), \quad W_2 \in \mathbb{R}^{16 \times 8}
+\]
+
+Third Dense Layer:
+
+\[
+\vec{h}_3 = \text{Softmax}(\vec{h}_2 W_3 + b_3), \quad W_3 \in \mathbb{R}^{8 \times 2}
+\]
+
+Output:
+
+- Two numbers (probabilities) summing to 1 → representing "Incorrect" and "Correct".
 
 ---
 
-# 📈 Part 1: Full Mechanics + Mathematics of PoseClassifier.mlpackage
-
-- **Input**: 4 joint angles: `leftHipAngle`, `rightHipAngle`, `leftElbowAngle`, `rightElbowAngle`
-- **Process**: These angles are normalized and fed into a lightweight multi-class classifier.
-- **Output**: A predicted pose label, such as `"Correct Standing Pose"` or `"Incorrect Form"`.
-- **Mathematical Basis**:
-  - Angles are computed using dot products and arccosine functions.
-  - The model uses simple supervised classification (likely a lightweight neural network or decision tree).
-  - Softmax activation produces the confidence score over pose classes.
+✅ **Summary:**  
+This is a lightweight, fast, real-time classifier judging if a user’s pose is "good" or "needs adjustment" based on 6 input pose features.
 
 ---
 
-# 🛠️ Part 2: Next Steps to Improve PoseClassifier.mlpackage
+# 🚀 Part 2: Next Steps to Improve PoseClassifier.mlpackage
 
-- Collect more diverse training data (different body types, lighting conditions).
-- Expand input features (include more joints like knees, shoulders, etc.).
-- Use time-series smoothing (track poses over multiple frames, not just frame-by-frame).
-- Integrate a confidence threshold (only count reps if >90% confidence).
-- Add more pose variations (levels of difficulty, partial poses).
-- Potentially upgrade to a more complex sequence model like an LSTM or Transformer-lite if necessary.
+| Step | Feature | Why? | How? |
+|---|---|---|---|
+| 1 | Add more input features | 6 angles is okay, but adding joint velocities or more joints boosts accuracy. | Capture frame-to-frame deltas (Δθ/Δt). |
+| 2 | Multi-class Output | Instead of binary good/bad, classify specific mistakes ("Knee too low", etc.). | Train with 4-6 labeled error categories. |
+| 3 | Pose Difficulty Levels | Some poses are harder — make feedback adaptable to difficulty. | Add difficulty labels during training. |
+| 4 | Model Size Optimization | Shrink model size for faster CoreML execution. | Use TensorFlow Model Optimization Toolkit (tfmot). |
+| 5 | Confidence Calibration | Softmax may be overconfident; calibrate probabilities. | Apply temperature scaling after training. |
+| 6 | Train with Real User Data | Fine-tuning on real users massively boosts model quality. | Log anonymized real user pose data and retrain. |
+| 7 | Add Time-Series Context | Single frame analysis misses motion stability. | Add 1D CNN or RNN over short frame sequences. |
+| 8 | Train Pose Correction Recommender | Predict not just "wrong" but "how to fix." | Output a correction vector with the prediction. |
 
 ---
 
-# 🔄 Part 3: Full Flowchart of Pose Detection
+# 🛠 Part 3: System Flowchart
 
-```plaintext
-Camera Feed
-    ↓
-Pose Detection (Vision Framework)
-    ↓
-Feature Extraction (Joint Angles Calculation)
-    ↓
-PoseClassifier.mlpackage
-    ↓
-Predicted Pose Label
-    ↓
-Feedback (Color / Sound / Animation)
-    ↓
-Display to User (UI updated)
+```mermaid
+flowchart LR
+    A[Camera Feed] --> B[Pose Detection]
+    B --> C[Feature Extraction (Angles, etc.)]
+    C --> D[PoseClassifier.mlpackage]
+    D --> E{Is Pose Correct?}
+    E -->|Yes| F[Positive Feedback + Count Rep]
+    E -->|No| G[Error Feedback + Encourage Adjustment]
+    F & G --> H[Update XP, Streaks, Achievements]
+    H --> I[Display Feedback to User]
 
