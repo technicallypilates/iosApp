@@ -94,13 +94,17 @@ Example input: `[45.3, 120.5, 90.0, 135.0, 80.0, 110.0]`
 - **Dense Layer 2:** 8 neurons, **ReLU** activation  
 - **Dense Layer 3:** 2 neurons, **Softmax** activation
 
-Softmax function:
 
-\[
+**Softmax Function:**
+
+The softmax function is defined as:
+
+$$
 \text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}
-\]
+$$
 
 Where \( z_i \) are the raw outputs (logits) of the final dense layer.
+
 
 **Output:**
 - Two probabilities:
