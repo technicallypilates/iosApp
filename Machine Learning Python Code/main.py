@@ -38,7 +38,7 @@ def log_pose_data(angles, prediction):
     if isinstance(angles, np.ndarray):
         angles = angles.tolist()  # Convert NumPy array to a list
 
-    with open("pose_data.csv", mode="a", newline="") as file:
+    with open("pose_data_clean.csv", mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(angles + [str(prediction)])  # Ensure prediction is a string
 
