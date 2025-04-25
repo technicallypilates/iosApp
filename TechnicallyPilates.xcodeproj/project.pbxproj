@@ -32,6 +32,7 @@
 		1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978F2D94A18B001BA26F /* Vision.framework */; };
 		1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897D02DA304FE00FEF7E1 /* CameraView.swift */; };
 		1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */; };
+		1DE0FFA22DB3D72B00B03E38 /* FLOWCHART.png in Resources */ = {isa = PBXBuildFile; fileRef = 1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */; };
 		1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */; };
 		1DF810EA2DB046A3008C5B49 /* PerformanceChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */; };
 		1DF810EC2DB0499A008C5B49 /* UserProfileManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */; };
@@ -84,7 +85,9 @@
 		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		1DB897D72DA6E0A000FEF7E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseEstimator.swift; sourceTree = "<group>"; };
+		1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FLOWCHART.png; sourceTree = "<group>"; };
 		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
+		1DF63DCA2DB2EFF500ADD4CD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceChartView.swift; sourceTree = "<group>"; };
 		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManagerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -142,6 +145,8 @@
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
+				1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */,
+				1DF63DCA2DB2EFF500ADD4CD /* README.md */,
 				1D544AC42DB1B8850044A916 /* Models.swift */,
 				1D544AC22DB1AE350044A916 /* ParticleView.swift */,
 				1D544ABE2DB1A9690044A916 /* SoundManager.swift */,
@@ -316,6 +321,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1DE0FFA22DB3D72B00B03E38 /* FLOWCHART.png in Resources */,
 				1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */,
 				1D544AB12DB199F80044A916 /* beep.wav in Resources */,
 				1D544AB92DB1A3340044A916 /* success_chime.wav in Resources */,
