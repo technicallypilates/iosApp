@@ -86,7 +86,14 @@ Your `PoseClassifier.mlpackage` (originally trained via `ml_model.py`) works as 
 ## Mechanics
 
 **Input:**  
-- 6 pose features (likely key joint angles, such as hips, elbows, etc.)  
+- 6 pose features (measured joint angles):
+  - `leftHipAngle`
+  - `rightHipAngle`
+  - `leftElbowAngle`
+  - `rightElbowAngle`
+  - `leftKneeAngle`
+  - `rightKneeAngle`
+
 Example input: `[45.3, 120.5, 90.0, 135.0, 80.0, 110.0]`
 
 **Neural Network Architecture:**
