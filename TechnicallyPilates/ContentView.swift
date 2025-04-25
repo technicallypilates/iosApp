@@ -1,3 +1,4 @@
+// Your imports stay unchanged
 import SwiftUI
 import AVFoundation
 import Vision
@@ -94,14 +95,20 @@ struct ContentView: View {
                 }
 
                 if showSpinner {
-                    ProgressView("Camera Starting...")
-                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                        .scaleEffect(1.5)
-                        .padding()
-                        .background(Color.white.opacity(0.8))
-                        .cornerRadius(12)
-                        .transition(.opacity)
+                    VStack {
+                        ProgressView("Camera Starting...")
+                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                            .scaleEffect(1.5)
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(12)
+                    .shadow(radius: 8)
+                    .transition(.opacity)
                 }
+
 
                 if showAchievement {
                     VStack {
@@ -127,7 +134,9 @@ struct ContentView: View {
             }
 
             VStack {
-                Text("Pose: \(poseLabel)").font(.title2).foregroundColor(poseColor)
+                if poseLabel != "Waiting..." {
+                    Text("Pose: \(poseLabel)").font(.title2).foregroundColor(poseColor)
+                }
                 Text("Reps: \(repCount)").font(.title3)
             }
 
@@ -282,3 +291,4 @@ class SoundPlayer {
         goSound?.play()
     }
 }
+
