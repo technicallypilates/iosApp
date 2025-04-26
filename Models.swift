@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct Pose: Codable {
+struct Pose: Codable, Equatable {
     var name: String
 }
 
@@ -14,24 +14,30 @@ struct PoseLogEntry: Codable, Identifiable {
     var repsCompleted: Int
 }
 
-enum Routine: String, Codable, CaseIterable, Identifiable {
-    case standing, core, armsBack, stretch, legsGlutes
-
-    var id: String { rawValue }
+struct Routine: Codable, Identifiable, Equatable, Hashable {
+    var id = UUID()
+    var name: String
+    var poses: [Pose]
 
     var displayName: String {
-        switch self {
-        case .standing: return "Standing"
-        case .core: return "Core"
-        case .armsBack: return "Arms & Back"
-        case .stretch: return "Stretch"
-        case .legsGlutes: return "Legs & Glutes"
-        }
+        return name
     }
 
-    var poses: [Pose] {
-        [Pose(name: "Pose 1"), Pose(name: "Pose 2")]
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
+
+    static func == (lhs: Routine, rhs: Routine) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    static let standing = Routine(name: "Standing", poses: [Pose(name: "Pose 1"), Pose(name: "Pose 2")])
+    static let core = Routine(name: "Core", poses: [Pose(name: "Pose 1"), Pose(name: "Pose 2")])
+    static let armsBack = Routine(name: "Arms & Back", poses: [Pose(name: "Pose 1"), Pose(name: "Pose 2")])
+    static let stretch = Routine(name: "Stretch", poses: [Pose(name: "Pose 1"), Pose(name: "Pose 2")])
+    static let legsGlutes = Routine(name: "Legs & Glutes", poses: [Pose(name: "Pose 1"), Pose(name: "Pose 2")])
+
+    static let all: [Routine] = [.standing, .core, .armsBack, .stretch, .legsGlutes]
 }
 
 struct UserProfile: Identifiable, Codable, Equatable {
@@ -42,7 +48,7 @@ struct UserProfile: Identifiable, Codable, Equatable {
     var streakCount: Int = 0
     var lastActiveDate: Date? = nil
     var unlockedAchievements: [String] = []
-    var unlockedRoutines: [Routine] = [.standing]
+    var unlockedRoutines: [Routine] = [Routine.standing]
 
     mutating func updateProgress(with newEntry: PoseLogEntry) {
         xp += 10
@@ -73,7 +79,7 @@ struct UserProfile: Identifiable, Codable, Equatable {
             unlockedAchievements.append("Level Up")
         }
 
-        if level >= 2, !unlockedRoutines.contains(.core) {
+        if level >= 2, !unlockedRoutines.contains(Routine.core) {
             unlockedRoutines.append(.core)
         }
         if level >= 3, !unlockedRoutines.contains(.stretch) {
@@ -87,4 +93,5 @@ struct UserProfile: Identifiable, Codable, Equatable {
         }
     }
 }
+
 

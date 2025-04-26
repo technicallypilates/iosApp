@@ -1,4 +1,3 @@
-// Your imports stay unchanged
 import SwiftUI
 import AVFoundation
 import Vision
@@ -41,8 +40,8 @@ struct ContentView: View {
                     Text("🎯 Choose Your Focus")
                         .font(.headline)
                     Picker("Routine", selection: $selectedRoutine) {
-                        ForEach(userProfile.unlockedRoutines, id: \.id) { routine in
-                            Text(routine.name).tag(routine)
+                        ForEach(userProfile.unlockedRoutines) { routine in
+                            Text(routine.displayName).tag(routine)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -95,20 +94,14 @@ struct ContentView: View {
                 }
 
                 if showSpinner {
-                    VStack {
-                        ProgressView("Camera Starting...")
-                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                            .scaleEffect(1.5)
-                            .padding()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.white.opacity(0.9))
-                    .cornerRadius(12)
-                    .shadow(radius: 8)
-                    .transition(.opacity)
+                    ProgressView("Camera Starting...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                        .scaleEffect(1.5)
+                        .padding()
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(12)
+                        .transition(.opacity)
                 }
-
 
                 if showAchievement {
                     VStack {
@@ -134,9 +127,7 @@ struct ContentView: View {
             }
 
             VStack {
-                if poseLabel != "Waiting..." {
-                    Text("Pose: \(poseLabel)").font(.title2).foregroundColor(poseColor)
-                }
+                Text("Pose: \(poseLabel)").font(.title2).foregroundColor(poseColor)
                 Text("Reps: \(repCount)").font(.title3)
             }
 
@@ -291,5 +282,4 @@ class SoundPlayer {
         goSound?.play()
     }
 }
-
 

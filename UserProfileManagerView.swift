@@ -71,7 +71,7 @@ struct UserProfileManagerView: View {
                                     }
 
                                     if profile.unlockedRoutines.count > 1 {
-                                        Text("📖 Routines Unlocked: \(profile.unlockedRoutines.map { $0.displayName }.joined(separator: ", "))")
+                                        Text("📖 Routines Unlocked: \(profile.unlockedRoutines.map { $0.name }.joined(separator: ", "))")
                                             .font(.caption2)
                                             .foregroundColor(.green)
                                     }
@@ -134,4 +134,5 @@ struct UserProfileManagerView: View {
             .appendingPathComponent("UserLogs.json")
     }
 }
+
 

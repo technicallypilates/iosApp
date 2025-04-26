@@ -19,6 +19,7 @@ struct CameraView: View {
     @State private var comboTitle = ""
     @State private var showMedal = false
     @State private var sparkleAnimation = false
+    @State private var cameraPermissionStatus: AVAuthorizationStatus = .notDetermined
 
     var body: some View {
         ZStack {
@@ -26,94 +27,117 @@ struct CameraView: View {
             // Show nothing on simulator
             Color.clear
             #else
-            CameraPreviewView(
-                poseLabel: $poseLabel,
-                poseColor: $poseColor,
-                startDetection: $startDetection,
-                repCount: $repCount,
-                logEntries: $logEntries,
-                selectedRoutine: selectedRoutine,
-                currentPoseIndex: currentPoseIndex,
-                onNewEntry: { entry in
-                    onNewEntry(entry)
-                    handleComboSuccess()
-                },
-                onComboBroken: handleComboBreak
-            )
-            #endif
-
-            VStack {
-                Spacer()
-
-                // Removed Pose & Reps overlay (was redundant with ContentView)
-
-                if showComboText {
-                    Text(comboTitle)
-                        .font(.largeTitle.bold())
-                        .foregroundColor(.yellow)
-                        .padding()
-                        .background(Color.black.opacity(0.7))
-                        .cornerRadius(12)
-                        .transition(.scale)
-                        .padding(.top)
+            if cameraPermissionStatus == .authorized {
+                CameraPreviewView(
+                    poseLabel: $poseLabel,
+                    poseColor: $poseColor,
+                    startDetection: $startDetection,
+                    repCount: $repCount,
+                    logEntries: $logEntries,
+                    selectedRoutine: selectedRoutine,
+                    currentPoseIndex: currentPoseIndex,
+                    onNewEntry: { entry in
+                        onNewEntry(entry)
+                        handleComboSuccess()
+                    },
+                    onComboBroken: handleComboBreak
+                )
+            } else {
+                CameraPermissionView(status: cameraPermissionStatus) {
+                    requestCameraPermission()
                 }
-
-                if showMedal {
-                    Image(systemName: "medal.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .foregroundColor(.yellow)
-                        .transition(.scale)
-                        .padding(.top)
-                }
-
-                Spacer()
             }
+            #endif
         }
         .onAppear {
-            sparkleAnimation = true
+            checkCameraPermission()
+        }
+    }
+
+    private func checkCameraPermission() {
+        cameraPermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    }
+
+    private func requestCameraPermission() {
+        AVCaptureDevice.requestAccess(for: .video) { granted in
+            DispatchQueue.main.async {
+                cameraPermissionStatus = granted ? .authorized : .denied
+            }
         }
     }
 
     private func handleComboSuccess() {
         comboCount += 1
+        showComboText = true
+        comboTitle = "Combo x\(comboCount)!"
+        showMedal = true
+        sparkleAnimation = true
 
-        if comboCount % 5 == 0 {
-            comboTitle = titleForCombo(comboCount)
-            showComboText = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                showComboText = false
-            }
-            playChimeSound()
-        }
-
-        if comboCount % 10 == 0 {
-            showMedal = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                showMedal = false
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showComboText = false
+            showMedal = false
+            sparkleAnimation = false
         }
     }
 
     private func handleComboBreak() {
-        if comboCount > 0 {
-            AudioServicesPlaySystemSound(1104)
-        }
         comboCount = 0
-    }
+        showComboText = true
+        comboTitle = "Combo Broken!"
+        showMedal = false
 
-    private func titleForCombo(_ count: Int) -> String {
-        switch count {
-        case 5: return "Nice Streak! 🌟"
-        case 10: return "On Fire! 🔥"
-        case 20: return "Unstoppable!! 🚀"
-        default: return "Combo x\(count)!"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showComboText = false
         }
-    }
-
-    private func playChimeSound() {
-        AudioServicesPlaySystemSound(1025)
     }
 }
+
+struct CameraPermissionView: View {
+    let status: AVAuthorizationStatus
+    let onRequestPermission: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+
+            Text(status == .denied ? "Camera Access Denied" : "Camera Access Required")
+                .font(.title2)
+                .fontWeight(.bold)
+
+            Text(status == .denied ?
+                 "Please enable camera access in Settings to use pose detection" :
+                 "We need camera access to monitor your Pilates poses")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.gray)
+
+            if status == .denied {
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            } else {
+                Button("Allow Camera Access") {
+                    onRequestPermission()
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.9))
+        .cornerRadius(20)
+        .shadow(radius: 10)
+    }
+}
+
+
 
