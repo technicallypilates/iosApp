@@ -42,6 +42,23 @@ struct CameraView: View {
                     },
                     onComboBroken: handleComboBreak
                 )
+                .overlay(
+                    Group {
+                        if showComboText {
+                            Text(comboTitle)
+                                .font(.title)
+                                .foregroundColor(comboCount > 0 ? .green : .red)
+                                .transition(.scale)
+                        }
+                        if showMedal {
+                            Image(systemName: "medal.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.yellow)
+                                .scaleEffect(sparkleAnimation ? 1.2 : 1.0)
+                                .animation(.easeInOut(duration: 0.5), value: sparkleAnimation)
+                        }
+                    }
+                )
             } else {
                 CameraPermissionView(status: cameraPermissionStatus) {
                     requestCameraPermission()

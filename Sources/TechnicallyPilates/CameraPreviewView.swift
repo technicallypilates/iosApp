@@ -29,6 +29,9 @@ struct CameraPreviewView: UIViewRepresentable {
         // Store the pose estimator in the coordinator
         context.coordinator.poseEstimator = poseEstimator
         
+        // Set up the preview layer
+        view.session = poseEstimator.captureSession
+        
         // Start the camera session
         poseEstimator.startSession()
         
@@ -64,6 +67,20 @@ class PreviewView: UIView {
 
     var videoPreviewLayer: AVCaptureVideoPreviewLayer {
         return layer as! AVCaptureVideoPreviewLayer
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupLayer()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupLayer()
+    }
+
+    private func setupLayer() {
+        videoPreviewLayer.videoGravity = .resizeAspectFill
     }
 }
 

@@ -12,7 +12,7 @@ struct ContentView: View {
         xp: 0,
         level: 1,
         streakCount: 0,
-        lastActiveDate: nil,
+        lastActiveDate: Date(),
         unlockedAchievements: [],
         unlockedRoutines: []
     )

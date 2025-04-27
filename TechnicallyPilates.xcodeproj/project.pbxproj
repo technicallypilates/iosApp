@@ -21,6 +21,14 @@
 		1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AC02DB1AA0F0044A916 /* chime.wav */; };
 		1D544AC32DB1AE350044A916 /* ParticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AC22DB1AE350044A916 /* ParticleView.swift */; };
 		1D544AC52DB1B8850044A916 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AC42DB1B8850044A916 /* Models.swift */; };
+		1D8F95612DBD8733005AFDE0 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F95602DBD8733005AFDE0 /* AuthManager.swift */; };
+		1D8F95632DBD8760005AFDE0 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F95622DBD8760005AFDE0 /* LoginView.swift */; };
+		1D8F95652DBD8C4B005AFDE0 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F95642DBD8C4B005AFDE0 /* ProfileView.swift */; };
+		1D8F95672DBD8C75005AFDE0 /* RoutinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F95662DBD8C75005AFDE0 /* RoutinesView.swift */; };
+		1D8F95692DBD8C9D005AFDE0 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F95682DBD8C9D005AFDE0 /* HomeView.swift */; };
+		1D8F956B2DBD8CE9005AFDE0 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F956A2DBD8CE9005AFDE0 /* ViewModel.swift */; };
+		1D8F956D2DBD8D2E005AFDE0 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F956C2DBD8D2E005AFDE0 /* DataManager.swift */; };
+		1D8F956F2DBD8F78005AFDE0 /* RoutineExecutionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F956E2DBD8F78005AFDE0 /* RoutineExecutionView.swift */; };
 		1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */; };
 		1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */; };
 		1DB397632D8F540E001BA26F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397622D8F540E001BA26F /* ContentView.swift */; };
@@ -58,23 +66,31 @@
 
 /* Begin PBXFileReference section */
 		1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = PoseClassifier.mlpackage; sourceTree = "<group>"; };
-		1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesApp.swift; sourceTree = "<group>"; };
+		1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TechnicallyPilatesApp.swift; path = Sources/TechnicallyPilates/TechnicallyPilatesApp.swift; sourceTree = SOURCE_ROOT; };
 		1D544AAE2DB199F80044A916 /* go.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = go.wav; sourceTree = "<group>"; };
 		1D544AAF2DB199F80044A916 /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
-		1D544AB22DB19E570044A916 /* FireTrailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireTrailView.swift; sourceTree = "<group>"; };
-		1D544AB42DB19E800044A916 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		1D544AB22DB19E570044A916 /* FireTrailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FireTrailView.swift; path = Sources/TechnicallyPilates/FireTrailView.swift; sourceTree = SOURCE_ROOT; };
+		1D544AB42DB19E800044A916 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConfettiView.swift; path = Sources/TechnicallyPilates/ConfettiView.swift; sourceTree = SOURCE_ROOT; };
 		1D544AB62DB1A2940044A916 /* beep_countdown.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep_countdown.wav; sourceTree = "<group>"; };
 		1D544AB82DB1A3340044A916 /* success_chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = success_chime.wav; sourceTree = "<group>"; };
 		1D544ABA2DB1A3980044A916 /* combo_fire..wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = combo_fire..wav; sourceTree = "<group>"; };
 		1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = achievement_unlock.wav; sourceTree = "<group>"; };
-		1D544ABE2DB1A9690044A916 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		1D544ABE2DB1A9690044A916 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SoundManager.swift; path = Sources/TechnicallyPilates/SoundManager.swift; sourceTree = SOURCE_ROOT; };
 		1D544AC02DB1AA0F0044A916 /* chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = chime.wav; sourceTree = "<group>"; };
-		1D544AC22DB1AE350044A916 /* ParticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticleView.swift; sourceTree = "<group>"; };
-		1D544AC42DB1B8850044A916 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseLogView.swift; sourceTree = "<group>"; };
-		1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechCoach.swift; sourceTree = "<group>"; };
+		1D544AC22DB1AE350044A916 /* ParticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ParticleView.swift; path = Sources/TechnicallyPilates/ParticleView.swift; sourceTree = SOURCE_ROOT; };
+		1D544AC42DB1B8850044A916 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Models.swift; path = Sources/TechnicallyPilates/Models.swift; sourceTree = SOURCE_ROOT; };
+		1D8F95602DBD8733005AFDE0 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AuthManager.swift; path = Sources/TechnicallyPilates/AuthManager.swift; sourceTree = SOURCE_ROOT; };
+		1D8F95622DBD8760005AFDE0 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LoginView.swift; path = Sources/TechnicallyPilates/LoginView.swift; sourceTree = SOURCE_ROOT; };
+		1D8F95642DBD8C4B005AFDE0 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProfileView.swift; path = Sources/TechnicallyPilates/ProfileView.swift; sourceTree = SOURCE_ROOT; };
+		1D8F95662DBD8C75005AFDE0 /* RoutinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutinesView.swift; path = Sources/TechnicallyPilates/RoutinesView.swift; sourceTree = SOURCE_ROOT; };
+		1D8F95682DBD8C9D005AFDE0 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HomeView.swift; path = Sources/TechnicallyPilates/HomeView.swift; sourceTree = SOURCE_ROOT; };
+		1D8F956A2DBD8CE9005AFDE0 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewModel.swift; path = Sources/TechnicallyPilates/ViewModel.swift; sourceTree = SOURCE_ROOT; };
+		1D8F956C2DBD8D2E005AFDE0 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DataManager.swift; path = Sources/TechnicallyPilates/DataManager.swift; sourceTree = SOURCE_ROOT; };
+		1D8F956E2DBD8F78005AFDE0 /* RoutineExecutionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineExecutionView.swift; path = Sources/TechnicallyPilates/RoutineExecutionView.swift; sourceTree = SOURCE_ROOT; };
+		1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoseLogView.swift; path = Sources/TechnicallyPilates/PoseLogView.swift; sourceTree = SOURCE_ROOT; };
+		1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpeechCoach.swift; path = Sources/TechnicallyPilates/SpeechCoach.swift; sourceTree = SOURCE_ROOT; };
 		1DB3975D2D8F540E001BA26F /* TechnicallyPilates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TechnicallyPilates.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1DB397622D8F540E001BA26F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1DB397622D8F540E001BA26F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = Sources/TechnicallyPilates/ContentView.swift; sourceTree = SOURCE_ROOT; };
 		1DB397642D8F5410001BA26F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1DB397672D8F5410001BA26F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1DB3976D2D8F5410001BA26F /* TechnicallyPilatesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TechnicallyPilatesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,15 +99,14 @@
 		1DB3978B2D8F55F7001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		1DB3978D2D94A17C001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/CoreML.framework; sourceTree = DEVELOPER_DIR; };
 		1DB3978F2D94A18B001BA26F /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
-		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
-		1DB897D72DA6E0A000FEF7E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseEstimator.swift; sourceTree = "<group>"; };
-		1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
+		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraView.swift; path = Sources/TechnicallyPilates/CameraView.swift; sourceTree = SOURCE_ROOT; };
+		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoseEstimator.swift; path = Sources/TechnicallyPilates/PoseEstimator.swift; sourceTree = SOURCE_ROOT; };
+		1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraPreviewView.swift; path = Sources/TechnicallyPilates/CameraPreviewView.swift; sourceTree = SOURCE_ROOT; };
 		1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FLOWCHART.png; sourceTree = "<group>"; };
 		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
 		1DF63DCA2DB2EFF500ADD4CD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceChartView.swift; sourceTree = "<group>"; };
-		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManagerView.swift; sourceTree = "<group>"; };
+		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PerformanceChartView.swift; path = Sources/TechnicallyPilates/PerformanceChartView.swift; sourceTree = SOURCE_ROOT; };
+		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UserProfileManagerView.swift; path = Sources/TechnicallyPilates/UserProfileManagerView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,25 +162,6 @@
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
-				1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */,
-				1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */,
-				1DF63DCA2DB2EFF500ADD4CD /* README.md */,
-				1D544AC42DB1B8850044A916 /* Models.swift */,
-				1D544AC22DB1AE350044A916 /* ParticleView.swift */,
-				1D544ABE2DB1A9690044A916 /* SoundManager.swift */,
-				1D544AB42DB19E800044A916 /* ConfettiView.swift */,
-				1D544AB22DB19E570044A916 /* FireTrailView.swift */,
-				1D544AAD2DB199D70044A916 /* Sounds */,
-				1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */,
-				1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */,
-				1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */,
-				1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */,
-				1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */,
-				1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */,
-				1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */,
-				1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */,
-				1DB897D72DA6E0A000FEF7E1 /* Info.plist */,
-				1DB897D02DA304FE00FEF7E1 /* CameraView.swift */,
 				1DB3975F2D8F540E001BA26F /* TechnicallyPilates */,
 				1DB397702D8F5410001BA26F /* TechnicallyPilatesTests */,
 				1DB3975E2D8F540E001BA26F /* Products */,
@@ -186,9 +182,36 @@
 		1DB3975F2D8F540E001BA26F /* TechnicallyPilates */ = {
 			isa = PBXGroup;
 			children = (
-				1DB397622D8F540E001BA26F /* ContentView.swift */,
+				1D544AAD2DB199D70044A916 /* Sounds */,
+				1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */,
+				1DB897D72DA6E0A000FEF7E1 /* Info.plist */,
+				1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */,
+				1DF63DCA2DB2EFF500ADD4CD /* README.md */,
 				1DB397642D8F5410001BA26F /* Assets.xcassets */,
 				1DB397662D8F5410001BA26F /* Preview Content */,
+				1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */,
+				1D8F956E2DBD8F78005AFDE0 /* Sources/TechnicallyPilates/RoutineExecutionView.swift */,
+				1D8F956C2DBD8D2E005AFDE0 /* Sources/TechnicallyPilates/DataManager.swift */,
+				1D8F956A2DBD8CE9005AFDE0 /* Sources/TechnicallyPilates/ViewModel.swift */,
+				1D8F95682DBD8C9D005AFDE0 /* Sources/TechnicallyPilates/HomeView.swift */,
+				1D8F95662DBD8C75005AFDE0 /* Sources/TechnicallyPilates/RoutinesView.swift */,
+				1D8F95642DBD8C4B005AFDE0 /* Sources/TechnicallyPilates/ProfileView.swift */,
+				1D8F95622DBD8760005AFDE0 /* Sources/TechnicallyPilates/LoginView.swift */,
+				1D8F95602DBD8733005AFDE0 /* Sources/TechnicallyPilates/AuthManager.swift */,
+				1DD3BC0D2DBBA3F0005963DA /* Sources/TechnicallyPilates/CameraPreviewView.swift */,
+				1D544AC42DB1B8850044A916 /* Sources/TechnicallyPilates/Models.swift */,
+				1D544AC22DB1AE350044A916 /* Sources/TechnicallyPilates/ParticleView.swift */,
+				1D544ABE2DB1A9690044A916 /* Sources/TechnicallyPilates/SoundManager.swift */,
+				1D544AB42DB19E800044A916 /* Sources/TechnicallyPilates/ConfettiView.swift */,
+				1D544AB22DB19E570044A916 /* Sources/TechnicallyPilates/FireTrailView.swift */,
+				1DF810EB2DB0499A008C5B49 /* Sources/TechnicallyPilates/UserProfileManagerView.swift */,
+				1DF810E92DB046A3008C5B49 /* Sources/TechnicallyPilates/PerformanceChartView.swift */,
+				1D95C0C62DAD86AC0070C3D1 /* Sources/TechnicallyPilates/SpeechCoach.swift */,
+				1D95C0C42DAD85540070C3D1 /* Sources/TechnicallyPilates/PoseLogView.swift */,
+				1D2F8B412DAC2FC400268601 /* Sources/TechnicallyPilates/TechnicallyPilatesApp.swift */,
+				1DB897DB2DA6E69900FEF7E1 /* Sources/TechnicallyPilates/PoseEstimator.swift */,
+				1DB897D02DA304FE00FEF7E1 /* Sources/TechnicallyPilates/CameraView.swift */,
+				1DB397622D8F540E001BA26F /* Sources/TechnicallyPilates/ContentView.swift */,
 			);
 			path = TechnicallyPilates;
 			sourceTree = "<group>";
@@ -366,11 +389,19 @@
 				1DB397632D8F540E001BA26F /* ContentView.swift in Sources */,
 				1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */,
 				1D544ABF2DB1A9690044A916 /* SoundManager.swift in Sources */,
+				1D8F95672DBD8C75005AFDE0 /* RoutinesView.swift in Sources */,
 				1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */,
+				1D8F95612DBD8733005AFDE0 /* AuthManager.swift in Sources */,
+				1D8F95652DBD8C4B005AFDE0 /* ProfileView.swift in Sources */,
+				1D8F95632DBD8760005AFDE0 /* LoginView.swift in Sources */,
+				1D8F956F2DBD8F78005AFDE0 /* RoutineExecutionView.swift in Sources */,
+				1D8F956B2DBD8CE9005AFDE0 /* ViewModel.swift in Sources */,
+				1D8F95692DBD8C9D005AFDE0 /* HomeView.swift in Sources */,
 				1DF810EA2DB046A3008C5B49 /* PerformanceChartView.swift in Sources */,
 				1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */,
 				1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */,
 				1D2F8B402DAC2D8800268601 /* PoseClassifier.mlpackage in Sources */,
+				1D8F956D2DBD8D2E005AFDE0 /* DataManager.swift in Sources */,
 				1D544AB32DB19E570044A916 /* FireTrailView.swift in Sources */,
 				1D544AC52DB1B8850044A916 /* Models.swift in Sources */,
 			);
@@ -544,7 +575,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.patrickorourkes.pilatesApp-";
+				PRODUCT_BUNDLE_IDENTIFIER = com.patrickorourke.TechnicallyPilates;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -574,7 +605,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.patrickorourkes.pilatesApp-";
+				PRODUCT_BUNDLE_IDENTIFIER = com.patrickorourke.TechnicallyPilates;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
