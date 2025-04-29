@@ -1,5 +1,21 @@
 import Foundation
 
+enum Difficulty: String, Codable, Equatable, CaseIterable {
+    case beginner
+    case intermediate
+    case advanced
+}
+
+enum Category: String, Codable, Equatable, CaseIterable {
+    case mat
+    case reformer
+    case chair
+    case cadillac
+    case barrel
+    case props
+    case mixed
+}
+
 struct Pose: Identifiable, Hashable, Codable {
     let id: UUID
     var name: String
@@ -14,7 +30,7 @@ struct Pose: Identifiable, Hashable, Codable {
     var contraindications: [String]
     var duration: TimeInterval
     var repetitions: Int
-    
+
     init(id: UUID = UUID(), name: String, description: String, category: String, difficulty: Int, imageURL: String? = nil, videoURL: String? = nil, instructions: [String], benefits: [String], modifications: [String], contraindications: [String], duration: TimeInterval, repetitions: Int) {
         self.id = id
         self.name = name
@@ -30,11 +46,11 @@ struct Pose: Identifiable, Hashable, Codable {
         self.duration = duration
         self.repetitions = repetitions
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     static func == (lhs: Pose, rhs: Pose) -> Bool {
         return lhs.id == rhs.id
     }
@@ -44,52 +60,78 @@ struct PoseLogEntry: Identifiable, Codable {
     let id: UUID
     let poseId: UUID
     let routineId: UUID
-    let date: Date
     let repsCompleted: Int
-    var repetitions: Int
-    var timestamp: Date
-    
-    init(id: UUID = UUID(), poseId: UUID, routineId: UUID, date: Date = Date(), repsCompleted: Int, repetitions: Int = 0, timestamp: Date = Date()) {
-        self.id = id
+    let accuracy: Double
+    let timestamp: Date
+    let xpEarned: Int
+
+    init(poseId: UUID, routineId: UUID, repsCompleted: Int, accuracy: Double, xpEarned: Int) {
+        self.id = UUID()
         self.poseId = poseId
         self.routineId = routineId
-        self.date = date
         self.repsCompleted = repsCompleted
-        self.repetitions = repetitions
-        self.timestamp = timestamp
+        self.accuracy = accuracy
+        self.timestamp = Date()
+        self.xpEarned = xpEarned
     }
 }
 
-struct Routine: Identifiable, Codable {
+struct Exercise: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
     var description: String
-    var category: String
-    var poses: [Pose]
+    var pose: Pose
     var duration: TimeInterval
-    var difficulty: Int
-    var isFavorite: Bool
-    
-    init(id: UUID = UUID(), name: String, description: String, category: String, poses: [Pose], duration: TimeInterval, difficulty: Int, isFavorite: Bool = false) {
+    var repetitions: Int
+    var instructions: [String]
+    var category: Category
+
+    init(id: UUID = UUID(), name: String, description: String, pose: Pose, duration: TimeInterval, repetitions: Int, instructions: [String], category: Category) {
         self.id = id
         self.name = name
         self.description = description
-        self.category = category
-        self.poses = poses
+        self.pose = pose
         self.duration = duration
-        self.difficulty = difficulty
-        self.isFavorite = isFavorite
+        self.repetitions = repetitions
+        self.instructions = instructions
+        self.category = category
     }
 }
 
-struct Achievement: Identifiable, Codable {
+struct Routine: Identifiable, Codable, Equatable {
+    let id: UUID
+    var name: String
+    var description: String
+    var exercises: [Exercise]
+    var duration: TimeInterval
+    var difficulty: Difficulty
+    var category: Category
+    var isFavorite: Bool
+    var lastCompleted: Date?
+    var completionCount: Int
+
+    init(id: UUID = UUID(), name: String, description: String, exercises: [Exercise], duration: TimeInterval, difficulty: Difficulty, category: Category, isFavorite: Bool = false, lastCompleted: Date? = nil, completionCount: Int = 0) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.exercises = exercises
+        self.duration = duration
+        self.difficulty = difficulty
+        self.category = category
+        self.isFavorite = isFavorite
+        self.lastCompleted = lastCompleted
+        self.completionCount = completionCount
+    }
+}
+
+struct Achievement: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
     var description: String
     var imageURL: String?
     var xpReward: Int
     var isUnlocked: Bool
-    
+
     init(id: UUID = UUID(), name: String, description: String, imageURL: String? = nil, xpReward: Int, isUnlocked: Bool = false) {
         self.id = id
         self.name = name
@@ -100,55 +142,109 @@ struct Achievement: Identifiable, Codable {
     }
 }
 
+struct Goal: Identifiable, Codable, Equatable {
+    let id: UUID
+    var title: String
+    var description: String
+    var targetXP: Int
+    var currentXP: Int
+    var isCompleted: Bool
+    var deadline: Date?
+
+    init(id: UUID = UUID(), title: String, description: String, targetXP: Int, currentXP: Int = 0, isCompleted: Bool = false, deadline: Date? = nil) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.targetXP = targetXP
+        self.currentXP = currentXP
+        self.isCompleted = isCompleted
+        self.deadline = deadline
+    }
+}
+
 struct UserProfile: Identifiable, Codable, Equatable {
     let id: UUID
-    var name: String
-    var email: String
-    var goals: [String]
-    var xp: Int
+    let name: String
+    let email: String
     var level: Int
+    var xp: Int
     var streakCount: Int
-    var lastActiveDate: Date
+    var goals: [Goal]
+    var achievements: [Achievement]
     var unlockedAchievements: [Achievement]
-    var unlockedRoutines: [Routine]
-    
-    init(id: UUID = UUID(), name: String, email: String, goals: [String] = [], xp: Int = 0, level: Int = 1, streakCount: Int = 0, lastActiveDate: Date = Date(), unlockedAchievements: [Achievement] = [], unlockedRoutines: [Routine] = []) {
+    var lastWorkoutDate: Date?
+
+    init(id: UUID = UUID(), name: String, email: String, level: Int = 1, xp: Int = 0, streakCount: Int = 0, goals: [Goal] = [], achievements: [Achievement] = [], unlockedAchievements: [Achievement] = [], lastWorkoutDate: Date? = nil) {
         self.id = id
         self.name = name
         self.email = email
-        self.goals = goals
-        self.xp = xp
         self.level = level
+        self.xp = xp
         self.streakCount = streakCount
-        self.lastActiveDate = lastActiveDate
+        self.goals = goals
+        self.achievements = achievements
         self.unlockedAchievements = unlockedAchievements
-        self.unlockedRoutines = unlockedRoutines
+        self.lastWorkoutDate = lastWorkoutDate
     }
-    
-    static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    mutating func updateProgress(newEntries: [PoseLogEntry]) {
-        // Update XP based on completed poses
-        for entry in newEntries {
-            // Note: This assumes we have access to the pose's difficulty
-            // In a real app, we'd need to look up the pose by ID
-            xp += entry.repsCompleted * 10 // Default XP per rep
+
+    mutating func addXP(_ amount: Int) {
+        self.xp += amount
+        self.streakCount += 1
+        self.lastWorkoutDate = Date()
+
+        let newLevel = (xp / 1000) + 1
+        if newLevel > level {
+            level = newLevel
         }
-        
-        // Update level based on XP
-        level = Int(sqrt(Double(xp) / 100)) + 1
-        
-        // Update streak
-        let calendar = Calendar.current
-        if let daysSinceLastActive = calendar.dateComponents([.day], from: lastActiveDate, to: Date()).day {
-            if daysSinceLastActive == 1 {
-                streakCount += 1
-            } else if daysSinceLastActive > 1 {
-                streakCount = 1
-            }
-        }
-        lastActiveDate = Date()
     }
-} 
+}
+
+struct XPSystem {
+    static func calculateXP(accuracy: Double, isFirstTimeHighAccuracy: Bool = false, consecutiveCorrectPoses: Int = 0) -> Int {
+        var xp: Int
+
+        switch accuracy {
+        case 0.9...1.0:
+            xp = 100
+        case 0.8..<0.9:
+            xp = 80
+        case 0.7..<0.8:
+            xp = 60
+        case 0.6..<0.7:
+            xp = 40
+        default:
+            xp = 0
+        }
+
+        if accuracy >= 0.95 {
+            xp *= 2
+        }
+
+        if consecutiveCorrectPoses > 0 {
+            xp += Int(Double(xp) * (0.1 * Double(consecutiveCorrectPoses)))
+        }
+
+        if isFirstTimeHighAccuracy && accuracy >= 0.9 {
+            xp += 50
+        }
+
+        return xp
+    }
+}
+
+// ✅ Example Routine
+extension Routine {
+    static let exampleRoutine = Routine(
+        id: UUID(),
+        name: "Example Routine",
+        description: "This is an example Pilates routine.",
+        exercises: [],
+        duration: 20 * 60,
+        difficulty: .beginner,
+        category: .mixed,
+        isFavorite: false,
+        lastCompleted: nil,
+        completionCount: 0
+    )
+}
+

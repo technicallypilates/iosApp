@@ -4,107 +4,56 @@ import Vision
 import UIKit
 
 struct CameraView: View {
-    @Binding var poseLabel: String
-    @Binding var poseColor: Color
-    @Binding var startDetection: Bool
-    @Binding var repCount: Int
-    @Binding var logEntries: [PoseLogEntry]
-
-    var selectedRoutine: Routine
-    var currentPoseIndex: Int
-    var onNewEntry: (PoseLogEntry) -> Void
-
-    @State private var comboCount = 0
-    @State private var showComboText = false
-    @State private var comboTitle = ""
-    @State private var showMedal = false
-    @State private var sparkleAnimation = false
-    @State private var cameraPermissionStatus: AVAuthorizationStatus = .notDetermined
-
+    @EnvironmentObject var viewModel: ViewModel
+    @State private var showingPoseLog = false
+    
     var body: some View {
-        ZStack {
-            #if targetEnvironment(simulator)
-            // Show nothing on simulator
-            Color.clear
-            #else
-            if cameraPermissionStatus == .authorized {
+        NavigationView {
+            VStack {
                 CameraPreviewView(
-                    poseLabel: $poseLabel,
-                    poseColor: $poseColor,
-                    startDetection: $startDetection,
-                    repCount: $repCount,
-                    logEntries: $logEntries,
-                    selectedRoutine: selectedRoutine,
-                    currentPoseIndex: currentPoseIndex,
+                    poseLabel: viewModel.poseLabelBinding,
+                    poseColor: viewModel.poseColorBinding,
+                    startDetection: viewModel.startDetectionBinding,
+                    repCount: viewModel.repCountBinding,
+                    selectedRoutine: viewModel.selectedRoutine ?? Routine.exampleRoutine, // ✅ Use fallback if nil
+                    currentPoseIndex: viewModel.currentPoseIndex,
                     onNewEntry: { entry in
-                        onNewEntry(entry)
-                        handleComboSuccess()
+                        viewModel.addPoseLogEntry(entry)
                     },
-                    onComboBroken: handleComboBreak
-                )
-                .overlay(
-                    Group {
-                        if showComboText {
-                            Text(comboTitle)
-                                .font(.title)
-                                .foregroundColor(comboCount > 0 ? .green : .red)
-                                .transition(.scale)
-                        }
-                        if showMedal {
-                            Image(systemName: "medal.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.yellow)
-                                .scaleEffect(sparkleAnimation ? 1.2 : 1.0)
-                                .animation(.easeInOut(duration: 0.5), value: sparkleAnimation)
-                        }
+                    onComboBroken: {
+                        viewModel.resetCombo()
                     }
                 )
-            } else {
-                CameraPermissionView(status: cameraPermissionStatus) {
-                    requestCameraPermission()
+                
+                VStack {
+                    HStack {
+                        Text("Current Pose:")
+                            .font(.headline)
+                        Text(viewModel.poseLabel)
+                            .foregroundColor(viewModel.poseColor)
+                    }
+                    
+                    Text("Reps: \(viewModel.repCount)")
+                        .font(.headline)
+                }
+                .padding()
+                
+                Button(action: {
+                    showingPoseLog = true
+                }) {
+                    Text("Show Pose Log")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(10)
                 }
             }
-            #endif
-        }
-        .onAppear {
-            checkCameraPermission()
-        }
-    }
-
-    private func checkCameraPermission() {
-        cameraPermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
-    }
-
-    private func requestCameraPermission() {
-        AVCaptureDevice.requestAccess(for: .video) { granted in
-            DispatchQueue.main.async {
-                cameraPermissionStatus = granted ? .authorized : .denied
+            .navigationTitle("Camera")
+            .sheet(isPresented: $showingPoseLog) {
+                PoseLogView()
+                    .environmentObject(viewModel)
             }
-        }
-    }
-
-    private func handleComboSuccess() {
-        comboCount += 1
-        showComboText = true
-        comboTitle = "Combo x\(comboCount)!"
-        showMedal = true
-        sparkleAnimation = true
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            showComboText = false
-            showMedal = false
-            sparkleAnimation = false
-        }
-    }
-
-    private func handleComboBreak() {
-        comboCount = 0
-        showComboText = true
-        comboTitle = "Combo Broken!"
-        showMedal = false
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            showComboText = false
         }
     }
 }
@@ -156,5 +105,10 @@ struct CameraPermissionView: View {
     }
 }
 
-
+struct CameraView_Previews: PreviewProvider {
+    static var previews: some View {
+        CameraView()
+            .environmentObject(ViewModel())
+    }
+}
 

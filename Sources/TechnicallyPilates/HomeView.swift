@@ -2,97 +2,75 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var viewModel: ViewModel
-    @StateObject private var authManager = AuthManager.shared
-    @State private var selectedRoutine: Routine?
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // User Progress Section
-                    if let user = authManager.currentUser {
-                        UserProgressCard(user: user)
+                    // User Stats
+                    VStack(alignment: .leading) {
+                        Text("Welcome, \(viewModel.userProfile?.name ?? "User")!")
+                            .font(.title)
+                            .padding(.bottom, 5)
+                        
+                        HStack {
+                            StatView(title: "Level", value: "\(viewModel.userProfile?.level ?? 1)")
+                            StatView(title: "XP", value: "\(viewModel.userProfile?.xp ?? 0)")
+                            StatView(title: "Streak", value: "\(viewModel.userProfile?.streakCount ?? 0) days")
+                        }
                     }
+                    .padding()
+                    .background(Color(.systemBackground))
+                    .cornerRadius(10)
+                    .shadow(radius: 2)
                     
-                    // Quick Access Section
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Quick Access")
-                            .font(.title2)
-                            .bold()
-                            .padding(.horizontal)
+                    // Recent Activity
+                    VStack(alignment: .leading) {
+                        Text("Recent Activity")
+                            .font(.headline)
+                            .padding(.bottom, 5)
+                        
+                        ForEach(Array(viewModel.logEntries.prefix(5))) { entry in
+                            HStack {
+                                Text("Pose") // Placeholder for pose name
+                                    .font(.subheadline)
+                                Spacer()
+                                Text("\(entry.repsCompleted) reps")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.vertical, 5)
+                        }
+                    }
+                    .padding()
+                    .background(Color(.systemBackground))
+                    .cornerRadius(10)
+                    .shadow(radius: 2)
+                    
+                    // Favorite Routines
+                    VStack(alignment: .leading) {
+                        Text("Favorite Routines")
+                            .font(.headline)
+                            .padding(.bottom, 5)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 15) {
-                                ForEach(viewModel.routines) { routine in
+                                ForEach(viewModel.routines.filter { $0.isFavorite }) { routine in
                                     RoutineCard(routine: routine)
-                                        .onTapGesture {
-                                            selectedRoutine = routine
-                                        }
                                 }
                             }
-                            .padding(.horizontal)
                         }
                     }
-                    
-                    // Recent Activity Section
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Recent Activity")
-                            .font(.title2)
-                            .bold()
-                            .padding(.horizontal)
-                        
-                        ForEach(viewModel.poseLog.prefix(5).map { $0 }) { entry in
-                            if let pose = viewModel.getPoseById(entry.poseId) {
-                                ActivityRow(pose: pose, entry: entry)
-                            }
-                        }
-                    }
+                    .padding()
                 }
-                .padding(.vertical)
+                .padding()
             }
             .navigationTitle("Home")
-            .sheet(item: $selectedRoutine) { routine in
-                RoutineDetailView(routine: routine)
-            }
         }
     }
 }
 
-struct UserProgressCard: View {
-    let user: UserProfile
-    
-    var body: some View {
-        VStack(spacing: 15) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Welcome back,")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    Text(user.name)
-                        .font(.title2)
-                        .bold()
-                }
-                Spacer()
-                Image(systemName: "person.circle.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.blue)
-            }
-            
-            HStack(spacing: 20) {
-                ProgressItem(title: "Level", value: "\(user.level)")
-                ProgressItem(title: "XP", value: "\(user.xp)")
-                ProgressItem(title: "Streak", value: "\(user.streakCount)")
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(15)
-        .shadow(radius: 5)
-        .padding(.horizontal)
-    }
-}
-
-struct ProgressItem: View {
+struct StatView: View {
     let title: String
     let value: String
     
@@ -103,8 +81,8 @@ struct ProgressItem: View {
                 .foregroundColor(.gray)
             Text(value)
                 .font(.headline)
-                .bold()
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -112,41 +90,23 @@ struct RoutineCard: View {
     let routine: Routine
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading) {
             Text(routine.name)
                 .font(.headline)
-            Text("\(routine.poses.count) poses")
+            Text("\(routine.exercises.count) exercises")
                 .font(.caption)
                 .foregroundColor(.gray)
+            Text(routine.difficulty.rawValue)
+                .font(.caption)
+                .padding(5)
+                .background(Color.blue.opacity(0.2))
+                .cornerRadius(5)
         }
         .padding()
-        .frame(width: 150, height: 100)
-        .background(Color.blue.opacity(0.1))
-        .cornerRadius(10)
-    }
-}
-
-struct ActivityRow: View {
-    let pose: Pose
-    let entry: PoseLogEntry
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(pose.name)
-                    .font(.headline)
-                Text(entry.date, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            Spacer()
-            Text("\(entry.repetitions) reps")
-                .font(.subheadline)
-        }
-        .padding()
+        .frame(width: 150)
         .background(Color(.systemBackground))
         .cornerRadius(10)
-        .padding(.horizontal)
+        .shadow(radius: 2)
     }
 }
 

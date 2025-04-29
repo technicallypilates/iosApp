@@ -4,7 +4,7 @@ struct RoutinesView: View {
     @EnvironmentObject var viewModel: ViewModel
     @State private var selectedRoutine: Routine?
     @State private var showingNewRoutineSheet = false
-    
+
     var body: some View {
         NavigationView {
             List {
@@ -31,10 +31,11 @@ struct RoutinesView: View {
             }
             .sheet(isPresented: $showingNewRoutineSheet) {
                 NewRoutineView()
+                    .environmentObject(viewModel)
             }
         }
     }
-    
+
     private func deleteRoutines(at offsets: IndexSet) {
         for index in offsets {
             let routine = viewModel.routines[index]
@@ -45,7 +46,7 @@ struct RoutinesView: View {
 
 struct RoutineRow: View {
     let routine: Routine
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
@@ -56,11 +57,9 @@ struct RoutineRow: View {
                     .foregroundColor(.gray)
                     .lineLimit(2)
             }
-            
             Spacer()
-            
             VStack(alignment: .trailing, spacing: 5) {
-                Text("\(routine.poses.count) poses")
+                Text("\(routine.exercises.count) exercises")
                     .font(.caption)
                 Text("\(Int(routine.duration)) min")
                     .font(.caption)
@@ -75,12 +74,11 @@ struct RoutineDetailView: View {
     let routine: Routine
     @Environment(\.presentationMode) var presentationMode
     @State private var showingStartRoutine = false
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Header
                     VStack(alignment: .leading, spacing: 10) {
                         Text(routine.name)
                             .font(.title)
@@ -90,37 +88,32 @@ struct RoutineDetailView: View {
                             .foregroundColor(.gray)
                     }
                     .padding(.horizontal)
-                    
-                    // Stats
+
                     HStack(spacing: 30) {
                         StatItem(title: "Duration", value: "\(Int(routine.duration)) min")
-                        StatItem(title: "Difficulty", value: "\(routine.difficulty)/5")
-                        StatItem(title: "Poses", value: "\(routine.poses.count)")
+                        StatItem(title: "Difficulty", value: routine.difficulty.rawValue)
+                        StatItem(title: "Exercises", value: "\(routine.exercises.count)")
                     }
                     .padding()
                     .background(Color(.systemBackground))
                     .cornerRadius(10)
                     .padding(.horizontal)
-                    
-                    // Poses
+
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("Poses")
+                        Text("Exercises")
                             .font(.title2)
                             .bold()
                             .padding(.horizontal)
-                        
-                        ForEach(routine.poses) { pose in
-                            PoseRow(pose: pose)
+
+                        ForEach(routine.exercises) { exercise in
+                            ExerciseRow(exercise: exercise)
                         }
                     }
                 }
                 .padding(.vertical)
             }
-            .navigationBarItems(trailing: Button(action: {
+            .navigationBarItems(trailing: Button("Start") {
                 showingStartRoutine = true
-            }) {
-                Text("Start")
-                    .bold()
             })
             .sheet(isPresented: $showingStartRoutine) {
                 RoutineExecutionView(routine: routine)
@@ -132,7 +125,7 @@ struct RoutineDetailView: View {
 struct StatItem: View {
     let title: String
     let value: String
-    
+
     var body: some View {
         VStack {
             Text(title)
@@ -144,26 +137,24 @@ struct StatItem: View {
     }
 }
 
-struct PoseRow: View {
-    let pose: Pose
-    
+struct ExerciseRow: View {
+    let exercise: Exercise
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
-                Text(pose.name)
+                Text(exercise.name)
                     .font(.headline)
-                Text(pose.description)
+                Text(exercise.description)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineLimit(2)
             }
-            
             Spacer()
-            
             VStack(alignment: .trailing, spacing: 5) {
-                Text("\(pose.repetitions) reps")
+                Text("\(exercise.repetitions) reps")
                     .font(.caption)
-                Text("\(Int(pose.duration)) sec")
+                Text("\(Int(exercise.duration)) sec")
                     .font(.caption)
                     .foregroundColor(.blue)
             }
@@ -178,42 +169,51 @@ struct PoseRow: View {
 struct NewRoutineView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewModel: ViewModel
+
     @State private var name = ""
     @State private var description = ""
-    @State private var selectedPoses: Set<Pose> = []
-    @State private var showingPosePicker = false
-    @State private var category = "Custom"
-    @State private var difficulty = 1
+    @State private var selectedExercises: [Exercise] = []
+    @State private var showingExercisePicker = false
+    @State private var category = Category.mixed
+    @State private var difficulty = Difficulty.beginner
     @State private var duration = 0.0
-    
+
     var body: some View {
         NavigationView {
-            Form {
+            Form(content: {
                 Section(header: Text("Routine Details")) {
                     TextField("Name", text: $name)
                     TextField("Description", text: $description)
                     TextField("Duration (minutes)", value: $duration, format: .number)
-                    TextField("Difficulty", value: $difficulty, format: .number)
-                }
-                
-                Section(header: Text("Selected Poses")) {
-                    ForEach(Array(selectedPoses)) { pose in
-                        Text(pose.name)
+
+                    Picker("Difficulty", selection: $difficulty) {
+                        ForEach(Difficulty.allCases, id: \.self) { level in
+                            Text(level.rawValue.capitalized).tag(level)
+                        }
                     }
-                    .onDelete { indexSet in
-                        let poses = Array(selectedPoses)
-                        for index in indexSet {
-                            selectedPoses.remove(poses[index])
+
+                    Picker("Category", selection: $category) {
+                        ForEach(Category.allCases, id: \.self) { cat in
+                            Text(cat.rawValue.capitalized).tag(cat)
                         }
                     }
                 }
-                
-                Section {
-                    Button("Add Poses") {
-                        showingPosePicker = true
+
+                Section(header: Text("Selected Exercises")) {
+                    ForEach(selectedExercises) { exercise in
+                        Text(exercise.name)
+                    }
+                    .onDelete { indexSet in
+                        selectedExercises.remove(atOffsets: indexSet)
                     }
                 }
-            }
+
+                Section {
+                    Button("Add Exercises") {
+                        showingExercisePicker = true
+                    }
+                }
+            })
             .navigationTitle("New Routine")
             .navigationBarItems(
                 leading: Button("Cancel") {
@@ -221,58 +221,57 @@ struct NewRoutineView: View {
                 },
                 trailing: Button("Save") {
                     saveRoutine()
-                }
-                .disabled(name.isEmpty || selectedPoses.isEmpty)
+                }.disabled(name.isEmpty || selectedExercises.isEmpty)
             )
-            .sheet(isPresented: $showingPosePicker) {
-                PosePickerView(selectedPoses: $selectedPoses)
+            .sheet(isPresented: $showingExercisePicker) {
+                ExercisePickerView(selectedExercises: $selectedExercises)
+                    .environmentObject(viewModel)
             }
         }
     }
-    
+
     private func saveRoutine() {
         let newRoutine = Routine(
-            id: UUID(),
             name: name,
             description: description,
-            category: category,
-            poses: Array(selectedPoses),
+            exercises: selectedExercises,
             duration: TimeInterval(duration * 60),
-            difficulty: difficulty
+            difficulty: difficulty,
+            category: category
         )
         viewModel.addRoutine(newRoutine)
         presentationMode.wrappedValue.dismiss()
     }
 }
 
-struct PosePickerView: View {
+struct ExercisePickerView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewModel: ViewModel
-    @Binding var selectedPoses: Set<Pose>
-    
+    @Binding var selectedExercises: [Exercise]
+
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.poses) { pose in
+                ForEach(viewModel.exercises) { exercise in
                     HStack {
-                        Text(pose.name)
+                        Text(exercise.name)
                         Spacer()
-                        if selectedPoses.contains(pose) {
+                        if selectedExercises.contains(where: { $0.id == exercise.id }) {
                             Image(systemName: "checkmark")
                                 .foregroundColor(.blue)
                         }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        if selectedPoses.contains(pose) {
-                            selectedPoses.remove(pose)
+                        if let index = selectedExercises.firstIndex(where: { $0.id == exercise.id }) {
+                            selectedExercises.remove(at: index)
                         } else {
-                            selectedPoses.insert(pose)
+                            selectedExercises.append(exercise)
                         }
                     }
                 }
             }
-            .navigationTitle("Select Poses")
+            .navigationTitle("Select Exercises")
             .navigationBarItems(trailing: Button("Done") {
                 presentationMode.wrappedValue.dismiss()
             })
@@ -280,9 +279,3 @@ struct PosePickerView: View {
     }
 }
 
-struct RoutinesView_Previews: PreviewProvider {
-    static var previews: some View {
-        RoutinesView()
-            .environmentObject(ViewModel())
-    }
-} 

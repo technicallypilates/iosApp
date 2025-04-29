@@ -6,12 +6,35 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import FirebaseAuth
 
 @main
 struct TechnicallyPilatesApp: App {
+    @StateObject private var authManager = AuthManager.shared
+    
+    init() {
+        setupFirebase()
+    }
+    
+    private func setupFirebase() {
+        guard let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+              let options = FirebaseOptions(contentsOfFile: filePath) else {
+            fatalError("Couldn't load Firebase configuration file.")
+        }
+        
+        FirebaseApp.configure(options: options)
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authManager.isAuthenticated {
+                ContentView()
+                    .environmentObject(authManager)
+            } else {
+                LoginView()
+                    .environmentObject(authManager)
+            }
         }
     }
 }

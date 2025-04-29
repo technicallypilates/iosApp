@@ -40,8 +40,12 @@
 		1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978F2D94A18B001BA26F /* Vision.framework */; };
 		1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897D02DA304FE00FEF7E1 /* CameraView.swift */; };
 		1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */; };
+		1DBC9D422DBE83BF00C9D27A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1DBC9D412DBE83BF00C9D27A /* GoogleService-Info.plist */; };
 		1DD3BC0E2DBBA3F0005963DA /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */; };
 		1DE0FFA22DB3D72B00B03E38 /* FLOWCHART.png in Resources */ = {isa = PBXBuildFile; fileRef = 1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */; };
+		1DE6555B2DBFF9770078CC1B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1DE6555A2DBFF9770078CC1B /* FirebaseAnalytics */; };
+		1DE6555D2DBFF9770078CC1B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1DE6555C2DBFF9770078CC1B /* FirebaseAuth */; };
+		1DE6555F2DBFF9770078CC1B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1DE6555E2DBFF9770078CC1B /* FirebaseFirestore */; };
 		1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */; };
 		1DF810EA2DB046A3008C5B49 /* PerformanceChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */; };
 		1DF810EC2DB0499A008C5B49 /* UserProfileManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */; };
@@ -101,6 +105,7 @@
 		1DB3978F2D94A18B001BA26F /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraView.swift; path = Sources/TechnicallyPilates/CameraView.swift; sourceTree = SOURCE_ROOT; };
 		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoseEstimator.swift; path = Sources/TechnicallyPilates/PoseEstimator.swift; sourceTree = SOURCE_ROOT; };
+		1DBC9D412DBE83BF00C9D27A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraPreviewView.swift; path = Sources/TechnicallyPilates/CameraPreviewView.swift; sourceTree = SOURCE_ROOT; };
 		1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FLOWCHART.png; sourceTree = "<group>"; };
 		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
@@ -114,6 +119,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1DE6555B2DBFF9770078CC1B /* FirebaseAnalytics in Frameworks */,
+				1DE6555F2DBFF9770078CC1B /* FirebaseFirestore in Frameworks */,
+				1DE6555D2DBFF9770078CC1B /* FirebaseAuth in Frameworks */,
 				1DB3978C2D8F55F7001BA26F /* CoreML.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -162,6 +170,7 @@
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
+				1DBC9D412DBE83BF00C9D27A /* GoogleService-Info.plist */,
 				1DB3975F2D8F540E001BA26F /* TechnicallyPilates */,
 				1DB397702D8F5410001BA26F /* TechnicallyPilatesTests */,
 				1DB3975E2D8F540E001BA26F /* Products */,
@@ -184,34 +193,33 @@
 			children = (
 				1D544AAD2DB199D70044A916 /* Sounds */,
 				1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */,
-				1DB897D72DA6E0A000FEF7E1 /* Info.plist */,
 				1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */,
 				1DF63DCA2DB2EFF500ADD4CD /* README.md */,
 				1DB397642D8F5410001BA26F /* Assets.xcassets */,
 				1DB397662D8F5410001BA26F /* Preview Content */,
 				1D2264F22DAFF8CA00D3BF5F /* TechnicallyPilatesUITests */,
-				1D8F956E2DBD8F78005AFDE0 /* Sources/TechnicallyPilates/RoutineExecutionView.swift */,
-				1D8F956C2DBD8D2E005AFDE0 /* Sources/TechnicallyPilates/DataManager.swift */,
-				1D8F956A2DBD8CE9005AFDE0 /* Sources/TechnicallyPilates/ViewModel.swift */,
-				1D8F95682DBD8C9D005AFDE0 /* Sources/TechnicallyPilates/HomeView.swift */,
-				1D8F95662DBD8C75005AFDE0 /* Sources/TechnicallyPilates/RoutinesView.swift */,
-				1D8F95642DBD8C4B005AFDE0 /* Sources/TechnicallyPilates/ProfileView.swift */,
-				1D8F95622DBD8760005AFDE0 /* Sources/TechnicallyPilates/LoginView.swift */,
-				1D8F95602DBD8733005AFDE0 /* Sources/TechnicallyPilates/AuthManager.swift */,
-				1DD3BC0D2DBBA3F0005963DA /* Sources/TechnicallyPilates/CameraPreviewView.swift */,
-				1D544AC42DB1B8850044A916 /* Sources/TechnicallyPilates/Models.swift */,
-				1D544AC22DB1AE350044A916 /* Sources/TechnicallyPilates/ParticleView.swift */,
-				1D544ABE2DB1A9690044A916 /* Sources/TechnicallyPilates/SoundManager.swift */,
-				1D544AB42DB19E800044A916 /* Sources/TechnicallyPilates/ConfettiView.swift */,
-				1D544AB22DB19E570044A916 /* Sources/TechnicallyPilates/FireTrailView.swift */,
-				1DF810EB2DB0499A008C5B49 /* Sources/TechnicallyPilates/UserProfileManagerView.swift */,
-				1DF810E92DB046A3008C5B49 /* Sources/TechnicallyPilates/PerformanceChartView.swift */,
-				1D95C0C62DAD86AC0070C3D1 /* Sources/TechnicallyPilates/SpeechCoach.swift */,
-				1D95C0C42DAD85540070C3D1 /* Sources/TechnicallyPilates/PoseLogView.swift */,
-				1D2F8B412DAC2FC400268601 /* Sources/TechnicallyPilates/TechnicallyPilatesApp.swift */,
-				1DB897DB2DA6E69900FEF7E1 /* Sources/TechnicallyPilates/PoseEstimator.swift */,
-				1DB897D02DA304FE00FEF7E1 /* Sources/TechnicallyPilates/CameraView.swift */,
-				1DB397622D8F540E001BA26F /* Sources/TechnicallyPilates/ContentView.swift */,
+				1D8F956E2DBD8F78005AFDE0 /* RoutineExecutionView.swift */,
+				1D8F956C2DBD8D2E005AFDE0 /* DataManager.swift */,
+				1D8F956A2DBD8CE9005AFDE0 /* ViewModel.swift */,
+				1D8F95682DBD8C9D005AFDE0 /* HomeView.swift */,
+				1D8F95662DBD8C75005AFDE0 /* RoutinesView.swift */,
+				1D8F95642DBD8C4B005AFDE0 /* ProfileView.swift */,
+				1D8F95622DBD8760005AFDE0 /* LoginView.swift */,
+				1D8F95602DBD8733005AFDE0 /* AuthManager.swift */,
+				1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */,
+				1D544AC42DB1B8850044A916 /* Models.swift */,
+				1D544AC22DB1AE350044A916 /* ParticleView.swift */,
+				1D544AB42DB19E800044A916 /* ConfettiView.swift */,
+				1D544AB22DB19E570044A916 /* FireTrailView.swift */,
+				1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */,
+				1D544ABE2DB1A9690044A916 /* SoundManager.swift */,
+				1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */,
+				1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */,
+				1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */,
+				1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */,
+				1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */,
+				1DB897D02DA304FE00FEF7E1 /* CameraView.swift */,
+				1DB397622D8F540E001BA26F /* ContentView.swift */,
 			);
 			path = TechnicallyPilates;
 			sourceTree = "<group>";
@@ -258,6 +266,11 @@
 			dependencies = (
 			);
 			name = TechnicallyPilates;
+			packageProductDependencies = (
+				1DE6555A2DBFF9770078CC1B /* FirebaseAnalytics */,
+				1DE6555C2DBFF9770078CC1B /* FirebaseAuth */,
+				1DE6555E2DBFF9770078CC1B /* FirebaseFirestore */,
+			);
 			productName = TechnicallyPilates;
 			productReference = 1DB3975D2D8F540E001BA26F /* TechnicallyPilates.app */;
 			productType = "com.apple.product-type.application";
@@ -305,19 +318,19 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1420;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					1DB3975C2D8F540E001BA26F = {
-						CreatedOnToolsVersion = 14.2;
+						CreatedOnToolsVersion = 15.0;
 					};
 					1DB3976C2D8F5410001BA26F = {
-						CreatedOnToolsVersion = 14.2;
+						CreatedOnToolsVersion = 15.0;
 						TestTargetID = 1DB3975C2D8F540E001BA26F;
 					};
 					1DB397762D8F5410001BA26F = {
-						CreatedOnToolsVersion = 14.2;
-						LastSwiftMigration = 1420;
+						CreatedOnToolsVersion = 15.0;
+						LastSwiftMigration = 1500;
 						TestTargetID = 1DB3975C2D8F540E001BA26F;
 					};
 				};
@@ -331,6 +344,9 @@
 				Base,
 			);
 			mainGroup = 1DB397542D8F540E001BA26F;
+			packageReferences = (
+				1DE655592DBFF9770078CC1B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 1DB3975E2D8F540E001BA26F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -355,6 +371,7 @@
 				1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */,
 				1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */,
 				1D544ABB2DB1A3980044A916 /* combo_fire..wav in Resources */,
+				1DBC9D422DBE83BF00C9D27A /* GoogleService-Info.plist in Resources */,
 				1D544ABD2DB1A4510044A916 /* achievement_unlock.wav in Resources */,
 				1D544AB72DB1A2940044A916 /* beep_countdown.wav in Resources */,
 			);
@@ -475,7 +492,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -489,7 +506,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -535,7 +552,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -543,7 +560,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -561,7 +578,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TechnicallyPilates/Preview Content\"";
-				DEVELOPMENT_TEAM = 8LV65T7CC5;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist;
@@ -575,7 +592,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.patrickorourke.TechnicallyPilates;
+				PRODUCT_BUNDLE_IDENTIFIER = com.patrickorourkes.pilatesApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -591,7 +608,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TechnicallyPilates/Preview Content\"";
-				DEVELOPMENT_TEAM = 8LV65T7CC5;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = /Users/patrickorourke/Desktop/TechnicallyPilates/TechnicallyPilates/Info.plist;
@@ -605,7 +622,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.patrickorourke.TechnicallyPilates;
+				PRODUCT_BUNDLE_IDENTIFIER = com.patrickorourkes.pilatesApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -744,6 +761,36 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1DE655592DBFF9770078CC1B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = versionRange;
+				maximumVersion = 11.0.0;
+				minimumVersion = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1DE6555A2DBFF9770078CC1B /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1DE655592DBFF9770078CC1B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		1DE6555C2DBFF9770078CC1B /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1DE655592DBFF9770078CC1B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		1DE6555E2DBFF9770078CC1B /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1DE655592DBFF9770078CC1B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1DB397552D8F540E001BA26F /* Project object */;
 }

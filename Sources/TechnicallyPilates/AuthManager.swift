@@ -1,5 +1,8 @@
 import Foundation
 import Combine
+import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 
 enum AuthError: LocalizedError {
     case invalidEmail
@@ -10,200 +13,166 @@ enum AuthError: LocalizedError {
     case invalidCredentials
     case networkError
     case unknownError
-    
+
     var errorDescription: String? {
         switch self {
-        case .invalidEmail:
-            return "Please enter a valid email address"
-        case .invalidPassword:
-            return "Password must be at least 8 characters long and contain at least one number and one special character"
-        case .passwordsDontMatch:
-            return "Passwords do not match"
-        case .invalidName:
-            return "Name must be at least 2 characters long"
-        case .emailAlreadyInUse:
-            return "This email is already registered"
-        case .invalidCredentials:
-            return "Invalid email or password"
-        case .networkError:
-            return "Network error. Please check your connection"
-        case .unknownError:
-            return "An unknown error occurred"
+        case .invalidEmail: return "Please enter a valid email address"
+        case .invalidPassword: return "Password must be at least 8 characters long and contain at least one number and one special character"
+        case .passwordsDontMatch: return "Passwords do not match"
+        case .invalidName: return "Name must be at least 2 characters long"
+        case .emailAlreadyInUse: return "This email is already registered"
+        case .invalidCredentials: return "Invalid email or password"
+        case .networkError: return "Network error. Please check your connection"
+        case .unknownError: return "An unknown error occurred"
         }
     }
 }
 
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
-    
+
     @Published var isAuthenticated = false
     @Published var currentUser: UserProfile?
-    
-    private var users: [String: UserProfile] = [:] // In-memory user storage
-    private var passwords: [String: String] = [:] // In-memory password storage (in real app, use secure storage)
-    
+
+    private let db = Firestore.firestore()
+
     private init() {
-        // Load authentication state on initialization
-        loadAuthState()
-        loadUsers()
-    }
-    
-    // MARK: - Authentication State Management
-    
-    private func loadAuthState() {
-        do {
-            if DataManager.shared.fileExists(fileName: "authState.json") {
-                let authState = try DataManager.shared.load(AuthState.self, from: "authState.json")
-                isAuthenticated = authState.isAuthenticated
-                
-                if isAuthenticated {
-                    currentUser = try DataManager.shared.load(UserProfile.self, from: "userProfile.json")
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            DispatchQueue.main.async {
+                if let user = user {
+                    self?.loadUserProfile(userId: user.uid)
+                } else {
+                    self?.isAuthenticated = false
+                    self?.currentUser = nil
                 }
             }
-        } catch {
-            print("Error loading auth state: \(error)")
         }
     }
-    
-    private func loadUsers() {
-        do {
-            if DataManager.shared.fileExists(fileName: "users.json") {
-                users = try DataManager.shared.load([String: UserProfile].self, from: "users.json")
+
+    func signIn(email: String, password: String, completion: @escaping (Result<UserProfile, Error>) -> Void) {
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            if let error = error {
+                completion(.failure(self?.mapFirebaseAuthError(error) ?? AuthError.unknownError))
+                return
             }
-            if DataManager.shared.fileExists(fileName: "passwords.json") {
-                passwords = try DataManager.shared.load([String: String].self, from: "passwords.json")
+
+            guard let userId = result?.user.uid else {
+                completion(.failure(AuthError.unknownError))
+                return
             }
-        } catch {
-            print("Error loading users: \(error)")
+
+            self?.loadUserProfile(userId: userId, completion: completion)
         }
     }
-    
-    private func saveAuthState() {
-        do {
-            let authState = AuthState(isAuthenticated: isAuthenticated)
-            try DataManager.shared.save(authState, to: "authState.json")
-        } catch {
-            print("Error saving auth state: \(error)")
+
+    func signUp(email: String, password: String, name: String, completion: @escaping (Result<UserProfile, Error>) -> Void) {
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
+            if let error = error {
+                completion(.failure(self?.mapFirebaseAuthError(error) ?? AuthError.unknownError))
+                return
+            }
+
+            guard let userId = result?.user.uid else {
+                completion(.failure(AuthError.unknownError))
+                return
+            }
+
+            let user = UserProfile(
+                id: UUID(),
+                name: name,
+                email: email,
+                level: 1,
+                xp: 0,
+                streakCount: 0,
+                goals: [],
+                achievements: [],
+                unlockedAchievements: [],
+                lastWorkoutDate: nil
+            )
+
+            self?.saveUserProfile(user, userId: userId) { result in
+                switch result {
+                case .success:
+                    completion(.success(user))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
         }
     }
-    
-    private func saveUsers() {
-        do {
-            try DataManager.shared.save(users, to: "users.json")
-            try DataManager.shared.save(passwords, to: "passwords.json")
-        } catch {
-            print("Error saving users: \(error)")
-        }
-    }
-    
-    // MARK: - Validation Methods
-    
-    private func validateEmail(_ email: String) throws {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
-        if !emailPredicate.evaluate(with: email) {
-            throw AuthError.invalidEmail
-        }
-    }
-    
-    private func validatePassword(_ password: String) throws {
-        let passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$"
-        let passwordPredicate = NSPredicate(format:"SELF MATCHES %@", passwordRegex)
-        if !passwordPredicate.evaluate(with: password) {
-            throw AuthError.invalidPassword
-        }
-    }
-    
-    private func validateName(_ name: String) throws {
-        if name.count < 2 {
-            throw AuthError.invalidName
-        }
-    }
-    
-    // MARK: - Authentication Methods
-    
-    func signIn(email: String, password: String) async throws {
-        try validateEmail(email)
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        guard let storedPassword = passwords[email],
-              storedPassword == password,
-              let user = users[email] else {
-            throw AuthError.invalidCredentials
-        }
-        
-        currentUser = UserProfile(
-            name: "New User",
-            email: email,
-            xp: 0,
-            level: 1,
-            streakCount: 0,
-            lastActiveDate: Date(),
-            unlockedAchievements: [],
-            unlockedRoutines: []
-        )
-        isAuthenticated = true
-        saveAuthState()
-        try DataManager.shared.save(user, to: "userProfile.json")
-    }
-    
+
     func signOut() {
-        currentUser = nil
-        isAuthenticated = false
-        saveAuthState()
-        
-        // Clear user profile
         do {
-            try DataManager.shared.delete(fileName: "userProfile.json")
+            try Auth.auth().signOut()
+            currentUser = nil
+            isAuthenticated = false
         } catch {
-            print("Error deleting user profile: \(error)")
+            print("Error signing out: \(error.localizedDescription)")
         }
     }
-    
-    func signUp(name: String, email: String, password: String, confirmPassword: String) async throws {
-        try validateName(name)
-        try validateEmail(email)
-        try validatePassword(password)
-        
-        if password != confirmPassword {
-            throw AuthError.passwordsDontMatch
+
+    private func loadUserProfile(userId: String, completion: ((Result<UserProfile, Error>) -> Void)? = nil) {
+        db.collection("users").document(userId).getDocument { [weak self] document, error in
+            if let error = error {
+                completion?(.failure(self?.mapFirebaseAuthError(error) ?? AuthError.unknownError))
+                return
+            }
+
+            guard let data = document?.data() else {
+                completion?(.failure(AuthError.unknownError))
+                return
+            }
+
+            let user = UserProfile(
+                id: UUID(),
+                name: data["name"] as? String ?? "",
+                email: data["email"] as? String ?? "",
+                level: data["level"] as? Int ?? 1,
+                xp: data["xp"] as? Int ?? 0,
+                streakCount: data["streakCount"] as? Int ?? 0,
+                goals: [],
+                achievements: [],
+                unlockedAchievements: [],
+                lastWorkoutDate: (data["lastWorkoutDate"] as? Timestamp)?.dateValue()
+            )
+
+            DispatchQueue.main.async {
+                self?.currentUser = user
+                self?.isAuthenticated = true
+                completion?(.success(user))
+            }
         }
-        
-        if users[email] != nil {
-            throw AuthError.emailAlreadyInUse
+    }
+
+    private func saveUserProfile(_ user: UserProfile, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let data: [String: Any] = [
+            "name": user.name,
+            "email": user.email,
+            "level": user.level,
+            "xp": user.xp,
+            "streakCount": user.streakCount,
+            "lastWorkoutDate": user.lastWorkoutDate.map { Timestamp(date: $0) } as Any
+        ]
+
+        db.collection("users").document(userId).setData(data) { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
         }
-        
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        let user = UserProfile(
-            id: UUID(),
-            name: name,
-            email: email,
-            goals: ["Improve flexibility", "Build strength"],
-            xp: 0,
-            level: 1,
-            streakCount: 0,
-            lastActiveDate: Date(),
-            unlockedAchievements: [],
-            unlockedRoutines: []
-        )
-        
-        users[email] = user
-        passwords[email] = password
-        saveUsers()
-        
-        currentUser = user
-        isAuthenticated = true
-        saveAuthState()
-        try DataManager.shared.save(user, to: "userProfile.json")
+    }
+
+    private func mapFirebaseAuthError(_ error: Error) -> AuthError {
+        let code = (error as NSError).code
+        switch AuthErrorCode.Code(rawValue: code) {
+        case .emailAlreadyInUse: return .emailAlreadyInUse
+        case .invalidEmail: return .invalidEmail
+        case .weakPassword: return .invalidPassword
+        case .wrongPassword, .userNotFound: return .invalidCredentials
+        case .networkError: return .networkError
+        default: return .unknownError
+        }
     }
 }
 
-// MARK: - Supporting Types
-
-private struct AuthState: Codable {
-    let isAuthenticated: Bool
-} 

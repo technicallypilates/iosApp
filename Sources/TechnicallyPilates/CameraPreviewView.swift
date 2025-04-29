@@ -7,7 +7,6 @@ struct CameraPreviewView: UIViewRepresentable {
     @Binding var poseColor: Color
     @Binding var startDetection: Bool
     @Binding var repCount: Int
-    @Binding var logEntries: [PoseLogEntry]
 
     var selectedRoutine: Routine
     var currentPoseIndex: Int
@@ -21,20 +20,22 @@ struct CameraPreviewView: UIViewRepresentable {
             poseColor: $poseColor,
             startDetection: $startDetection,
             repCount: $repCount,
-            logEntries: $logEntries,
-            onNewEntry: onNewEntry,
-            onComboBroken: onComboBroken
+            onNewEntry: { entry in
+                DispatchQueue.main.async {
+                    onNewEntry(entry)
+                }
+            },
+            onComboBroken: {
+                DispatchQueue.main.async {
+                    onComboBroken()
+                }
+            }
         )
-        
-        // Store the pose estimator in the coordinator
+
         context.coordinator.poseEstimator = poseEstimator
-        
-        // Set up the preview layer
         view.session = poseEstimator.captureSession
-        
-        // Start the camera session
         poseEstimator.startSession()
-        
+
         return view
     }
 
@@ -62,11 +63,11 @@ class PreviewView: UIView {
     }
 
     override class var layerClass: AnyClass {
-        return AVCaptureVideoPreviewLayer.self
+        AVCaptureVideoPreviewLayer.self
     }
 
     var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-        return layer as! AVCaptureVideoPreviewLayer
+        layer as! AVCaptureVideoPreviewLayer
     }
 
     override init(frame: CGRect) {
@@ -83,5 +84,3 @@ class PreviewView: UIView {
         videoPreviewLayer.videoGravity = .resizeAspectFill
     }
 }
-
-
