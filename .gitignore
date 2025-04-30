@@ -8,6 +8,22 @@ DerivedData/
 *.xcworkspace/xcuserdata/
 *.xcuserdata/
 
-# SwiftPM
+# Swift Package Manager
 .swiftpm/
+.build/
 Package.resolved
+
+# Xcode
+DerivedData/
+*.xcworkspace
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+
+# macOS metadata
+.DS_Store
+
+# Firebase or secret config
+GoogleService-Info.plist
+
+

@@ -8,45 +8,15 @@ struct CameraView: View {
     @State private var showingPoseLog = false
     
     var body: some View {
-        #if targetEnvironment(simulator)
-        VStack(spacing: 20) {
-            Image(systemName: "camera")
-                .font(.system(size: 80))
-                .foregroundColor(.gray)
-
-            Text("Camera Unavailable in Simulator")
-                .font(.title)
-                .bold()
-
-            Text("To use live pose detection, please test this feature on a real iPhone device.")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-                .padding()
-
-            Button("Show Pose Log") {
-                showingPoseLog = true
-            }
-            .font(.headline)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-        }
-        .padding()
-        .sheet(isPresented: $showingPoseLog) {
-            PoseLogView()
-                .environmentObject(viewModel)
-        }
-
-        #else
         NavigationView {
             VStack {
                 CameraPreviewView(
-                    poseLabel: viewModel.poseLabelBinding,
-                    poseColor: viewModel.poseColorBinding,
-                    startDetection: viewModel.startDetectionBinding,
-                    repCount: viewModel.repCountBinding,
-                    selectedRoutine: viewModel.selectedRoutine ?? Routine.exampleRoutine,
+                    poseLabel: viewModel.poseLabel,
+                    poseColor: viewModel.poseColor,
+                    startDetection: viewModel.startDetection,
+                    repCount: viewModel.repCount,
+                    logEntries: viewModel.logEntries,
+                    selectedRoutine: viewModel.selectedRoutine,
                     currentPoseIndex: viewModel.currentPoseIndex,
                     onNewEntry: { entry in
                         viewModel.addPoseLogEntry(entry)
@@ -55,7 +25,7 @@ struct CameraView: View {
                         viewModel.resetCombo()
                     }
                 )
-
+                
                 VStack {
                     HStack {
                         Text("Current Pose:")
@@ -63,12 +33,12 @@ struct CameraView: View {
                         Text(viewModel.poseLabel)
                             .foregroundColor(viewModel.poseColor)
                     }
-
+                    
                     Text("Reps: \(viewModel.repCount)")
                         .font(.headline)
                 }
                 .padding()
-
+                
                 Button(action: {
                     showingPoseLog = true
                 }) {
@@ -82,11 +52,27 @@ struct CameraView: View {
             }
             .navigationTitle("Camera")
             .sheet(isPresented: $showingPoseLog) {
-                PoseLogView()
-                    .environmentObject(viewModel)
+                NavigationView {
+                    List {
+                        ForEach(viewModel.logEntries) { entry in
+                            VStack(alignment: .leading) {
+                                Text(entry.poseName)
+                                    .font(.headline)
+                                Text("Reps: \(entry.reps)")
+                                    .font(.subheadline)
+                                Text(entry.timestamp, style: .time)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
+                    .navigationTitle("Pose Log")
+                    .navigationBarItems(trailing: Button("Done") {
+                        showingPoseLog = false
+                    })
+                }
             }
         }
-        #endif
     }
 }
 
@@ -143,4 +129,6 @@ struct CameraView_Previews: PreviewProvider {
             .environmentObject(ViewModel())
     }
 }
+
+
 

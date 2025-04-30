@@ -25,6 +25,7 @@ struct LoginView: View {
                 }
                 .onAppear {
                     if viewModel == nil, let user = authManager.currentUser {
+                        // ✅ Deferring the @State update
                         DispatchQueue.main.async {
                             let newVM = ViewModel()
                             newVM.onLogin(user: user)
@@ -32,7 +33,6 @@ struct LoginView: View {
                         }
                     }
                 }
-
             } else {
                 VStack {
                     ScrollView {
@@ -47,14 +47,16 @@ struct LoginView: View {
                             if isSignUp {
                                 TextField("Name", text: $name)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .autocapitalization(.words)
+                                    .autocorrectionDisabled(true)
+                                    .textInputAutocapitalization(.words)
                             }
 
                             TextField("Email", text: $email)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .keyboardType(.emailAddress)
                                 .textContentType(.emailAddress)
-                                .autocapitalization(.none)
+                                .autocorrectionDisabled(true)
+                                .textInputAutocapitalization(.never)
 
                             SecureField("Password", text: $password)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -90,13 +92,14 @@ struct LoginView: View {
                                 Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
                                     .foregroundColor(.blue)
                             }
+                            .padding(.top, 10)
                         }
                         .padding()
                     }
                 }
                 .navigationTitle("")
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar(.hidden, for: .navigationBar) // <-- this replaces .navigationBarHidden(true)
+                .toolbar(.hidden, for: .navigationBar) // ✅ Modern SwiftUI way
             }
         }
     }
