@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D2F8B402DAC2D8800268601 /* PoseClassifier.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */; };
 		1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */; };
+		1D4D88822DC417B10006AB72 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1D4D88812DC417B10006AB72 /* README.md */; };
 		1D544AB02DB199F80044A916 /* go.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AAE2DB199F80044A916 /* go.wav */; };
 		1D544AB12DB199F80044A916 /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AAF2DB199F80044A916 /* beep.wav */; };
 		1D544AB32DB19E570044A916 /* FireTrailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AB22DB19E570044A916 /* FireTrailView.swift */; };
@@ -44,8 +45,6 @@
 		1DD3BC0E2DBBA3F0005963DA /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */; };
 		1DE0FFA22DB3D72B00B03E38 /* FLOWCHART.png in Resources */ = {isa = PBXBuildFile; fileRef = 1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */; };
 		1DE969A82DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */; };
-		1DEC37F72DC2E55F00630000 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1D3C83F42DC2D7CC00F4FA5A /* Info.plist */; };
-		1DEC37F82DC2E63200630000 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1DF63DCA2DB2EFF500ADD4CD /* README.md */; };
 		1DEC37FB2DC2E71200630000 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1DEC37FA2DC2E71200630000 /* FirebaseAnalytics */; };
 		1DEC37FD2DC2E71200630000 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1DEC37FC2DC2E71200630000 /* FirebaseAuth */; };
 		1DEC37FF2DC2E71200630000 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 1DEC37FE2DC2E71200630000 /* FirebaseFirestore */; };
@@ -73,7 +72,8 @@
 /* Begin PBXFileReference section */
 		1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = PoseClassifier.mlpackage; sourceTree = "<group>"; };
 		1D2F8B412DAC2FC400268601 /* TechnicallyPilatesApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesApp.swift; sourceTree = SOURCE_ROOT; };
-		1D3C83F42DC2D7CC00F4FA5A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1D4D88812DC417B10006AB72 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1D4D88832DC41A390006AB72 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1D544AAE2DB199F80044A916 /* go.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = go.wav; sourceTree = "<group>"; };
 		1D544AAF2DB199F80044A916 /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
 		1D544AB22DB19E570044A916 /* FireTrailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FireTrailView.swift; path = Views/FireTrailView.swift; sourceTree = SOURCE_ROOT; };
@@ -112,7 +112,6 @@
 		1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraPreviewView.swift; path = Views/CameraPreviewView.swift; sourceTree = SOURCE_ROOT; };
 		1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FLOWCHART.png; sourceTree = "<group>"; };
 		1DE969A72DAFFCBD000A0BFF /* TechnicallyPilatesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicallyPilatesUITests.swift; sourceTree = "<group>"; };
-		1DF63DCA2DB2EFF500ADD4CD /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = TechnicallyPilates/README.md; sourceTree = "<group>"; };
 		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PerformanceChartView.swift; path = Views/PerformanceChartView.swift; sourceTree = SOURCE_ROOT; };
 		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UserProfileManagerView.swift; path = Views/UserProfileManagerView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -229,7 +228,7 @@
 		1DAE12E12DC2B3180044A861 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				1D3C83F42DC2D7CC00F4FA5A /* Info.plist */,
+				1D4D88832DC41A390006AB72 /* Info.plist */,
 				1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */,
 				1DB397662D8F5410001BA26F /* Preview Content */,
 				1D544AAD2DB199D70044A916 /* Sounds */,
@@ -240,7 +239,7 @@
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
-				1DF63DCA2DB2EFF500ADD4CD /* README.md */,
+				1D4D88812DC417B10006AB72 /* README.md */,
 				1DB397622D8F540E001BA26F /* ContentView.swift */,
 				1DB397642D8F5410001BA26F /* Assets.xcassets */,
 				1D2F8B3F2DAC2D8800268601 /* PoseClassifier.mlpackage */,
@@ -413,12 +412,11 @@
 				1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */,
 				1D544AB12DB199F80044A916 /* beep.wav in Resources */,
 				1D544AB92DB1A3340044A916 /* success_chime.wav in Resources */,
-				1DEC37F82DC2E63200630000 /* README.md in Resources */,
 				1D544AB02DB199F80044A916 /* go.wav in Resources */,
 				1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */,
+				1D4D88822DC417B10006AB72 /* README.md in Resources */,
 				1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */,
 				1D544ABB2DB1A3980044A916 /* combo_fire..wav in Resources */,
-				1DEC37F72DC2E55F00630000 /* Info.plist in Resources */,
 				1DBC9D422DBE83BF00C9D27A /* GoogleService-Info.plist in Resources */,
 				1D544ABD2DB1A4510044A916 /* achievement_unlock.wav in Resources */,
 				1D544AB72DB1A2940044A916 /* beep_countdown.wav in Resources */,
@@ -554,7 +552,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = Resources/Info.plist;
+				INFOPLIST_FILE = "Resources/Info.plist\n";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -609,7 +607,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = Resources/Info.plist;
+				INFOPLIST_FILE = "Resources/Info.plist\n";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -631,7 +629,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Resources/Info.plist\n\n";
+				INFOPLIST_FILE = "Resources/Info.plist\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -661,7 +659,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Resources/Info.plist\n\n";
+				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
