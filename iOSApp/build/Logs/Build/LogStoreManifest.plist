@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>10</integer>
+	<key>logs</key>
+	<dict>
+		<key>CB8AF382-3777-4140-957C-77B4B5B4B942</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>CB8AF382-3777-4140-957C-77B4B5B4B942.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>TechnicallyPilates project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>TechnicallyPilates</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project TechnicallyPilates with scheme TechnicallyPilates and configuration Release</string>
+			<key>timeStartedRecording</key>
+			<real>766436596.91684699</real>
+			<key>timeStoppedRecording</key>
+			<real>766436599.395872</real>
+			<key>title</key>
+			<string>Building project TechnicallyPilates with scheme TechnicallyPilates and configuration Release</string>
+			<key>uniqueIdentifier</key>
+			<string>CB8AF382-3777-4140-957C-77B4B5B4B942</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
