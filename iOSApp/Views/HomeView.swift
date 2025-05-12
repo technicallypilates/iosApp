@@ -2,78 +2,116 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var viewModel: ViewModel
-    
+    @StateObject private var authManager = AuthManager.shared
+    @State private var selectedRoutine: Routine?
+
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 20) {
-                    // User Stats
-                    VStack(alignment: .leading) {
-                        Text("Welcome, \(viewModel.userProfile?.name ?? "User")!")
-                            .font(.title)
-                            .padding(.bottom, 5)
-                        
-                        HStack {
-                            StatView(title: "Level", value: "\(viewModel.userProfile?.level ?? 1)")
-                            StatView(title: "XP", value: "\(viewModel.userProfile?.xp ?? 0)")
-                            StatView(title: "Streak", value: "\(viewModel.userProfile?.streakCount ?? 0) days")
-                        }
+                VStack(spacing: 24) {
+                    if let user = authManager.currentUser {
+                        UserProgressCard(user: user)
                     }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(10)
-                    .shadow(radius: 2)
-                    
-                    // Recent Activity
-                    VStack(alignment: .leading) {
-                        Text("Recent Activity")
-                            .font(.headline)
-                            .padding(.bottom, 5)
-                        
-                        ForEach(Array(viewModel.logEntries.prefix(5))) { entry in
-                            HStack {
-                                Text("Pose") // Placeholder for pose name
-                                    .font(.subheadline)
-                                Spacer()
-                                Text("\(entry.repsCompleted) reps")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-                            .padding(.vertical, 5)
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(10)
-                    .shadow(radius: 2)
-                    
-                    // Favorite Routines
-                    VStack(alignment: .leading) {
-                        Text("Favorite Routines")
-                            .font(.headline)
-                            .padding(.bottom, 5)
-                        
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Quick Access")
+                            .font(.title2)
+                            .bold()
+                            .padding(.horizontal)
+
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 15) {
-                                ForEach(viewModel.routines.filter { $0.isFavorite }) { routine in
+                                ForEach(viewModel.routines) { routine in
                                     RoutineCard(routine: routine)
+                                        .frame(width: 160, height: 90)
+                                        .onTapGesture {
+                                            selectedRoutine = routine
+                                        }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Recent Activity")
+                            .font(.title2)
+                            .bold()
+                            .padding(.horizontal)
+
+                        if viewModel.poseLog.isEmpty {
+                            Text("No activity yet. Complete a routine to get started!")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                                .padding(.horizontal)
+                        } else {
+                            ForEach(viewModel.poseLog.prefix(5)) { entry in
+                                if let pose = viewModel.getPoseById(entry.poseId) {
+                                    ActivityRow(pose: pose, entry: entry)
                                 }
                             }
                         }
                     }
-                    .padding()
                 }
-                .padding()
+                .padding(.vertical)
             }
             .navigationTitle("Home")
+            .sheet(item: $selectedRoutine) { routine in
+                RoutineExecutionView(routine: routine)
+            }
         }
     }
 }
 
-struct StatView: View {
+struct UserProgressCard: View {
+    let user: UserProfile
+
+    var body: some View {
+        VStack(spacing: 15) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Welcome back,")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    Text(user.name)
+                        .font(.title2)
+                        .bold()
+                }
+                Spacer()
+                if let data = user.profileImageData,
+                   let image = UIImage(data: data) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.blue, lineWidth: 2))
+                } else {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .frame(width: 60, height: 60)
+                        .foregroundColor(.blue)
+                }
+            }
+
+            HStack(spacing: 20) {
+                ProgressItem(title: "Level", value: "\(user.level)")
+                ProgressItem(title: "XP", value: "\(user.xp)")
+                ProgressItem(title: "Streak", value: "\(user.streakCount)")
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(15)
+        .shadow(radius: 5)
+        .padding(.horizontal)
+    }
+}
+
+struct ProgressItem: View {
     let title: String
     let value: String
-    
+
     var body: some View {
         VStack {
             Text(title)
@@ -81,32 +119,38 @@ struct StatView: View {
                 .foregroundColor(.gray)
             Text(value)
                 .font(.headline)
+                .bold()
         }
-        .frame(maxWidth: .infinity)
     }
 }
 
-struct RoutineCard: View {
-    let routine: Routine
-    
+struct ActivityRow: View {
+    let pose: Pose
+    let entry: PoseLogEntry
+
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
+    }()
+
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(routine.name)
-                .font(.headline)
-            Text("\(routine.exercises.count) exercises")
-                .font(.caption)
-                .foregroundColor(.gray)
-            Text(routine.difficulty.rawValue)
-                .font(.caption)
-                .padding(5)
-                .background(Color.blue.opacity(0.2))
-                .cornerRadius(5)
+        HStack {
+            VStack(alignment: .leading) {
+                Text(pose.name)
+                    .font(.headline)
+                Text(dateFormatter.string(from: entry.timestamp))
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            Spacer()
+            Text("\(entry.repsCompleted) reps")
+                .font(.subheadline)
         }
         .padding()
-        .frame(width: 150)
         .background(Color(.systemBackground))
         .cornerRadius(10)
-        .shadow(radius: 2)
+        .padding(.horizontal)
     }
 }
 
@@ -115,4 +159,4 @@ struct HomeView_Previews: PreviewProvider {
         HomeView()
             .environmentObject(ViewModel())
     }
-} 
+}

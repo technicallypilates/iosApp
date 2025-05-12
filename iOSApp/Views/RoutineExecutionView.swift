@@ -1,82 +1,143 @@
 import SwiftUI
+import FirebaseFirestore
 
 struct RoutineExecutionView: View {
+    @EnvironmentObject var viewModel: ViewModel
+    @EnvironmentObject var authManager: AuthManager
+    @Environment(\.presentationMode) var presentationMode
+
     let routine: Routine
+
     @State private var currentPoseIndex = 0
-    @State private var showingPoseDetails = false
-    
+    @State private var showingCompletion = false
+    @State private var poseAccuracy: Double = 0.0
+    @State private var repsCompleted = 0
+    @State private var isTracking = false
+
     var body: some View {
         VStack {
-            if currentPoseIndex < routine.exercises.count {
-                ExerciseView(
-                    exercise: routine.exercises[currentPoseIndex],
-                    onComplete: {
-                        if currentPoseIndex < routine.exercises.count - 1 {
-                            currentPoseIndex += 1
+            if currentPoseIndex < routine.poses.count {
+                let currentPose = routine.poses[currentPoseIndex]
+
+                PoseExecutionView(
+                    pose: currentPose,
+                    accuracy: $poseAccuracy,
+                    repsCompleted: $repsCompleted,
+                    isTracking: $isTracking
+                )
+
+                CameraView(
+                    poseLabel: .constant(currentPose.name),
+                    poseColor: .constant(.green),
+                    startDetection: $isTracking,
+                    repCount: $repsCompleted,
+                    logEntries: .constant([]),
+                    poseAccuracy: $poseAccuracy,
+                    selectedRoutine: routine,
+                    currentPoseIndex: currentPoseIndex,
+                    onNewEntry: { entry in
+                        if repsCompleted >= currentPose.repetitions {
+                            Task {
+                                await completeCurrentPose()
+                            }
                         }
                     }
                 )
             } else {
                 CompletionView(routine: routine)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
             }
         }
         .navigationTitle(routine.name)
     }
+
+    private func completeCurrentPose() async {
+        guard currentPoseIndex < routine.poses.count else { return }
+
+        let currentPose = routine.poses[currentPoseIndex]
+
+        do {
+            try await authManager.updatePoseAccuracy(
+                poseId: currentPose.id,
+                routineId: routine.id,
+                accuracyScore: Int(poseAccuracy * 100),
+                repsCompleted: repsCompleted
+            )
+
+            currentPoseIndex += 1
+            poseAccuracy = 0.0
+            repsCompleted = 0
+            isTracking = false
+
+            if currentPoseIndex >= routine.poses.count {
+                showingCompletion = true
+            }
+        } catch {
+            print("Error updating pose accuracy: \(error)")
+        }
+    }
 }
 
-struct ExerciseView: View {
-    let exercise: Exercise
-    let onComplete: () -> Void
-    
+struct PoseExecutionView: View {
+    let pose: Pose
+    @Binding var accuracy: Double
+    @Binding var repsCompleted: Int
+    @Binding var isTracking: Bool
+
     var body: some View {
         VStack {
-            Text(exercise.name)
+            Text(pose.name)
                 .font(.title)
-            
-            // Exercise visualization or camera preview would go here
-            
-            Button("Complete Exercise") {
-                onComplete()
+
+            Text("Accuracy: \(Int(accuracy * 100))%")
+                .font(.headline)
+                .foregroundColor(accuracy > 0.6 ? .green : .red)
+                .scaleEffect(1 + CGFloat(accuracy) * 0.1)
+                .animation(.easeInOut(duration: 0.2), value: accuracy)
+
+            Text("Reps Completed: \(repsCompleted)")
+                .font(.headline)
+
+            Button(action: {
+                isTracking.toggle()
+            }) {
+                Text(isTracking ? "Stop Tracking" : "Start Tracking")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(isTracking ? Color.red : Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+    }
+}
+
+struct CompletionView: View {
+    let routine: Routine
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        VStack {
+            Text("Routine Complete!")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+
+            Text("Great job! You've completed \(routine.name)")
+                .font(.headline)
+
+            Button("Return to Routines") {
+                presentationMode.wrappedValue.dismiss()
             }
             .padding()
             .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(10)
         }
+        .padding()
     }
 }
-
-struct CompletionView: View {
-    let routine: Routine
-    
-    var body: some View {
-        VStack {
-            Text("Congratulations!")
-                .font(.title)
-            Text("You've completed \(routine.name)")
-                .font(.headline)
-            
-            // Additional completion stats would go here
-        }
-    }
-}
-
-struct RoutineExecutionView_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleExercises = [
-            Exercise(name: "Exercise 1", description: "Sample exercise 1", pose: Pose(name: "Pose 1", description: "", category: "", difficulty: 1, instructions: [], benefits: [], modifications: [], contraindications: [], duration: 0, repetitions: 0), duration: 0, repetitions: 0, instructions: [], category: .mat),
-            Exercise(name: "Exercise 2", description: "Sample exercise 2", pose: Pose(name: "Pose 2", description: "", category: "", difficulty: 1, instructions: [], benefits: [], modifications: [], contraindications: [], duration: 0, repetitions: 0), duration: 0, repetitions: 0, instructions: [], category: .mat)
-        ]
-        
-        let sampleRoutine = Routine(
-            name: "Sample Routine",
-            description: "A sample routine",
-            exercises: sampleExercises,
-            duration: 1800,
-            difficulty: .beginner,
-            category: .mat
-        )
-        
-        RoutineExecutionView(routine: sampleRoutine)
-    }
-} 

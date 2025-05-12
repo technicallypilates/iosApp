@@ -3,6 +3,7 @@ import SwiftUI
 struct ParticleView: View {
     @State private var particles: [FireParticle] = []
     var isActive: Bool
+    @State private var timer: Timer? = nil
 
     var body: some View {
         ZStack {
@@ -23,10 +24,14 @@ struct ParticleView: View {
                 stopEmitting()
             }
         }
+        .onDisappear {
+            stopEmitting()
+        }
     }
 
     private func startEmitting() {
-        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+        stopEmitting() // Prevent multiple timers
+        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
             if !isActive {
                 timer.invalidate()
                 return
@@ -40,13 +45,15 @@ struct ParticleView: View {
                 blur: CGFloat.random(in: 1...4)
             )
             particles.append(newParticle)
-            if particles.count > 100 {
+            if particles.count > 40 {
                 particles.removeFirst()
             }
         }
     }
 
     private func stopEmitting() {
+        timer?.invalidate()
+        timer = nil
         particles.removeAll()
     }
 }

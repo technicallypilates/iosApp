@@ -1,168 +1,109 @@
 import SwiftUI
+import FirebaseAuth
 
 struct LoginView: View {
-    @StateObject private var authManager = AuthManager.shared
-    @State private var viewModel: ViewModel? = nil
-
+    @EnvironmentObject var authManager: AuthManager
     @State private var email = ""
     @State private var password = ""
-    @State private var confirmPassword = ""
-    @State private var name = ""
     @State private var isSignUp = false
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-
+    @State private var name = ""
+    @State private var showingError = false
+    @State private var errorMessage = ""
+    
     var body: some View {
-        NavigationStack {
-            if authManager.isAuthenticated {
-                Group {
-                    if let vm = viewModel {
-                        HomeView()
-                            .environmentObject(vm)
-                    } else {
-                        ProgressView("Loading...")
-                    }
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("Technically Pilates")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                if isSignUp {
+                    TextField("Name", text: $name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .autocapitalization(.words)
                 }
-                .onAppear {
-                    if viewModel == nil, let user = authManager.currentUser {
-                        // ✅ Deferring the @State update
-                        DispatchQueue.main.async {
-                            let newVM = ViewModel()
-                            newVM.onLogin(user: user)
-                            viewModel = newVM
-                        }
+                
+                TextField("Email", text: $email)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .autocapitalization(.none)
+                    .keyboardType(.emailAddress)
+                
+                SecureField("Password", text: $password)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                Button(action: {
+                    Task {
+                        await performAuth()
                     }
-                }
-            } else {
-                VStack {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            Image(systemName: "figure.pilates")
-                                .font(.system(size: 80))
-                                .foregroundColor(.blue)
-
-                            Text("Technically Pilates")
-                                .font(.largeTitle).bold()
-
-                            if isSignUp {
-                                TextField("Name", text: $name)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .autocorrectionDisabled(true)
-                                    .textInputAutocapitalization(.words)
-                            }
-
-                            TextField("Email", text: $email)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .keyboardType(.emailAddress)
-                                .textContentType(.emailAddress)
-                                .autocorrectionDisabled(true)
-                                .textInputAutocapitalization(.never)
-
-                            SecureField("Password", text: $password)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                            if isSignUp {
-                                SecureField("Confirm Password", text: $confirmPassword)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                            }
-
-                            if let error = errorMessage {
-                                Text(error)
-                                    .foregroundColor(.red)
-                                    .font(.caption)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
-                            }
-
-                            Button(action: handleAuthentication) {
-                                if isLoading {
-                                    ProgressView()
-                                } else {
-                                    Text(isSignUp ? "Sign Up" : "Sign In")
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .disabled(isLoading)
-
-                            Button(action: toggleAuthMode) {
-                                Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(.top, 10)
-                        }
+                }) {
+                    Text(isSignUp ? "Sign Up" : "Sign In")
+                        .frame(maxWidth: .infinity)
                         .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    isSignUp.toggle()
+                }) {
+                    Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
+                        .foregroundColor(.blue)
+                }
+                
+                if isSignUp {
+                    Button("Forgot Password?") {
+                        Task {
+                            await resetPassword()
+                        }
                     }
-                }
-                .navigationTitle("")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar(.hidden, for: .navigationBar) // ✅ Modern SwiftUI way
-            }
-        }
-    }
-
-    // MARK: - Auth Handling
-    private func handleAuthentication() {
-        isLoading = true
-        errorMessage = nil
-
-        if isSignUp {
-            guard validateSignUpFields() else {
-                isLoading = false
-                return
-            }
-
-            authManager.signUp(email: email, password: password, name: name) { result in
-                DispatchQueue.main.async {
-                    isLoading = false
-                    handleAuthResult(result)
+                    .foregroundColor(.blue)
                 }
             }
-        } else {
-            authManager.signIn(email: email, password: password) { result in
-                DispatchQueue.main.async {
-                    isLoading = false
-                    handleAuthResult(result)
-                }
+            .padding()
+            .alert("Error", isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
             }
         }
     }
-
-    private func handleAuthResult(_ result: Result<UserProfile, Error>) {
-        if case .failure(let error) = result {
-            errorMessage = error.localizedDescription
+    
+    private func performAuth() async {
+        do {
+            if isSignUp {
+                try await authManager.signUp(email: email, password: password, name: name)
+            } else {
+                try await authManager.signIn(email: email, password: password)
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showingError = true
+            }
         }
     }
-
-    private func toggleAuthMode() {
-        withAnimation {
-            isSignUp.toggle()
-            errorMessage = nil
-            confirmPassword = ""
+    
+    private func resetPassword() async {
+        do {
+            try await authManager.resetPassword(email: email)
+            await MainActor.run {
+                errorMessage = "Password reset email sent"
+                showingError = true
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showingError = true
+            }
         }
     }
+}
 
-    private func validateSignUpFields() -> Bool {
-        if name.trimmingCharacters(in: .whitespaces).count < 2 {
-            errorMessage = AuthError.invalidName.localizedDescription
-            return false
-        }
-        if !email.contains("@") || !email.contains(".") {
-            errorMessage = AuthError.invalidEmail.localizedDescription
-            return false
-        }
-        if password.count < 8 {
-            errorMessage = AuthError.invalidPassword.localizedDescription
-            return false
-        }
-        if password != confirmPassword {
-            errorMessage = AuthError.passwordsDontMatch.localizedDescription
-            return false
-        }
-        return true
+struct LoginView_Previews: PreviewProvider {
+    static var previews: some View {
+        LoginView()
+            .environmentObject(AuthManager.shared)
     }
 }
 

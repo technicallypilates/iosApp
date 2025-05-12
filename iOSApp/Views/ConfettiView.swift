@@ -29,13 +29,18 @@ struct ConfettiView: View {
                     animate = false
                 }
             }
+            .onDisappear {
+                confetti.removeAll()
+                animate = false
+            }
         }
         .blendMode(.plusLighter)
         .allowsHitTesting(false)
     }
 
     private func generateParticles(in size: CGSize) {
-        for _ in 0..<150 {
+        confetti.removeAll()
+        for _ in 0..<60 {
             let randomX = CGFloat.random(in: 0...size.width)
             let randomY = CGFloat.random(in: 0...size.height / 2)
             let randomColor = [Color.red, Color.blue, Color.green, Color.yellow, Color.purple, Color.pink, Color.cyan].randomElement()!

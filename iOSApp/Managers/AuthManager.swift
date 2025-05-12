@@ -1,6 +1,5 @@
 import Foundation
 import Combine
-import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 
@@ -16,14 +15,22 @@ enum AuthError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidEmail: return "Please enter a valid email address"
-        case .invalidPassword: return "Password must be at least 8 characters long and contain at least one number and one special character"
-        case .passwordsDontMatch: return "Passwords do not match"
-        case .invalidName: return "Name must be at least 2 characters long"
-        case .emailAlreadyInUse: return "This email is already registered"
-        case .invalidCredentials: return "Invalid email or password"
-        case .networkError: return "Network error. Please check your connection"
-        case .unknownError: return "An unknown error occurred"
+        case .invalidEmail:
+            return "Please enter a valid email address"
+        case .invalidPassword:
+            return "Password must be at least 8 characters long and contain at least one number and one special character"
+        case .passwordsDontMatch:
+            return "Passwords do not match"
+        case .invalidName:
+            return "Name must be at least 2 characters long"
+        case .emailAlreadyInUse:
+            return "This email is already registered"
+        case .invalidCredentials:
+            return "Invalid email or password"
+        case .networkError:
+            return "Network error. Please check your connection"
+        case .unknownError:
+            return "An unknown error occurred"
         }
     }
 }
@@ -31,203 +38,179 @@ enum AuthError: LocalizedError {
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
 
-    @Published var isAuthenticated = false
     @Published var currentUser: UserProfile?
+    @Published var isAuthenticated = false
+    @Published var error: Error?
 
+    private let auth = Auth.auth()
     private let db = Firestore.firestore()
+    private var cancellables = Set<AnyCancellable>()
 
-    private init() {
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+    init() {
+        setupAuthStateListener()
+    }
+
+    private func setupAuthStateListener() {
+        auth.addStateDidChangeListener { [weak self] _, user in
             guard let self = self else { return }
             if let user = user {
-                self.loadUserProfile(userId: user.uid)
+                Task {
+                    try? await self.fetchUserProfile(userId: user.uid)
+                }
             } else {
                 DispatchQueue.main.async {
-                    self.isAuthenticated = false
                     self.currentUser = nil
+                    self.isAuthenticated = false
                 }
             }
         }
     }
 
-    func signIn(email: String, password: String, completion: @escaping (Result<UserProfile, Error>) -> Void) {
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-            guard let self = self else { return }
-
-            if let error = error {
-                DispatchQueue.main.async {
-                    completion(.failure(self.mapFirebaseAuthError(error)))
-                }
-                return
-            }
-
-            guard let userId = result?.user.uid else {
-                DispatchQueue.main.async {
-                    completion(.failure(AuthError.unknownError))
-                }
-                return
-            }
-
-            self.loadUserProfile(userId: userId, completion: completion)
-        }
-    }
-
-    func signUp(email: String, password: String, name: String, completion: @escaping (Result<UserProfile, Error>) -> Void) {
-        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-            guard let self = self else { return }
-
-            if let error = error {
-                DispatchQueue.main.async {
-                    completion(.failure(self.mapFirebaseAuthError(error)))
-                }
-                return
-            }
-
-            guard let user = result?.user else {
-                DispatchQueue.main.async {
-                    completion(.failure(AuthError.unknownError))
-                }
-                return
-            }
-
-            let userProfile = UserProfile(
-                id: UUID(uuidString: user.uid) ?? UUID(),
-                name: name,
-                email: email,
-                level: 1,
-                xp: 0,
-                streakCount: 0,
-                goals: [],
-                achievements: [],
-                unlockedAchievements: [],
-                lastWorkoutDate: nil
-            )
-
-            self.saveUserProfile(userProfile, userId: user.uid) { saveResult in
-                switch saveResult {
-                case .success:
-                    // Let Firestore write settle before read
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.loadUserProfile(userId: user.uid, completion: completion)
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        completion(.failure(error))
-                    }
-                }
-            }
-        }
-    }
-
-    func signOut() {
+    func signIn(email: String, password: String) async throws {
         do {
-            try Auth.auth().signOut()
-            DispatchQueue.main.async {
-                self.currentUser = nil
-                self.isAuthenticated = false
-            }
+            let result = try await auth.signIn(withEmail: email, password: password)
+            try await fetchUserProfile(userId: result.user.uid)
         } catch {
-            print("Error signing out: \(error.localizedDescription)")
+            self.error = error
+            throw error
         }
     }
 
-    private func loadUserProfile(userId: String, completion: ((Result<UserProfile, Error>) -> Void)? = nil) {
-        db.collection("users").document(userId).getDocument { [weak self] document, error in
-            guard let self = self else { return }
+    func signUp(email: String, password: String, name: String) async throws {
+        try validateEmail(email)
+        try validatePassword(password)
+        try validateName(name)
 
-            if let error = error {
-                DispatchQueue.main.async {
-                    completion?(.failure(self.mapFirebaseAuthError(error)))
-                }
-                return
-            }
+        let result = try await auth.createUser(withEmail: email, password: password)
+        let userProfile = UserProfile(
+            id: result.user.uid,
+            name: name,
+            email: email
+        )
+        try await saveUserProfile(userProfile)
 
-            guard let data = document?.data(), document?.exists == true else {
-                if let user = Auth.auth().currentUser {
-                    let fallbackUser = UserProfile(
-                        id: UUID(uuidString: user.uid) ?? UUID(),
-                        name: "User",
-                        email: user.email ?? "",
-                        level: 1,
-                        xp: 0,
-                        streakCount: 0,
-                        goals: [],
-                        achievements: [],
-                        unlockedAchievements: [],
-                        lastWorkoutDate: nil
-                    )
-
-                    self.saveUserProfile(fallbackUser, userId: user.uid) { result in
-                        switch result {
-                        case .success:
-                            DispatchQueue.main.async {
-                                self.currentUser = fallbackUser
-                                self.isAuthenticated = true
-                                completion?(.success(fallbackUser))
-                            }
-                        case .failure(let error):
-                            DispatchQueue.main.async {
-                                completion?(.failure(error))
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(.failure(AuthError.unknownError))
-                    }
-                }
-                return
-            }
-
-            let user = UserProfile(
-                id: UUID(uuidString: userId) ?? UUID(),
-                name: data["name"] as? String ?? "",
-                email: data["email"] as? String ?? "",
-                level: data["level"] as? Int ?? 1,
-                xp: data["xp"] as? Int ?? 0,
-                streakCount: data["streakCount"] as? Int ?? 0,
-                goals: [],
-                achievements: [],
-                unlockedAchievements: [],
-                lastWorkoutDate: (data["lastWorkoutDate"] as? Timestamp)?.dateValue()
-            )
-
-            DispatchQueue.main.async {
-                self.currentUser = user
-                self.isAuthenticated = true
-                completion?(.success(user))
-            }
+        DispatchQueue.main.async {
+            self.currentUser = userProfile
+            self.isAuthenticated = true
         }
     }
 
-    private func saveUserProfile(_ user: UserProfile, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        let data: [String: Any] = [
-            "name": user.name,
-            "email": user.email,
-            "level": user.level,
-            "xp": user.xp,
-            "streakCount": user.streakCount,
-            "lastWorkoutDate": user.lastWorkoutDate.map { Timestamp(date: $0) } as Any
-        ]
-
-        db.collection("users").document(userId).setData(data) { error in
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                completion(.success(()))
-            }
+    func signOut() throws {
+        try auth.signOut()
+        DispatchQueue.main.async {
+            self.currentUser = nil
+            self.isAuthenticated = false
         }
     }
 
-    private func mapFirebaseAuthError(_ error: Error) -> AuthError {
-        let code = (error as NSError).code
-        switch AuthErrorCode.Code(rawValue: code) {
-        case .emailAlreadyInUse: return .emailAlreadyInUse
-        case .invalidEmail: return .invalidEmail
-        case .weakPassword: return .invalidPassword
-        case .wrongPassword, .userNotFound: return .invalidCredentials
-        case .networkError: return .networkError
-        default: return .unknownError
+    private func fetchUserProfile(userId: String) async throws {
+        let document = try await db.collection("users").document(userId).getDocument()
+        guard let data = document.data(),
+              let profile = UserProfile(dictionary: data) else {
+            throw NSError(domain: "AuthManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "User profile not found"])
+        }
+
+        DispatchQueue.main.async {
+            self.currentUser = profile
+            self.isAuthenticated = true
+        }
+    }
+
+    private func saveUserProfile(_ profile: UserProfile) async throws {
+        guard let data = profile.dictionary else { return }
+        try await db.collection("users").document(profile.id).setData(data)
+    }
+
+    func updateUserXP(_ amount: Int) async throws {
+        guard var profile = currentUser else { return }
+        profile.xp += amount
+        profile.level = Int(sqrt(Double(profile.xp) / 100.0)) + 1
+        try await saveUserProfile(profile)
+        let updatedProfile = profile // Make a local copy for concurrency safety
+        DispatchQueue.main.async {
+            self.currentUser = updatedProfile
+        }
+    }
+
+    func updatePoseAccuracy(poseId: UUID, routineId: UUID, accuracyScore: Int, repsCompleted: Int) async throws {
+        guard let userId = currentUser?.id else { return }
+
+        let entry = PoseLogEntry(
+            poseId: poseId,
+            routineId: routineId,
+            repsCompleted: repsCompleted,
+            accuracyScore: accuracyScore,
+            timestamp: Date()
+        )
+
+        let data = entry.dictionary
+        try await db.collection("users").document(userId)
+            .collection("poseLogs")
+            .document(entry.id.uuidString)
+            .setData(data)
+    }
+
+    func resetPassword(email: String) async throws {
+        try await auth.sendPasswordReset(withEmail: email)
+    }
+
+    func updateUserProfile(_ profile: UserProfile) async throws {
+        try await saveUserProfile(profile)
+        DispatchQueue.main.async {
+            self.currentUser = profile
+        }
+    }
+
+    func changePassword(currentPassword: String, newPassword: String) async throws {
+        guard let user = auth.currentUser else {
+            throw AuthError.invalidCredentials
+        }
+        let credential = EmailAuthProvider.credential(withEmail: user.email ?? "", password: currentPassword)
+        try await user.reauthenticate(with: credential)
+        try await user.updatePassword(to: newPassword)
+    }
+
+    func verifyEmail(_ email: String) async throws {
+        try validateEmail(email)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+    }
+
+    func deleteAccount(withEmail email: String, password: String) async throws {
+        guard let user = auth.currentUser else {
+            throw AuthError.invalidCredentials
+        }
+        let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+        try await user.reauthenticate(with: credential)
+        try await user.delete()
+        // Optionally, remove user data from Firestore
+        try await db.collection("users").document(user.uid).delete()
+        DispatchQueue.main.async {
+            self.currentUser = nil
+            self.isAuthenticated = false
+        }
+    }
+
+    // MARK: - Validation
+
+    private func validateEmail(_ email: String) throws {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let predicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        if !predicate.evaluate(with: email) {
+            throw AuthError.invalidEmail
+        }
+    }
+
+    private func validatePassword(_ password: String) throws {
+        let regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$"
+        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
+        if !predicate.evaluate(with: password) {
+            throw AuthError.invalidPassword
+        }
+    }
+
+    private func validateName(_ name: String) throws {
+        if name.count < 2 {
+            throw AuthError.invalidName
         }
     }
 }

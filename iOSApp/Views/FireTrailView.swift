@@ -6,7 +6,7 @@ struct FireTrailView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                ForEach(0..<20) { index in
+                ForEach(0..<10) { index in
                     Circle()
                         .fill(Color.orange.opacity(0.6))
                         .frame(width: CGFloat.random(in: 4...8), height: CGFloat.random(in: 4...8))
@@ -26,6 +26,9 @@ struct FireTrailView: View {
             }
             .onAppear {
                 animate = true
+            }
+            .onDisappear {
+                animate = false
             }
         }
         .blendMode(.screen)

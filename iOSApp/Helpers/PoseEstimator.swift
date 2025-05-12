@@ -3,64 +3,62 @@ import Vision
 import UIKit
 import SwiftUI
 import CoreML
+import Foundation
 
 class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     @Binding private var poseLabel: String
     @Binding private var poseColor: Color
     @Binding private var startDetection: Bool
     @Binding private var repCount: Int
+    @Binding private var logEntries: [PoseLogEntry]
+    @Binding private var poseAccuracy: Double  // ✅ NEW
 
     private let videoDataOutput = AVCaptureVideoDataOutput()
     private let videoDataOutputQueue = DispatchQueue(label: "VideoDataOutput", qos: .userInteractive)
     var captureSession: AVCaptureSession?
+
     private var selectedRoutine: Routine?
     private var currentPoseIndex: Int = 0
-    private var lastPoseTime: Date?
     private var onNewEntry: (PoseLogEntry) -> Void
     private var onComboBroken: () -> Void
-    private var poseClassifier: PoseClassifier?
 
-    private var consecutiveCorrectPoses: Int = 0
-    private var hasAchievedHighAccuracy: Bool = false
+    private var model: PoseClassifier?
 
-    private let poseLabels: [Int: String] = [
-        0: "FullRollUp"
-    ]
+    private let frameProcessingInterval: TimeInterval = 0.2
+    private let poseConfidenceThreshold: Int = 60
+    private var lastProcessedTime = Date.distantPast
 
-    private var previousPositions: [VNHumanBodyPoseObservation.JointName: CGPoint]?
-    private var previousTimestamp: CMTime?
-    private let frameRate: Double = 30.0
-    private let velocitySmoothingFactor: Float = 0.3
-    private var previousVelocities: [VNHumanBodyPoseObservation.JointName: (x: Float, y: Float)] = [:]
-
-    private let trackedJoints: [VNHumanBodyPoseObservation.JointName] = [
-        .leftHip, .rightHip,
-        .leftShoulder, .rightShoulder,
-        .leftKnee, .rightKnee,
-        .leftAnkle, .rightAnkle
-    ]
+    var poseBaselines: [UUID: [String: Double]]
 
     init(poseLabel: Binding<String>,
          poseColor: Binding<Color>,
          startDetection: Binding<Bool>,
          repCount: Binding<Int>,
+         logEntries: Binding<[PoseLogEntry]>,
+         poseAccuracy: Binding<Double>, // ✅ NEW
          onNewEntry: @escaping (PoseLogEntry) -> Void,
-         onComboBroken: @escaping () -> Void) {
+         onComboBroken: @escaping () -> Void,
+         poseBaselines: [UUID: [String: Double]] = [:]) {
         _poseLabel = poseLabel
         _poseColor = poseColor
         _startDetection = startDetection
         _repCount = repCount
+        _logEntries = logEntries
+        _poseAccuracy = poseAccuracy // ✅ NEW
         self.onNewEntry = onNewEntry
         self.onComboBroken = onComboBroken
+        self.poseBaselines = poseBaselines
+        super.init()
+        loadModel()
+    }
 
+    private func loadModel() {
         do {
             let config = MLModelConfiguration()
-            poseClassifier = try PoseClassifier(configuration: config)
+            self.model = try PoseClassifier(configuration: config)
         } catch {
-            print("Error initializing PoseClassifier: \(error)")
+            print("⚠️ Failed to load PoseClassifier:", error)
         }
-
-        super.init()
     }
 
     func startSession() {
@@ -68,15 +66,25 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         session.beginConfiguration()
 
         guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else { return }
+              let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else {
+            print("❌ Failed to access camera input.")
+            return
+        }
 
         if session.canAddInput(videoInput) {
             session.addInput(videoInput)
         }
 
+        videoDataOutput.alwaysDiscardsLateVideoFrames = true
         videoDataOutput.setSampleBufferDelegate(self, queue: videoDataOutputQueue)
+
         if session.canAddOutput(videoDataOutput) {
             session.addOutput(videoDataOutput)
+        }
+
+        if let connection = videoDataOutput.connection(with: .video),
+           connection.isVideoOrientationSupported {
+            connection.videoOrientation = .portrait
         }
 
         session.commitConfiguration()
@@ -84,7 +92,14 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.captureSession?.startRunning()
+            print("✅ Camera session started.")
         }
+    }
+
+    func stopSession() {
+        captureSession?.stopRunning()
+        captureSession = nil
+        print("🔁 Capture session stopped.")
     }
 
     func updateState(startDetection: Bool, selectedRoutine: Routine, currentPoseIndex: Int) {
@@ -93,177 +108,157 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         self.currentPoseIndex = currentPoseIndex
     }
 
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    func captureOutput(_ output: AVCaptureOutput,
+                       didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
         guard startDetection,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
               let selectedRoutine = selectedRoutine else { return }
 
-        let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-        let date = Date(timeIntervalSince1970: CMTimeGetSeconds(timestamp))
+        let now = Date()
+        guard now.timeIntervalSince(lastProcessedTime) >= frameProcessingInterval else { return }
+        lastProcessedTime = now
 
-        let poseRequest = VNDetectHumanBodyPoseRequest { [weak self] request, error in
+        let request = VNDetectHumanBodyPoseRequest { [weak self] request, error in
             guard let self = self,
                   let observations = request.results as? [VNHumanBodyPoseObservation],
                   let observation = observations.first else {
                 return
             }
-            self.processPoseObservation(observation, for: selectedRoutine.exercises[self.currentPoseIndex], timestamp: date, cmTimestamp: timestamp)
+            self.handlePoseObservation(observation, for: selectedRoutine.poses[self.currentPoseIndex])
         }
 
-        try? VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:]).perform([poseRequest])
+        try? VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:]).perform([request])
     }
 
-    private func processPoseObservation(_ observation: VNHumanBodyPoseObservation, for exercise: Exercise, timestamp: Date, cmTimestamp: CMTime) {
-        guard let features = extractFeatures(from: observation, cmTimestamp: cmTimestamp),
-              let classifier = poseClassifier else {
-            DispatchQueue.main.async { [weak self] in
-                self?.poseLabel = "Unable to detect pose"
-                self?.poseColor = .red
-            }
-            return
-        }
-
+    private func handlePoseObservation(_ observation: VNHumanBodyPoseObservation, for expectedPose: Pose) {
         do {
-            let input = try MLMultiArray(shape: [1, 9], dataType: .float32)
-            for (index, feature) in features.enumerated() {
-                input[index] = NSNumber(value: feature)
+            let _ = try extractJointAngles(from: observation)
+            guard let recognizedPoints = try? observation.recognizedPoints(.all) else { return }
+            let liveAngles = calculateLiveAngles(from: recognizedPoints)
+            guard let baseline = poseBaselines[expectedPose.id] else {
+                print("⚠️ No baseline available for pose '\(expectedPose.name)'")
+                return
             }
-
-            let prediction = try classifier.prediction(input_1: input)
-
-            guard let outputFeature = prediction.featureValue(for: "Identity"),
-                  let probabilities = outputFeature.multiArrayValue else {
-                throw NSError(domain: "PoseEstimator", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not get prediction probabilities"])
-            }
-
-            let probability = probabilities[0].floatValue
+            let accuracyScore = computeAccuracy(liveAngles: liveAngles, baseline: baseline)
 
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
 
-                if probability > 0.7 && exercise.name == self.poseLabels[0] {
-                    let xp = XPSystem.calculateXP(
-                        accuracy: Double(probability),
-                        isFirstTimeHighAccuracy: !self.hasAchievedHighAccuracy && probability >= 0.9,
-                        consecutiveCorrectPoses: self.consecutiveCorrectPoses
-                    )
+                self.poseAccuracy = Double(accuracyScore) / 100.0 // ✅ LIVE BINDING
 
-                    if probability >= 0.9 {
-                        self.hasAchievedHighAccuracy = true
-                    }
-                    self.consecutiveCorrectPoses += 1
-
-                    self.poseLabel = "\(exercise.name) (Accuracy: \(Int(probability * 100))%)"
+                if accuracyScore >= self.poseConfidenceThreshold {
+                    self.poseLabel = expectedPose.name
                     self.poseColor = .green
                     self.repCount += 1
-
                     let entry = PoseLogEntry(
-                        poseId: exercise.id,
+                        poseId: expectedPose.id,
                         routineId: self.selectedRoutine?.id ?? UUID(),
                         repsCompleted: self.repCount,
-                        accuracy: Double(probability),
-                        xpEarned: xp
+                        accuracyScore: accuracyScore,
+                        timestamp: Date()
                     )
-
-                    DispatchQueue.main.async {
-                        self.onNewEntry(entry)
-                    }
+                    self.logEntries.append(entry)
+                    self.onNewEntry(entry)
                 } else {
-                    self.consecutiveCorrectPoses = 0
-                    self.poseLabel = "Incorrect Pose (Accuracy: \(Int(probability * 100))%)"
+                    self.poseLabel = "Incorrect Pose"
                     self.poseColor = .red
-
-                    DispatchQueue.main.async {
-                        self.onComboBroken()
-                    }
+                    self.onComboBroken()
                 }
             }
         } catch {
-            print("Error making prediction: \(error)")
-            DispatchQueue.main.async { [weak self] in
-                self?.poseLabel = "Error analyzing pose"
-                self?.poseColor = .red
-            }
+            print("⚠️ Angle extraction or prediction failed:", error)
         }
     }
 
-    private func calculateAngle(a: CGPoint, b: CGPoint, c: CGPoint) -> CGFloat {
-        let radians = atan2(c.y - b.y, c.x - b.x) - atan2(a.y - b.y, a.x - b.x)
-        var angle = abs(radians * 180.0 / .pi)
-        if angle > 180.0 { angle = 360 - angle }
-        return angle
+    private func extractJointAngles(from observation: VNHumanBodyPoseObservation) throws -> (leftHip: Double, rightHip: Double, leftElbow: Double, rightElbow: Double) {
+        func angleBetween(_ a: VNHumanBodyPoseObservation.JointName,
+                          _ b: VNHumanBodyPoseObservation.JointName,
+                          _ c: VNHumanBodyPoseObservation.JointName) throws -> Double {
+            guard let pointA = try? observation.recognizedPoint(a),
+                  let pointB = try? observation.recognizedPoint(b),
+                  let pointC = try? observation.recognizedPoint(c),
+                  pointA.confidence > 0.3,
+                  pointB.confidence > 0.3,
+                  pointC.confidence > 0.3 else {
+                throw NSError(domain: "PoseEstimator", code: -1, userInfo: [NSLocalizedDescriptionKey: "Low joint confidence"])
+            }
+
+            let ab = CGVector(dx: pointA.location.x - pointB.location.x, dy: pointA.location.y - pointB.location.y)
+            let cb = CGVector(dx: pointC.location.x - pointB.location.x, dy: pointC.location.y - pointB.location.y)
+
+            let dot = ab.dx * cb.dx + ab.dy * cb.dy
+            let mag = hypot(ab.dx, ab.dy) * hypot(cb.dx, cb.dy)
+            let cosAngle = max(min(dot / mag, 1.0), -1.0)
+
+            return acos(cosAngle) * 180 / Double.pi
+        }
+
+        return (
+            leftHip: try angleBetween(.leftKnee, .leftHip, .leftShoulder),
+            rightHip: try angleBetween(.rightKnee, .rightHip, .rightShoulder),
+            leftElbow: try angleBetween(.leftWrist, .leftElbow, .leftShoulder),
+            rightElbow: try angleBetween(.rightWrist, .rightElbow, .rightShoulder)
+        )
     }
 
-    private func extractFeatures(from observation: VNHumanBodyPoseObservation, cmTimestamp: CMTime) -> [Float]? {
-        var currentPositions: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
-        var velocities: [VNHumanBodyPoseObservation.JointName: (x: Float, y: Float)] = [:]
+    private func calculateLiveAngles(from points: [VNHumanBodyPoseObservation.JointName: VNRecognizedPoint]) -> [String: Double] {
+        func angle(between a: VNRecognizedPoint, _ b: VNRecognizedPoint, _ c: VNRecognizedPoint) -> Double {
+            let ab = CGVector(dx: a.location.x - b.location.x, dy: a.location.y - b.location.y)
+            let cb = CGVector(dx: c.location.x - b.location.x, dy: c.location.y - b.location.y)
 
-        for joint in trackedJoints {
-            if let point = try? observation.recognizedPoint(joint) {
-                currentPositions[joint] = CGPoint(x: point.location.x, y: point.location.y)
-            }
+            let dot = ab.dx * cb.dx + ab.dy * cb.dy
+            let mag = hypot(ab.dx, ab.dy) * hypot(cb.dx, cb.dy)
+            guard mag > 0 else { return 0 }
+
+            let cosAngle = max(min(dot / mag, 1.0), -1.0)
+            return acos(cosAngle) * 180 / Double.pi
         }
-
-        if let previousPositions = previousPositions, let previousTime = previousTimestamp {
-            let timeDiff = CMTimeGetSeconds(CMTimeSubtract(cmTimestamp, previousTime))
-            if timeDiff > 0 {
-                for joint in trackedJoints {
-                    if let currentPos = currentPositions[joint], let prevPos = previousPositions[joint] {
-                        let rawVelocityX = Float((currentPos.x - prevPos.x) / timeDiff)
-                        let rawVelocityY = Float((currentPos.y - prevPos.y) / timeDiff)
-                        let prevVelocity = previousVelocities[joint] ?? (0, 0)
-                        let smoothedVelocityX = velocitySmoothingFactor * rawVelocityX + (1 - velocitySmoothingFactor) * prevVelocity.x
-                        let smoothedVelocityY = velocitySmoothingFactor * rawVelocityY + (1 - velocitySmoothingFactor) * prevVelocity.y
-
-                        let maxVelocity: Float = 100.0
-                        velocities[joint] = (
-                            min(max(smoothedVelocityX / maxVelocity, -1.0), 1.0),
-                            min(max(smoothedVelocityY / maxVelocity, -1.0), 1.0)
-                        )
-                    }
-                }
-            }
-        }
-
-        previousPositions = currentPositions
-        previousVelocities = velocities
-        previousTimestamp = cmTimestamp
-
-        guard let leftShoulder = currentPositions[.leftShoulder],
-              let rightShoulder = currentPositions[.rightShoulder],
-              let leftElbow = try? observation.recognizedPoint(.leftElbow),
-              let rightElbow = try? observation.recognizedPoint(.rightElbow),
-              let leftWrist = try? observation.recognizedPoint(.leftWrist),
-              let rightWrist = try? observation.recognizedPoint(.rightWrist),
-              let leftHip = currentPositions[.leftHip],
-              let rightHip = currentPositions[.rightHip],
-              let leftKnee = currentPositions[.leftKnee],
-              let rightKnee = currentPositions[.rightKnee],
-              let leftAnkle = currentPositions[.leftAnkle],
-              let rightAnkle = currentPositions[.rightAnkle] else {
-            return nil
-        }
-
-        let leftHipAngle = calculateAngle(a: leftShoulder, b: leftHip, c: leftKnee)
-        let rightHipAngle = calculateAngle(a: rightShoulder, b: rightHip, c: rightKnee)
-        let leftElbowAngle = calculateAngle(a: leftShoulder, b: CGPoint(x: leftElbow.location.x, y: leftElbow.location.y), c: CGPoint(x: leftWrist.location.x, y: leftWrist.location.y))
-        let rightElbowAngle = calculateAngle(a: rightShoulder, b: CGPoint(x: rightElbow.location.x, y: rightElbow.location.y), c: CGPoint(x: rightWrist.location.x, y: rightWrist.location.y))
-        let leftKneeAngle = calculateAngle(a: leftHip, b: leftKnee, c: leftAnkle)
-        let rightKneeAngle = calculateAngle(a: rightHip, b: rightKnee, c: rightAnkle)
-
-        let avgVelocityX = velocities.values.map { $0.x }.reduce(0, +) / Float(velocities.count)
-        let avgVelocityY = velocities.values.map { $0.y }.reduce(0, +) / Float(velocities.count)
 
         return [
-            Float(leftHipAngle),
-            Float(rightHipAngle),
-            Float(leftElbowAngle),
-            Float(rightElbowAngle),
-            Float(leftKneeAngle),
-            Float(rightKneeAngle),
-            avgVelocityX,
-            avgVelocityY,
-            0.0
+            "leftHipAngle": angle(between: points[.leftShoulder]!, points[.leftHip]!, points[.leftKnee]!),
+            "rightHipAngle": angle(between: points[.rightShoulder]!, points[.rightHip]!, points[.rightKnee]!),
+            "leftElbowAngle": angle(between: points[.leftShoulder]!, points[.leftElbow]!, points[.leftWrist]!),
+            "rightElbowAngle": angle(between: points[.rightShoulder]!, points[.rightElbow]!, points[.rightWrist]!),
+            "leftKneeAngle": angle(between: points[.leftHip]!, points[.leftKnee]!, points[.leftAnkle]!),
+            "rightKneeAngle": angle(between: points[.rightHip]!, points[.rightKnee]!, points[.rightAnkle]!)
         ]
     }
+
+    private func computeAccuracy(liveAngles: [String: Double], baseline: [String: Double], tolerance: Double = 15.0) -> Int {
+        var totalScore = 0.0
+        var count = 0
+
+        for (key, liveValue) in liveAngles {
+            if let target = baseline[key] {
+                let error = abs(liveValue - target)
+                let score = max(0, 100 - (error / tolerance) * 100)
+                totalScore += score
+                count += 1
+            }
+        }
+
+        return count > 0 ? Int(totalScore / Double(count)) : 0
+    }
 }
+
+// MARK: - Baseline Loader
+extension PoseEstimator {
+    static func loadBaselineAngles(from filename: String = "FullRollUp_baseline_angles.json") -> [UUID: [String: Double]] {
+        guard let url = Bundle.main.url(forResource: filename, withExtension: nil),
+              let data = try? Data(contentsOf: url),
+              let raw = try? JSONSerialization.jsonObject(with: data) as? [String: [String: Double]] else {
+            print("⚠️ Failed to load baseline angles from \(filename)")
+            return [:]
+        }
+
+        var result: [UUID: [String: Double]] = [:]
+        for (key, angles) in raw {
+            if let uuid = UUID(uuidString: key) {
+                result[uuid] = angles
+            }
+        }
+        return result
+    }
+}
+

@@ -84,8 +84,16 @@ struct UserProfileManagerView: View {
         }
         
         let newProfile = UserProfile(
+            id: UUID().uuidString,
             name: newName,
-            email: newEmail
+            email: newEmail,
+            level: 1,
+            xp: 0,
+            streakCount: 0,
+            lastActiveDate: Date(),
+            achievements: [],
+            unlockedRoutines: [],
+            unlockedAchievements: []
         )
         
         profiles.append(newProfile)
@@ -121,9 +129,23 @@ struct UserProfileManagerView: View {
 #if DEBUG
 struct UserProfileManagerView_Previews: PreviewProvider {
     static var previews: some View {
-        UserProfileManagerView(
-            profiles: [UserProfile(id: "1", name: "Test User", email: "test@example.com", lastActiveDate: Date())],
-            selectedProfile: nil
+        let profiles = [UserProfile(
+            id: "1",
+            name: "Test User",
+            email: "test@example.com",
+            level: 1,
+            xp: 0,
+            streakCount: 0,
+            lastActiveDate: Date(),
+            achievements: [],
+            unlockedRoutines: [],
+            unlockedAchievements: []
+        )]
+        let selectedProfile = profiles[0]
+        
+        return UserProfileManagerView(
+            profiles: .constant(profiles),
+            selectedProfile: .constant(selectedProfile)
         )
     }
 }

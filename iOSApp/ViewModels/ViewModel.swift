@@ -1,54 +1,56 @@
 import Foundation
 import Combine
-import SwiftUI
-import AVFoundation
-import FirebaseAuth
 import FirebaseFirestore
+import Vision
 
+// MARK: - ChallengeParticipant Struct
+struct ChallengeParticipant: Codable, Identifiable, Equatable {
+    let id: UUID
+    let userId: String
+    let challengeId: UUID
+    let progress: Double
+    let startDate: Date
+    let lastUpdated: Date
+    var status: ChallengeStatus
+
+    enum ChallengeStatus: String, Codable {
+        case active
+        case completed
+        case abandoned
+    }
+
+    var completed: Bool {
+        status == .completed
+    }
+}
+
+// MARK: - ViewModel
 class ViewModel: ObservableObject {
-    @Published var userProfile: UserProfile?
-    @Published var poseLabel = "Ready to start"
-    @Published var poseColor: Color = .white
-    @Published var startDetection = false
-    @Published var repCount = 0
-    @Published var exercises: [Exercise] = []
+    @Published var poses: [Pose] = []
     @Published var routines: [Routine] = []
+    @Published var userProfile: UserProfile?
     @Published var poseLog: [PoseLogEntry] = []
     @Published var selectedRoutine: Routine?
-    @Published var currentPoseIndex: Int = 0
-    @Published var logEntries: [PoseLogEntry] = []
-    @Published var consecutiveCorrectPoses = 0
-    @Published var errorMessage: String?
-
-    let session = AVCaptureSession()
-    private var poseEstimator: PoseEstimator?
+    @Published var userChallengeParticipation: [UUID: ChallengeParticipant] = [:]
+    @Published var challenges: [Challenge] = []
+    @Published var users: [UserProfile] = []
+    @Published var challengeLeaderboards: [UUID: [LeaderboardEntry]] = [:]
     private let db = Firestore.firestore()
 
+    private var cancellables = Set<AnyCancellable>()
+
     init() {
-        // Do nothing until user logs in
-    }
-
-    func onLogin(user: UserProfile) {
-        self.userProfile = user
-        loadUserData()
-        loadInitialData()
-        setupCamera()
         loadData()
+        loadRoutines()
+        seedRoutinesIfNeeded()
     }
 
-    private func loadInitialData() {}
-    func loadUserData() {}
-    func saveUserData() {}
-
-    func updateUserProfile(to updated: UserProfile) {
-        userProfile = updated
-        saveUserData()
-    }
+    // MARK: - Data Loading
 
     private func loadData() {
         do {
-            if DataManager.shared.fileExists(fileName: "exercises.json") {
-                exercises = try DataManager.shared.load([Exercise].self, from: "exercises.json")
+            if DataManager.shared.fileExists(fileName: "poses.json") {
+                poses = try DataManager.shared.load([Pose].self, from: "poses.json")
             }
             if DataManager.shared.fileExists(fileName: "routines.json") {
                 routines = try DataManager.shared.load([Routine].self, from: "routines.json")
@@ -59,108 +61,130 @@ class ViewModel: ObservableObject {
             if DataManager.shared.fileExists(fileName: "poseLog.json") {
                 poseLog = try DataManager.shared.load([PoseLogEntry].self, from: "poseLog.json")
             }
+            if DataManager.shared.fileExists(fileName: "users.json") {
+                users = try DataManager.shared.load([UserProfile].self, from: "users.json")
+            }
         } catch {
-            print("Error loading local data: \(error)")
+            print("Error loading data: \(error)")
         }
     }
 
-    private func setupCamera() {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            configureSession()
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
-                if granted {
-                    DispatchQueue.main.async {
-                        self?.configureSession()
-                    }
-                }
+    private func loadRoutines() {
+        db.collection("routines").addSnapshotListener { [weak self] snapshot, error in
+            guard let self = self,
+                  let documents = snapshot?.documents else { return }
+
+            self.routines = documents.compactMap { document in
+                try? Routine(from: document.data())
             }
-        default:
-            break
         }
     }
 
-    private func configureSession() {
-        session.beginConfiguration()
+    private func seedRoutinesIfNeeded() {
+        guard routines.isEmpty else { return }
 
-        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let input = try? AVCaptureDeviceInput(device: device) else { return }
-
-        if session.canAddInput(input) {
-            session.addInput(input)
-        }
-
-        let output = AVCaptureVideoDataOutput()
-        if session.canAddOutput(output) {
-            session.addOutput(output)
-        }
-
-        session.commitConfiguration()
-
-        poseEstimator = PoseEstimator(
-            poseLabel: poseLabelBinding,
-            poseColor: poseColorBinding,
-            startDetection: startDetectionBinding,
-            repCount: repCountBinding,
-            onNewEntry: { [weak self] entry in
-                DispatchQueue.main.async {
-                    self?.addPoseLogEntry(entry)
-                }
-            },
-            onComboBroken: { [weak self] in
-                DispatchQueue.main.async {
-                    self?.resetCombo()
-                }
-            }
+        // Example seeding (optional)
+        let defaultRoutine = Routine(
+            name: "Sample Routine",
+            description: "This is a sample seeded routine.",
+            category: "Core",
+            poses: [],
+            duration: 300,
+            difficulty: 1,
+            isUnlocked: true,
+            xpReward: 50
         )
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.session.startRunning()
+        if let data = defaultRoutine.asDictionary {
+            db.collection("routines").document(defaultRoutine.id.uuidString).setData(data)
         }
     }
 
-    func resetCombo() {
-        consecutiveCorrectPoses = 0
+    // MARK: - Save Users
+
+    func saveUsers() {
+        do {
+            try DataManager.shared.save(users, to: "users.json")
+        } catch {
+            print("Error saving users: \(error)")
+        }
     }
+
+    // MARK: - User Profile Management
+
+    func updateUserProfile(_ profile: UserProfile) {
+        userProfile = profile
+        saveUserProfile()
+    }
+
+    private func saveUserProfile() {
+        guard let profile = userProfile else { return }
+        do {
+            try DataManager.shared.save(profile, to: "userProfile.json")
+        } catch {
+            print("Error saving user profile: \(error)")
+        }
+    }
+
+    // MARK: - Pose Log Management
 
     func addPoseLogEntry(_ entry: PoseLogEntry) {
-        logEntries.append(entry)
-        saveUserData()
+        poseLog.append(entry)
+        savePoseLog()
     }
 
-    func getExerciseById(_ id: UUID) -> Exercise? {
-        exercises.first { $0.id == id }
-    }
-    
-    // In ViewModel.swift
-
-    func addRoutine(_ routine: Routine) {
-        routines.append(routine)
-        saveUserData()
+    func updatePoseLogEntry(_ entry: PoseLogEntry) {
+        if let index = poseLog.firstIndex(where: { $0.id == entry.id }) {
+            poseLog[index] = entry
+            savePoseLog()
+        }
     }
 
-    func deleteRoutine(_ routine: Routine) {
-        routines.removeAll { $0.id == routine.id }
-        saveUserData()
+    func deletePoseLogEntry(_ entry: PoseLogEntry) {
+        poseLog.removeAll { $0.id == entry.id }
+        savePoseLog()
     }
 
-
-    // Bindings
-    var poseLabelBinding: Binding<String> {
-        Binding(get: { self.poseLabel }, set: { self.poseLabel = $0 })
+    private func savePoseLog() {
+        do {
+            try DataManager.shared.save(poseLog, to: "poseLog.json")
+        } catch {
+            print("Error saving pose log: \(error)")
+        }
     }
 
-    var poseColorBinding: Binding<Color> {
-        Binding(get: { self.poseColor }, set: { self.poseColor = $0 })
+    // MARK: - Utility Helpers
+
+    func getPoseById(_ id: UUID) -> Pose? {
+        poses.first { $0.id == id }
     }
 
-    var startDetectionBinding: Binding<Bool> {
-        Binding(get: { self.startDetection }, set: { self.startDetection = $0 })
+    func getRoutineById(_ id: UUID) -> Routine? {
+        routines.first { $0.id == id }
     }
 
-    var repCountBinding: Binding<Int> {
-        Binding(get: { self.repCount }, set: { self.repCount = $0 })
+    func getPoseLogEntries(for poseId: UUID) -> [PoseLogEntry] {
+        poseLog.filter { $0.poseId == poseId }
+    }
+
+    func getRoutinesByCategory(_ category: String) -> [Routine] {
+        routines.filter { $0.category == category }
+    }
+
+    func getPosesByCategory(_ category: String) -> [Pose] {
+        poses.filter { $0.category == category }
+    }
+
+    // MARK: - Accuracy Example (optional)
+
+    func calculateRoutineAccuracy(_ routine: Routine) -> Double {
+        let poseIds = Set(routine.poses.map { $0.id })
+        let logs = poseLog.filter { poseIds.contains($0.poseId) }
+
+        guard !logs.isEmpty else { return 0.0 }
+
+        let accuracies = logs.map { Double($0.accuracyScore) / 100.0 }
+        return accuracies.reduce(0, +) / Double(accuracies.count)
     }
 }
 
