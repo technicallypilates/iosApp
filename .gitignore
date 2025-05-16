@@ -1,13 +1,61 @@
-# macOS
+# macOS system files
 .DS_Store
 
 # Xcode
-build/
-DerivedData/
+*.xcworkspace
 *.xcuserstate
-*.xcworkspace/xcuserdata/
 *.xcuserdata/
+DerivedData/
+build/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
 
-# SwiftPM
-.swiftpm/
+# Swift Package Manager
+.build/
+Packages/
 Package.resolved
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.env
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
