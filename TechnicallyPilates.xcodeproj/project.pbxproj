@@ -15,7 +15,7 @@
 		1D544AB52DB19E800044A916 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544AB42DB19E800044A916 /* ConfettiView.swift */; };
 		1D544AB72DB1A2940044A916 /* beep_countdown.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AB62DB1A2940044A916 /* beep_countdown.wav */; };
 		1D544AB92DB1A3340044A916 /* success_chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AB82DB1A3340044A916 /* success_chime.wav */; };
-		1D544ABB2DB1A3980044A916 /* combo_fire..wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544ABA2DB1A3980044A916 /* combo_fire..wav */; };
+		1D544ABB2DB1A3980044A916 /* combo_fire.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544ABA2DB1A3980044A916 /* combo_fire.wav */; };
 		1D544ABD2DB1A4510044A916 /* achievement_unlock.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */; };
 		1D544ABF2DB1A9690044A916 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D544ABE2DB1A9690044A916 /* SoundManager.swift */; };
 		1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1D544AC02DB1AA0F0044A916 /* chime.wav */; };
@@ -102,7 +102,7 @@
 		1D544AB42DB19E800044A916 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConfettiView.swift; path = Views/ConfettiView.swift; sourceTree = SOURCE_ROOT; };
 		1D544AB62DB1A2940044A916 /* beep_countdown.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep_countdown.wav; sourceTree = "<group>"; };
 		1D544AB82DB1A3340044A916 /* success_chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = success_chime.wav; sourceTree = "<group>"; };
-		1D544ABA2DB1A3980044A916 /* combo_fire..wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = combo_fire..wav; sourceTree = "<group>"; };
+		1D544ABA2DB1A3980044A916 /* combo_fire.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = combo_fire.wav; sourceTree = "<group>"; };
 		1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = achievement_unlock.wav; sourceTree = "<group>"; };
 		1D544ABE2DB1A9690044A916 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SoundManager.swift; path = Managers/SoundManager.swift; sourceTree = SOURCE_ROOT; };
 		1D544AC02DB1AA0F0044A916 /* chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = chime.wav; sourceTree = "<group>"; };
@@ -206,7 +206,7 @@
 			children = (
 				1D544AC02DB1AA0F0044A916 /* chime.wav */,
 				1D544ABC2DB1A4510044A916 /* achievement_unlock.wav */,
-				1D544ABA2DB1A3980044A916 /* combo_fire..wav */,
+				1D544ABA2DB1A3980044A916 /* combo_fire.wav */,
 				1D544AB82DB1A3340044A916 /* success_chime.wav */,
 				1D544AB62DB1A2940044A916 /* beep_countdown.wav */,
 				1D544AAF2DB199F80044A916 /* beep.wav */,
@@ -495,7 +495,7 @@
 				1DED03762DD14099002E4179 /* GoogleService-Info.plist in Resources */,
 				1D4D88822DC417B10006AB72 /* README.md in Resources */,
 				1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */,
-				1D544ABB2DB1A3980044A916 /* combo_fire..wav in Resources */,
+				1D544ABB2DB1A3980044A916 /* combo_fire.wav in Resources */,
 				1D544ABD2DB1A4510044A916 /* achievement_unlock.wav in Resources */,
 				1D544AB72DB1A2940044A916 /* beep_countdown.wav in Resources */,
 			);
