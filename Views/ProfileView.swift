@@ -19,12 +19,27 @@ struct ProfileView: View {
     @State private var showingImagePicker = false
     @State private var selectedUIImage: UIImage?
 
+    @State private var showingReminderAlert = false
+    @State private var showingCalendarAlert = false
+    @State private var alertMessage = ""
+    @State private var alertTitle = ""
+
+    @State private var showingCalendarSheet = false
+    @State private var calendarEventDate = Date().addingTimeInterval(3600)
+    @State private var calendarEventTitle = "Pilates Routine"
+    @State private var calendarEventNotes = "Complete your Pilates workout routine."
+
+    @State private var showingReminderSheet = false
+    @State private var reminderTime = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
+    @State private var reminderRepeats = true
+
     var body: some View {
         NavigationView {
             List {
                 if let user = authManager.currentUser {
                     profileSection(user)
                     statsSection(user)
+                    metricsSection(user)
                     performanceSection
                     achievementsSection(user)
                     leaderboardSection
@@ -53,13 +68,62 @@ struct ProfileView: View {
                     .onDisappear {
                         if let image = selectedUIImage,
                            let data = image.jpegData(compressionQuality: 0.8),
-                           let currentUser = authManager.currentUser,
-                           let index = viewModel.users.firstIndex(where: { $0.id == currentUser.id }) {
-                            viewModel.users[index].profileImageData = data
-                            authManager.currentUser?.profileImageData = data
-                            viewModel.saveUsers()
+                           let currentUser = authManager.currentUser {
+                            Task {
+                                do {
+                                    currentUser.profileImageData = data
+                                    try await authManager.updateUserProfile(currentUser)
+                                    viewModel.saveUsers()
+                                } catch {
+                                    print("Error updating profile image: \(error)")
+                                }
+                            }
                         }
                     }
+            }
+            .sheet(isPresented: $showingCalendarSheet) {
+                VStack(spacing: 20) {
+                    Text("Add Routine to Calendar").font(.headline)
+                    DatePicker("Select Date & Time", selection: $calendarEventDate)
+                        .datePickerStyle(GraphicalDatePickerStyle())
+                        .labelsHidden()
+                    TextField("Event Title", text: $calendarEventTitle)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    TextField("Notes", text: $calendarEventNotes)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    Button("Add to Calendar") {
+                        addRoutineToCalendar(date: calendarEventDate, title: calendarEventTitle, notes: calendarEventNotes)
+                        showingCalendarSheet = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Cancel") {
+                        showingCalendarSheet = false
+                    }
+                    .foregroundColor(.red)
+                }
+                .padding()
+            }
+            .sheet(isPresented: $showingReminderSheet) {
+                VStack(spacing: 20) {
+                    Text("Schedule Daily Workout Reminder").font(.headline)
+                    DatePicker("Select Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(WheelDatePickerStyle())
+                        .labelsHidden()
+                    Toggle("Repeat Daily", isOn: $reminderRepeats)
+                        .padding(.horizontal)
+                    Button("Set Reminder") {
+                        scheduleWorkoutReminder(at: reminderTime, repeats: reminderRepeats)
+                        showingReminderSheet = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Cancel") {
+                        showingReminderSheet = false
+                    }
+                    .foregroundColor(.red)
+                }
+                .padding()
             }
             .alert("Log Out", isPresented: $showingLogoutAlert) {
                 Button("Log Out", role: .destructive) { try? authManager.signOut() }
@@ -86,6 +150,16 @@ struct ProfileView: View {
                     SecureField("Enter Password", text: $deletePassword)
                     Text("Please enter your password to confirm account deletion.")
                 }
+            }
+            .alert(alertTitle, isPresented: $showingReminderAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
+            }
+            .alert(alertTitle, isPresented: $showingCalendarAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
             }
         }
     }
@@ -126,6 +200,46 @@ struct ProfileView: View {
             LabeledContent("XP", value: "\(user.xp)")
             LabeledContent("Streak", value: "\(user.streakCount) days")
             LabeledContent("Avg Accuracy", value: "\(averageAccuracy)%")
+        }
+    }
+
+    private func metricsSection(_ user: UserProfile) -> some View {
+        Section(header: Text("Exercise Metrics")) {
+            let metrics = user.calculateExerciseMetrics(from: viewModel.poseLog)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Accuracy")
+                    Spacer()
+                    Text("\(String(format: "%.1f", metrics.accuracy * 100))%")
+                }
+                ProgressView(value: metrics.accuracy)
+                    .accentColor(.green)
+                HStack {
+                    Text("Consistency")
+                    Spacer()
+                    Text("\(String(format: "%.1f", metrics.consistency * 100))%")
+                }
+                ProgressView(value: metrics.consistency)
+                    .accentColor(.orange)
+                HStack {
+                    Text("Best Streak")
+                    Spacer()
+                    Text("\(metrics.streak) days")
+                }
+                ProgressView(value: Double(metrics.streak) / 30.0) // Assume 30 as a max for visual
+                    .accentColor(.blue)
+                HStack {
+                    Text("Duration")
+                    Spacer()
+                    Text("\(Int(metrics.duration / 60)) min")
+                }
+                HStack {
+                    Text("Difficulty")
+                    Spacer()
+                    Text("\(metrics.difficulty)")
+                }
+            }
+            .font(.subheadline)
         }
     }
 
@@ -187,10 +301,10 @@ struct ProfileView: View {
 
     private var remindersSection: some View {
         Section(header: Text("Reminders & Scheduling")) {
-            Button(action: scheduleWorkoutReminder) {
+            Button(action: { showingReminderSheet = true }) {
                 Label("Schedule Daily Workout Reminder", systemImage: "bell")
             }
-            Button(action: addRoutineToCalendar) {
+            Button(action: { showingCalendarSheet = true }) {
                 Label("Add Routine to Calendar", systemImage: "calendar")
             }
         }
@@ -239,33 +353,62 @@ struct ProfileView: View {
 
     private func shareProgress() {}
 
-    private func scheduleWorkoutReminder() {
+    private func scheduleWorkoutReminder(at time: Date, repeats: Bool) {
         let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
-            if granted {
-                let content = UNMutableNotificationContent()
-                content.title = "Time for Pilates!"
-                content.body = "Stay on track with your daily workout routine."
-                var dateComponents = DateComponents()
-                dateComponents.hour = 9
-                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-                let request = UNNotificationRequest(identifier: "dailyWorkoutReminder", content: content, trigger: trigger)
-                center.add(request)
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                if granted {
+                    let content = UNMutableNotificationContent()
+                    content.title = "Time for Pilates!"
+                    content.body = "Stay on track with your daily workout routine."
+                    var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: repeats)
+                    let request = UNNotificationRequest(identifier: "dailyWorkoutReminder", content: content, trigger: trigger)
+                    center.add(request) { error in
+                        DispatchQueue.main.async {
+                            if let error = error {
+                                alertTitle = "Error"
+                                alertMessage = "Failed to schedule reminder: \(error.localizedDescription)"
+                            } else {
+                                alertTitle = "Success"
+                                alertMessage = repeats ? "Daily workout reminder scheduled for \(String(format: "%02d:%02d", dateComponents.hour ?? 0, dateComponents.minute ?? 0)) (repeats daily)" : "Workout reminder scheduled for \(String(format: "%02d:%02d", dateComponents.hour ?? 0, dateComponents.minute ?? 0)) (one-time)"
+                            }
+                            showingReminderAlert = true
+                        }
+                    }
+                } else {
+                    alertTitle = "Permission Denied"
+                    alertMessage = "Please enable notifications in Settings to schedule reminders"
+                    showingReminderAlert = true
+                }
             }
         }
     }
 
-    private func addRoutineToCalendar() {
+    private func addRoutineToCalendar(date: Date, title: String, notes: String) {
         let store = EKEventStore()
-        store.requestAccess(to: .event) { granted, _ in
-            if granted {
-                let event = EKEvent(eventStore: store)
-                event.title = "Pilates Routine"
-                event.startDate = Date().addingTimeInterval(3600)
-                event.endDate = event.startDate.addingTimeInterval(1800)
-                event.notes = "Complete your Pilates workout routine."
-                event.calendar = store.defaultCalendarForNewEvents
-                try? store.save(event, span: .thisEvent)
+        store.requestAccess(to: .event) { granted, error in
+            DispatchQueue.main.async {
+                if granted {
+                    let event = EKEvent(eventStore: store)
+                    event.title = title
+                    event.startDate = date
+                    event.endDate = date.addingTimeInterval(1800) // 30 min duration
+                    event.notes = notes
+                    event.calendar = store.defaultCalendarForNewEvents
+                    do {
+                        try store.save(event, span: .thisEvent)
+                        alertTitle = "Success"
+                        alertMessage = "Routine added to calendar for \(event.startDate.formatted(date: .abbreviated, time: .shortened))"
+                    } catch {
+                        alertTitle = "Error"
+                        alertMessage = "Failed to add to calendar: \(error.localizedDescription)"
+                    }
+                } else {
+                    alertTitle = "Permission Denied"
+                    alertMessage = "Please enable calendar access in Settings to add routines"
+                }
+                showingCalendarAlert = true
             }
         }
     }

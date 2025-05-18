@@ -1,0 +1,14 @@
+{
+    "12345678-90AB-CDEF-1234-567890ABCDEF": {
+        "leftHipAngle": 90.0,
+        "rightHipAngle": 90.0,
+        "leftElbowAngle": 150.0,
+        "rightElbowAngle": 150.0,
+        "leftKneeAngle": 120.0,
+        "rightKneeAngle": 120.0,
+        "spineAngle": 180.0,
+        "shoulderAlignment": 0.0,
+        "hipAlignment": 0.0,
+        "neckAngle": 0.0
+    }
+} 

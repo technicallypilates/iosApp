@@ -55,6 +55,7 @@
 		1D8F956F2DBD8F78005AFDE0 /* RoutineExecutionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8F956E2DBD8F78005AFDE0 /* RoutineExecutionView.swift */; };
 		1D95C0C52DAD85540070C3D1 /* PoseLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */; };
 		1D95C0C72DAD86AC0070C3D1 /* SpeechCoach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */; };
+		1D976F3E2DD659A900B7D5D3 /* PoseCorrectionSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D976F3D2DD659A900B7D5D3 /* PoseCorrectionSystem.swift */; };
 		1DB397632D8F540E001BA26F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB397622D8F540E001BA26F /* ContentView.swift */; };
 		1DB397652D8F5410001BA26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DB397642D8F5410001BA26F /* Assets.xcassets */; };
 		1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DB397672D8F5410001BA26F /* Preview Assets.xcassets */; };
@@ -62,15 +63,16 @@
 		1DB3978C2D8F55F7001BA26F /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978B2D8F55F7001BA26F /* CoreML.framework */; };
 		1DB3978E2D94A17C001BA26F /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978D2D94A17C001BA26F /* CoreML.framework */; };
 		1DB397902D94A18B001BA26F /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DB3978F2D94A18B001BA26F /* Vision.framework */; };
+		1DB78E4F2DD66B18008EB650 /* FullRollUp_baseline_angles.json in Resources */ = {isa = PBXBuildFile; fileRef = 1DB78E4E2DD66B18008EB650 /* FullRollUp_baseline_angles.json */; };
+		1DB78E512DD66B43008EB650 /* PoseCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB78E502DD66B42008EB650 /* PoseCorrection.swift */; };
 		1DB897D12DA304FE00FEF7E1 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897D02DA304FE00FEF7E1 /* CameraView.swift */; };
 		1DB897DC2DA6E69900FEF7E1 /* PoseEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */; };
 		1DD3BC0E2DBBA3F0005963DA /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */; };
 		1DE0FFA22DB3D72B00B03E38 /* FLOWCHART.png in Resources */ = {isa = PBXBuildFile; fileRef = 1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */; };
 		1DED03762DD14099002E4179 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1DED03752DD14099002E4179 /* GoogleService-Info.plist */; };
-		1DF2F7952DD0CD0100A8A165 /* FullRollUp_baseline_angles.json in Resources */ = {isa = PBXBuildFile; fileRef = 1DF2F7942DD0CD0100A8A165 /* FullRollUp_baseline_angles.json */; };
-		1DF2F7972DD0CDA800A8A165 /* PoseClassifier.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 1DF2F7962DD0CDA800A8A165 /* PoseClassifier.mlpackage */; };
 		1DF810EA2DB046A3008C5B49 /* PerformanceChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */; };
 		1DF810EC2DB0499A008C5B49 /* UserProfileManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */; };
+		6A6DEB082DDA2AE6008F2755 /* PoseClassifier.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 6A6DEB072DDA2AE6008F2755 /* PoseClassifier.mlpackage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +135,7 @@
 		1D8F956E2DBD8F78005AFDE0 /* RoutineExecutionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineExecutionView.swift; path = Views/RoutineExecutionView.swift; sourceTree = SOURCE_ROOT; };
 		1D95C0C42DAD85540070C3D1 /* PoseLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoseLogView.swift; path = Views/PoseLogView.swift; sourceTree = SOURCE_ROOT; };
 		1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpeechCoach.swift; path = Helpers/SpeechCoach.swift; sourceTree = SOURCE_ROOT; };
+		1D976F3D2DD659A900B7D5D3 /* PoseCorrectionSystem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoseCorrectionSystem.swift; sourceTree = "<group>"; };
 		1DB3975D2D8F540E001BA26F /* TechnicallyPilates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TechnicallyPilates.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DB397622D8F540E001BA26F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = SOURCE_ROOT; };
 		1DB397642D8F5410001BA26F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -143,15 +146,16 @@
 		1DB3978B2D8F55F7001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		1DB3978D2D94A17C001BA26F /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/CoreML.framework; sourceTree = DEVELOPER_DIR; };
 		1DB3978F2D94A18B001BA26F /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
+		1DB78E4E2DD66B18008EB650 /* FullRollUp_baseline_angles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = FullRollUp_baseline_angles.json; sourceTree = "<group>"; };
+		1DB78E502DD66B42008EB650 /* PoseCorrection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoseCorrection.swift; sourceTree = "<group>"; };
 		1DB897D02DA304FE00FEF7E1 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraView.swift; path = Views/CameraView.swift; sourceTree = SOURCE_ROOT; };
 		1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoseEstimator.swift; path = Helpers/PoseEstimator.swift; sourceTree = SOURCE_ROOT; };
 		1DD3BC0D2DBBA3F0005963DA /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraPreviewView.swift; path = Views/CameraPreviewView.swift; sourceTree = SOURCE_ROOT; };
 		1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FLOWCHART.png; sourceTree = "<group>"; };
 		1DED03752DD14099002E4179 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		1DF2F7942DD0CD0100A8A165 /* FullRollUp_baseline_angles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = FullRollUp_baseline_angles.json; path = ../../../PycharmProjects/TechnicallyPilates/FullRollUp_baseline_angles.json; sourceTree = "<group>"; };
-		1DF2F7962DD0CDA800A8A165 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; name = PoseClassifier.mlpackage; path = ../../PycharmProjects/TechnicallyPilates/PoseClassifier.mlpackage; sourceTree = "<group>"; };
 		1DF810E92DB046A3008C5B49 /* PerformanceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PerformanceChartView.swift; path = Views/PerformanceChartView.swift; sourceTree = SOURCE_ROOT; };
 		1DF810EB2DB0499A008C5B49 /* UserProfileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UserProfileManagerView.swift; path = Views/UserProfileManagerView.swift; sourceTree = SOURCE_ROOT; };
+		6A6DEB072DDA2AE6008F2755 /* PoseClassifier.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = PoseClassifier.mlpackage; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -251,6 +255,7 @@
 		1DAE12DE2DC2AD310044A861 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				1DB78E502DD66B42008EB650 /* PoseCorrection.swift */,
 				1D86058A2DCFF26A0015E75F /* PoseLandmark.swift */,
 				1D544AC42DB1B8850044A916 /* Models.swift */,
 			);
@@ -284,6 +289,7 @@
 		1DAE12E02DC2AD920044A861 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				1D976F3D2DD659A900B7D5D3 /* PoseCorrectionSystem.swift */,
 				1D95C0C62DAD86AC0070C3D1 /* SpeechCoach.swift */,
 				1DB897DB2DA6E69900FEF7E1 /* PoseEstimator.swift */,
 			);
@@ -293,7 +299,7 @@
 		1DAE12E12DC2B3180044A861 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				1DF2F7942DD0CD0100A8A165 /* FullRollUp_baseline_angles.json */,
+				1DB78E4E2DD66B18008EB650 /* FullRollUp_baseline_angles.json */,
 				1D4D88832DC41A390006AB72 /* Info.plist */,
 				1DE0FFA12DB3D72B00B03E38 /* FLOWCHART.png */,
 				1DB397662D8F5410001BA26F /* Preview Content */,
@@ -305,8 +311,8 @@
 		1DB397542D8F540E001BA26F = {
 			isa = PBXGroup;
 			children = (
+				6A6DEB072DDA2AE6008F2755 /* PoseClassifier.mlpackage */,
 				1DED03752DD14099002E4179 /* GoogleService-Info.plist */,
-				1DF2F7962DD0CDA800A8A165 /* PoseClassifier.mlpackage */,
 				1D86056B2DCFEB4A0015E75F /* Extensions */,
 				1D4D88812DC417B10006AB72 /* README.md */,
 				1DB397622D8F540E001BA26F /* ContentView.swift */,
@@ -482,7 +488,7 @@
 				1DE0FFA22DB3D72B00B03E38 /* FLOWCHART.png in Resources */,
 				1D544AC12DB1AA0F0044A916 /* chime.wav in Resources */,
 				1D544AB12DB199F80044A916 /* beep.wav in Resources */,
-				1DF2F7952DD0CD0100A8A165 /* FullRollUp_baseline_angles.json in Resources */,
+				1DB78E4F2DD66B18008EB650 /* FullRollUp_baseline_angles.json in Resources */,
 				1D544AB92DB1A3340044A916 /* success_chime.wav in Resources */,
 				1D544AB02DB199F80044A916 /* go.wav in Resources */,
 				1DB397682D8F5410001BA26F /* Preview Assets.xcassets in Resources */,
@@ -518,6 +524,8 @@
 			files = (
 				1D86057D2DCFF23E0015E75F /* NetworkManager.swift in Sources */,
 				1D86057E2DCFF23E0015E75F /* AppStateManager.swift in Sources */,
+				1DB78E512DD66B43008EB650 /* PoseCorrection.swift in Sources */,
+				6A6DEB082DDA2AE6008F2755 /* PoseClassifier.mlpackage in Sources */,
 				1D8605842DCFF23E0015E75F /* CrashReportingManager.swift in Sources */,
 				1D86057F2DCFF23E0015E75F /* PerformanceManager.swift in Sources */,
 				1D544AB52DB19E800044A916 /* ConfettiView.swift in Sources */,
@@ -539,10 +547,10 @@
 				1D2F8B422DAC2FC500268601 /* TechnicallyPilatesApp.swift in Sources */,
 				1D8605882DCFF23E0015E75F /* SocialManager.swift in Sources */,
 				1D8F95612DBD8733005AFDE0 /* AuthManager.swift in Sources */,
-				1DF2F7972DD0CDA800A8A165 /* PoseClassifier.mlpackage in Sources */,
 				1D8F95652DBD8C4B005AFDE0 /* ProfileView.swift in Sources */,
 				1D8F95632DBD8760005AFDE0 /* LoginView.swift in Sources */,
 				1D8605852DCFF23E0015E75F /* DataExportManager.swift in Sources */,
+				1D976F3E2DD659A900B7D5D3 /* PoseCorrectionSystem.swift in Sources */,
 				1D8F956F2DBD8F78005AFDE0 /* RoutineExecutionView.swift in Sources */,
 				1D8F956B2DBD8CE9005AFDE0 /* ViewModel.swift in Sources */,
 				1D8F95692DBD8C9D005AFDE0 /* HomeView.swift in Sources */,
@@ -714,7 +722,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 8LV65T7CC5;
+				DEVELOPMENT_TEAM = 69VQ87J2UB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Resources/Info.plist\n";
@@ -744,7 +752,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 8LV65T7CC5;
+				DEVELOPMENT_TEAM = 69VQ87J2UB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
