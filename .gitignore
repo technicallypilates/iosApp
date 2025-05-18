@@ -19,3 +19,6 @@ build/
 # SwiftPM
 .swiftpm/
 Package.resolved
+
+#Jetbrains
+.idea
