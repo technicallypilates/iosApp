@@ -8,7 +8,7 @@
 *.xcscmblueprint
 *.xcuserdata/
 *.xcuserstate
-*.xcworkspace/xcuserdata/*
+*.xcuserdatad/
 
 # Derived data & build folders
 DerivedData/
