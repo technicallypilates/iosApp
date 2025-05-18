@@ -2,11 +2,19 @@
 .DS_Store
 
 # Xcode
-build/
-DerivedData/
+# Xcode user settings
+
+*.xccheckout
+*.xcscmblueprint
+*.xcuserdata/
 *.xcuserstate
 *.xcworkspace/xcuserdata/
-*.xcuserdata/
+DerivedData/
+
+# Derived data & build folders
+DerivedData/
+build/
+.build/
 
 # SwiftPM
 .swiftpm/
