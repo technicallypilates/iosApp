@@ -12,16 +12,16 @@ class PoseCorrectionSystem {
     // MARK: - Properties
     private let jointTolerance: Double = 15.0 // Degrees of tolerance for joint angles
     private let stabilityThreshold: Double = 0.8 // Minimum confidence for stable pose
-    
+
     private let difficultyLevels: [Int: PoseDifficulty] = [
         1: PoseDifficulty(baseTolerance: 20.0, requiredAccuracy: 0.7, xpMultiplier: 1.0),
         2: PoseDifficulty(baseTolerance: 15.0, requiredAccuracy: 0.8, xpMultiplier: 1.5),
         3: PoseDifficulty(baseTolerance: 10.0, requiredAccuracy: 0.9, xpMultiplier: 2.0)
     ]
-    
+
     private var currentDifficulty: PoseDifficulty?
     private var userProfile: UserProfile?
-    
+
     // MARK: - Joint Weights
     private let jointWeights: [String: JointWeight] = [
         "spineAngle": JointWeight(name: "Spine", weight: 1.5, criticalThreshold: 10.0),
@@ -33,9 +33,12 @@ class PoseCorrectionSystem {
         "rightKneeAngle": JointWeight(name: "Right Knee", weight: 1.0, criticalThreshold: 20.0),
         "leftElbowAngle": JointWeight(name: "Left Elbow", weight: 0.8, criticalThreshold: 25.0),
         "rightElbowAngle": JointWeight(name: "Right Elbow", weight: 0.8, criticalThreshold: 25.0),
-        "neckAngle": JointWeight(name: "Neck", weight: 1.3, criticalThreshold: 12.0)
+        "neckAngle": JointWeight(name: "Neck", weight: 1.3, criticalThreshold: 12.0),
+        "velocityX": JointWeight(name: "Velocity X", weight: 0.7, criticalThreshold: 0.3),
+        "velocityY": JointWeight(name: "Velocity Y", weight: 0.7, criticalThreshold: 0.3),
+        "velocityZ": JointWeight(name: "Velocity Z", weight: 0.7, criticalThreshold: 0.3)
     ]
-    
+
     // MARK: - Correction Types
     enum CorrectionType {
         case alignment
@@ -43,53 +46,48 @@ class PoseCorrectionSystem {
         case stability
         case symmetry
     }
-    
+
     private var baselineAngles: [String: Double]?
     private var currentPose: String?
-    
+
     // MARK: - Public Methods
-    
+
     func setCurrentPose(_ pose: String) {
         currentPose = pose
         loadBaselineAngles(for: pose)
     }
-    
+
     func analyzePose(_ observation: VNHumanBodyPoseObservation) -> [PoseCorrection] {
         var corrections: [PoseCorrection] = []
-        
-        // Check stability
+
         if let stabilityCorrection = checkStability(observation) {
             corrections.append(stabilityCorrection)
         }
-        
-        // Check alignment
+
         if let alignmentCorrection = checkAlignment(observation) {
             corrections.append(alignmentCorrection)
         }
-        
-        // Check joint angles
+
         if let angleCorrection = checkJointAngles(observation) {
             corrections.append(angleCorrection)
         }
-        
-        // Check symmetry
+
         if let symmetryCorrection = checkSymmetry(observation) {
             corrections.append(symmetryCorrection)
         }
-        
-        // Check pose-specific corrections
+
         if let poseSpecificCorrection = checkPoseSpecificCorrections(observation) {
             corrections.append(poseSpecificCorrection)
         }
-        
+
         return corrections
     }
-    
+
     func setUserProfile(_ profile: UserProfile) {
         userProfile = profile
         updateDifficultyLevel()
     }
-    
+
     private func updateDifficultyLevel() {
         guard let profile = userProfile else {
             currentDifficulty = difficultyLevels[1]
@@ -97,43 +95,38 @@ class PoseCorrectionSystem {
         }
         currentDifficulty = difficultyLevels[min(profile.level, 3)] ?? difficultyLevels[1]
     }
-    
+
     func getCurrentDifficulty() -> PoseDifficulty {
         return currentDifficulty ?? difficultyLevels[1]!
     }
-    
-    // MARK: - Weighted Accuracy Calculation
-    
+
     func computeWeightedAccuracy(liveAngles: [String: Double], baseline: [String: Double]) -> Double {
         var weightedScore = 0.0
         var totalWeight = 0.0
-        
+
         let difficulty = getCurrentDifficulty()
-        
+
         for (key, liveValue) in liveAngles {
             if let target = baseline[key],
                let weight = jointWeights[key] {
                 let error = abs(liveValue - target)
                 let adjustedTolerance = weight.criticalThreshold * (difficulty.baseTolerance / 15.0)
-                let isCritical = error > adjustedTolerance
                 let score = max(0, 100 - (error / adjustedTolerance) * 100)
                 weightedScore += score * weight.weight
                 totalWeight += weight.weight
             }
         }
-        
+
         let baseAccuracy = totalWeight > 0 ? weightedScore / totalWeight : 0
         return baseAccuracy >= difficulty.requiredAccuracy * 100 ? baseAccuracy : baseAccuracy * 0.8
     }
-    
-    // MARK: - Private Methods
-    
+
     private func loadBaselineAngles(for pose: String) {
         guard let url = Bundle.main.url(forResource: "\(pose)_baseline_angles", withExtension: "json") else {
             print("Could not find baseline angles file for pose: \(pose)")
             return
         }
-        
+
         do {
             let data = try Data(contentsOf: url)
             baselineAngles = try JSONDecoder().decode([String: Double].self, from: data)
@@ -141,13 +134,13 @@ class PoseCorrectionSystem {
             print("Error loading baseline angles: \(error)")
         }
     }
-    
+
     private func checkStability(_ observation: VNHumanBodyPoseObservation) -> PoseCorrection? {
         let averageConfidence = observation.availableJointNames.reduce(0.0) { sum, joint in
             guard let point = try? observation.recognizedPoint(joint) else { return sum }
             return sum + Double(point.confidence)
         } / Double(observation.availableJointNames.count)
-        
+
         if averageConfidence < 0.7 {
             return PoseCorrection(
                 type: .stability,
@@ -158,7 +151,7 @@ class PoseCorrectionSystem {
         }
         return nil
     }
-    
+
     private func checkAlignment(_ observation: VNHumanBodyPoseObservation) -> PoseCorrection? {
         guard let leftShoulder = try? observation.recognizedPoint(.leftShoulder),
               let rightShoulder = try? observation.recognizedPoint(.rightShoulder),
@@ -166,10 +159,10 @@ class PoseCorrectionSystem {
               let rightHip = try? observation.recognizedPoint(.rightHip) else {
             return nil
         }
-        
+
         let shoulderAlignment = abs(leftShoulder.location.y - rightShoulder.location.y)
         let hipAlignment = abs(leftHip.location.y - rightHip.location.y)
-        
+
         if shoulderAlignment > 0.1 || hipAlignment > 0.1 {
             return PoseCorrection(
                 type: .alignment,
@@ -180,15 +173,14 @@ class PoseCorrectionSystem {
         }
         return nil
     }
-    
+
     private func checkJointAngles(_ observation: VNHumanBodyPoseObservation) -> PoseCorrection? {
         guard let baselineAngles = baselineAngles else { return nil }
-        
+
         var maxDeviation = 0.0
         var worstJoint: VNHumanBodyPoseObservation.JointName?
-        
+
         for (jointName, targetAngle) in baselineAngles {
-            // Map the string joint name to the corresponding VNHumanBodyPoseObservation.JointName
             let joint: VNHumanBodyPoseObservation.JointName
             switch jointName {
             case "neck": joint = .neck
@@ -207,16 +199,16 @@ class PoseCorrectionSystem {
             case "root": joint = .root
             default: continue
             }
-            
+
             guard let currentAngle = calculateJointAngle(observation, jointName: joint) else { continue }
-            
+
             let deviation = abs(currentAngle - targetAngle)
             if deviation > maxDeviation {
                 maxDeviation = deviation
                 worstJoint = joint
             }
         }
-        
+
         if let worstJoint = worstJoint, maxDeviation > 15.0 {
             return PoseCorrection(
                 type: .angle,
@@ -227,7 +219,7 @@ class PoseCorrectionSystem {
         }
         return nil
     }
-    
+
     private func checkSymmetry(_ observation: VNHumanBodyPoseObservation) -> PoseCorrection? {
         guard let leftShoulder = try? observation.recognizedPoint(.leftShoulder),
               let rightShoulder = try? observation.recognizedPoint(.rightShoulder),
@@ -235,10 +227,10 @@ class PoseCorrectionSystem {
               let rightHip = try? observation.recognizedPoint(.rightHip) else {
             return nil
         }
-        
+
         let shoulderSymmetry = abs(leftShoulder.location.x - rightShoulder.location.x)
         let hipSymmetry = abs(leftHip.location.x - rightHip.location.x)
-        
+
         if shoulderSymmetry > 0.1 || hipSymmetry > 0.1 {
             return PoseCorrection(
                 type: .symmetry,
@@ -249,10 +241,10 @@ class PoseCorrectionSystem {
         }
         return nil
     }
-    
+
     private func checkPoseSpecificCorrections(_ observation: VNHumanBodyPoseObservation) -> PoseCorrection? {
         guard let currentPose = currentPose else { return nil }
-        
+
         switch currentPose {
         case "FullRollUp":
             return checkFullRollUpCorrections(observation)
@@ -260,13 +252,13 @@ class PoseCorrectionSystem {
             return nil
         }
     }
-    
+
     private func checkFullRollUpCorrections(_ observation: VNHumanBodyPoseObservation) -> PoseCorrection? {
         guard let neck = try? observation.recognizedPoint(.neck),
               let root = try? observation.recognizedPoint(.root) else {
             return nil
         }
-        
+
         let spineAlignment = abs(neck.location.x - root.location.x)
         if spineAlignment > 0.1 {
             return PoseCorrection(
@@ -278,12 +270,10 @@ class PoseCorrectionSystem {
         }
         return nil
     }
-    
+
     private func calculateJointAngle(_ observation: VNHumanBodyPoseObservation, jointName: VNHumanBodyPoseObservation.JointName) -> Double? {
-        // Get the points for the joint and its connected joints
         guard let point = try? observation.recognizedPoint(jointName) else { return nil }
-        
-        // Calculate angle based on joint type
+
         switch jointName {
         case .neck:
             guard let leftShoulder = try? observation.recognizedPoint(.leftShoulder),
@@ -291,51 +281,53 @@ class PoseCorrectionSystem {
                 return nil
             }
             return calculateAngle(point1: leftShoulder.location, point2: point.location, point3: rightShoulder.location)
-            
+
         case .leftShoulder, .rightShoulder:
             guard let neck = try? observation.recognizedPoint(.neck),
                   let elbow = try? observation.recognizedPoint(jointName == .leftShoulder ? .leftElbow : .rightElbow) else {
                 return nil
             }
             return calculateAngle(point1: neck.location, point2: point.location, point3: elbow.location)
-            
+
         case .leftElbow, .rightElbow:
             guard let shoulder = try? observation.recognizedPoint(jointName == .leftElbow ? .leftShoulder : .rightShoulder),
                   let wrist = try? observation.recognizedPoint(jointName == .leftElbow ? .leftWrist : .rightWrist) else {
                 return nil
             }
             return calculateAngle(point1: shoulder.location, point2: point.location, point3: wrist.location)
-            
+
         case .leftHip, .rightHip:
             guard let root = try? observation.recognizedPoint(.root),
                   let knee = try? observation.recognizedPoint(jointName == .leftHip ? .leftKnee : .rightKnee) else {
                 return nil
             }
             return calculateAngle(point1: root.location, point2: point.location, point3: knee.location)
-            
+
         case .leftKnee, .rightKnee:
             guard let hip = try? observation.recognizedPoint(jointName == .leftKnee ? .leftHip : .rightHip),
                   let ankle = try? observation.recognizedPoint(jointName == .leftKnee ? .leftAnkle : .rightAnkle) else {
                 return nil
             }
             return calculateAngle(point1: hip.location, point2: point.location, point3: ankle.location)
-            
+
         default:
             return nil
         }
     }
-    
+
     private func calculateAngle(point1: CGPoint, point2: CGPoint, point3: CGPoint) -> Double {
         let v1 = CGPoint(x: point1.x - point2.x, y: point1.y - point2.y)
         let v2 = CGPoint(x: point3.x - point2.x, y: point3.y - point2.y)
-        
+
         let dot = v1.x * v2.x + v1.y * v2.y
         let v1mag = sqrt(v1.x * v1.x + v1.y * v1.y)
         let v2mag = sqrt(v2.x * v2.x + v2.y * v2.y)
-        
+
         let cos = dot / (v1mag * v2mag)
         let angle = acos(cos) * 180.0 / .pi
-        
+
         return angle
     }
-} 
+}
+
+

@@ -32,6 +32,8 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
     var poseBaselines: [UUID: [String: Double]]
 
+    private var previousLeftHip: VNRecognizedPoint?
+
     init(poseLabel: Binding<String>,
          poseColor: Binding<Color>,
          startDetection: Binding<Bool>,
@@ -137,14 +139,31 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
     private func handlePoseObservation(_ observation: VNHumanBodyPoseObservation, for expectedPose: Pose) {
         do {
-            let _ = try extractJointAngles(from: observation)
             guard let recognizedPoints = try? observation.recognizedPoints(.all) else { return }
             let liveAngles = calculateLiveAngles(from: recognizedPoints)
             guard let baseline = poseBaselines[expectedPose.id] else {
                 print("⚠️ No baseline available for pose '\(expectedPose.name)'")
                 return
             }
-            
+
+            // Compute velocities
+            let currentLeftHip = recognizedPoints[.leftHip]
+            var velocityX: Double = 0
+            var velocityY: Double = 0
+            var velocityZ: Double = 0 // Placeholder for 2D
+
+            if let previous = previousLeftHip, let current = currentLeftHip {
+                velocityX = Double(current.location.x - previous.location.x)
+                velocityY = Double(current.location.y - previous.location.y)
+            }
+            previousLeftHip = currentLeftHip
+
+            // Append velocity to angles
+            var features = liveAngles
+            features["velocityX"] = velocityX
+            features["velocityY"] = velocityY
+            features["velocityZ"] = velocityZ
+
             // Use weighted accuracy calculation
             let weightedAccuracy = poseCorrectionSystem.computeWeightedAccuracy(liveAngles: liveAngles, baseline: baseline)
             let accuracyScore = Int(weightedAccuracy)
@@ -161,12 +180,11 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     self.poseLabel = expectedPose.name
                     self.poseColor = .green
                     self.repCount += 1
-                    // Calculate per-joint accuracy (0-1)
                     var jointAccuracies: [String: Double] = [:]
                     for (joint, liveValue) in liveAngles {
                         if let target = baseline[joint] {
                             let error = abs(liveValue - target)
-                            let tolerance = 15.0 // You can make this dynamic per joint if desired
+                            let tolerance = 15.0
                             let score = max(0.0, 1.0 - (error / tolerance))
                             jointAccuracies[joint] = score
                         }
@@ -192,46 +210,13 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
 
-    private func extractJointAngles(from observation: VNHumanBodyPoseObservation) throws -> (leftHip: Double, rightHip: Double, leftElbow: Double, rightElbow: Double) {
-        func angleBetween(_ a: VNHumanBodyPoseObservation.JointName,
-                          _ b: VNHumanBodyPoseObservation.JointName,
-                          _ c: VNHumanBodyPoseObservation.JointName) throws -> Double {
-            guard let pointA = try? observation.recognizedPoint(a),
-                  let pointB = try? observation.recognizedPoint(b),
-                  let pointC = try? observation.recognizedPoint(c),
-                  pointA.confidence > 0.3,
-                  pointB.confidence > 0.3,
-                  pointC.confidence > 0.3 else {
-                throw NSError(domain: "PoseEstimator", code: -1, userInfo: [NSLocalizedDescriptionKey: "Low joint confidence"])
-            }
-
-            let ab = CGVector(dx: pointA.location.x - pointB.location.x, dy: pointA.location.y - pointB.location.y)
-            let cb = CGVector(dx: pointC.location.x - pointB.location.x, dy: pointC.location.y - pointB.location.y)
-
-            let dot = ab.dx * cb.dx + ab.dy * cb.dy
-            let mag = hypot(ab.dx, ab.dy) * hypot(cb.dx, cb.dy)
-            let cosAngle = max(min(dot / mag, 1.0), -1.0)
-
-            return acos(cosAngle) * 180 / Double.pi
-        }
-
-        return (
-            leftHip: try angleBetween(.leftKnee, .leftHip, .leftShoulder),
-            rightHip: try angleBetween(.rightKnee, .rightHip, .rightShoulder),
-            leftElbow: try angleBetween(.leftWrist, .leftElbow, .leftShoulder),
-            rightElbow: try angleBetween(.rightWrist, .rightElbow, .rightShoulder)
-        )
-    }
-
     private func calculateLiveAngles(from points: [VNHumanBodyPoseObservation.JointName: VNRecognizedPoint]) -> [String: Double] {
         func angle(between a: VNRecognizedPoint, _ b: VNRecognizedPoint, _ c: VNRecognizedPoint) -> Double {
             let ab = CGVector(dx: a.location.x - b.location.x, dy: a.location.y - b.location.y)
             let cb = CGVector(dx: c.location.x - b.location.x, dy: c.location.y - b.location.y)
-
             let dot = ab.dx * cb.dx + ab.dy * cb.dy
             let mag = hypot(ab.dx, ab.dy) * hypot(cb.dx, cb.dy)
             guard mag > 0 else { return 0 }
-
             let cosAngle = max(min(dot / mag, 1.0), -1.0)
             return acos(cosAngle) * 180 / Double.pi
         }
@@ -244,22 +229,6 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             "leftKneeAngle": angle(between: points[.leftHip]!, points[.leftKnee]!, points[.leftAnkle]!),
             "rightKneeAngle": angle(between: points[.rightHip]!, points[.rightKnee]!, points[.rightAnkle]!)
         ]
-    }
-
-    private func computeAccuracy(liveAngles: [String: Double], baseline: [String: Double], tolerance: Double = 15.0) -> Int {
-        var totalScore = 0.0
-        var count = 0
-
-        for (key, liveValue) in liveAngles {
-            if let target = baseline[key] {
-                let error = abs(liveValue - target)
-                let score = max(0, 100 - (error / tolerance) * 100)
-                totalScore += score
-                count += 1
-            }
-        }
-
-        return count > 0 ? Int(totalScore / Double(count)) : 0
     }
 }
 
@@ -282,4 +251,5 @@ extension PoseEstimator {
         return result
     }
 }
+
 

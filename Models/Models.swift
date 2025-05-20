@@ -12,6 +12,7 @@ struct PoseLogEntry: Identifiable, Codable, Hashable {
     let accuracyScore: Int
     let timestamp: Date
     var jointAccuracies: [String: Double]
+    var features: [String: Double]  // ✅ New field for 9 input features
 
     init(
         poseId: UUID,
@@ -19,7 +20,8 @@ struct PoseLogEntry: Identifiable, Codable, Hashable {
         repsCompleted: Int,
         accuracyScore: Int,
         timestamp: Date = Date(),
-        jointAccuracies: [String: Double] = [:]
+        jointAccuracies: [String: Double] = [:],
+        features: [String: Double] = [:]
     ) {
         self.id = UUID()
         self.poseId = poseId
@@ -28,6 +30,7 @@ struct PoseLogEntry: Identifiable, Codable, Hashable {
         self.accuracyScore = accuracyScore
         self.timestamp = timestamp
         self.jointAccuracies = jointAccuracies
+        self.features = features
     }
 
     var dictionary: [String: Any] {
@@ -38,7 +41,8 @@ struct PoseLogEntry: Identifiable, Codable, Hashable {
             "repsCompleted": repsCompleted,
             "accuracyScore": accuracyScore,
             "timestamp": timestamp,
-            "jointAccuracies": jointAccuracies
+            "jointAccuracies": jointAccuracies,
+            "features": features
         ]
     }
 }
@@ -727,4 +731,5 @@ struct ExerciseMetrics {
         self.completedPoses = completedPoses
     }
 }
+
 
