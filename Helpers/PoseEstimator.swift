@@ -263,7 +263,13 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             return acos(cosAngle) * 180 / Double.pi
         }
 
-        return [
+        func alignmentAngle(between a: VNRecognizedPoint, and b: VNRecognizedPoint) -> Double {
+            let dy = a.location.y - b.location.y
+            let dx = a.location.x - b.location.x
+            return atan2(dy, dx) * 180 / .pi
+        }
+
+        var angles: [String: Double] = [
             "leftHipAngle": angle(between: points[.leftShoulder]!, points[.leftHip]!, points[.leftKnee]!),
             "rightHipAngle": angle(between: points[.rightShoulder]!, points[.rightHip]!, points[.rightKnee]!),
             "leftElbowAngle": angle(between: points[.leftShoulder]!, points[.leftElbow]!, points[.leftWrist]!),
@@ -271,7 +277,28 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             "leftKneeAngle": angle(between: points[.leftHip]!, points[.leftKnee]!, points[.leftAnkle]!),
             "rightKneeAngle": angle(between: points[.rightHip]!, points[.rightKnee]!, points[.rightAnkle]!)
         ]
+
+        // Add spine angle (root to neck)
+        if let root = points[.root], let neck = points[.neck] {
+            let vector = CGVector(dx: neck.location.x - root.location.x,
+                                  dy: neck.location.y - root.location.y)
+            let angle = atan2(vector.dy, vector.dx) * 180 / .pi
+            angles["spineAngle"] = angle
+        }
+
+        // Add shoulder alignment (left-right horizontal tilt)
+        if let left = points[.leftShoulder], let right = points[.rightShoulder] {
+            angles["shoulderAlignment"] = alignmentAngle(between: left, and: right)
+        }
+
+        // Add hip alignment (left-right horizontal tilt)
+        if let left = points[.leftHip], let right = points[.rightHip] {
+            angles["hipAlignment"] = alignmentAngle(between: left, and: right)
+        }
+
+        return angles
     }
+
 }
 
 // MARK: - Baseline Loader
