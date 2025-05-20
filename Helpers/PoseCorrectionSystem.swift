@@ -129,7 +129,7 @@ class PoseCorrectionSystem {
 
         do {
             let data = try Data(contentsOf: url)
-            baselineAngles = try JSONDecoder().decode([String: Double].self, from: data)
+            let decoded = try JSONDecoder().decode([String: [String: Double]].self, from: data)
         } catch {
             print("Error loading baseline angles: \(error)")
         }
