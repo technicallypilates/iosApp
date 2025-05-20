@@ -90,9 +90,6 @@ class PreviewView: UIView {
     }
 
     private func setupLayer() {
-        // Set background on the UIView itself (for debugging)
-        self.backgroundColor = .yellow  // ✅ Diagnostic only — remove later
-
         // Configure the preview layer
         videoPreviewLayer.videoGravity = .resizeAspectFill
 

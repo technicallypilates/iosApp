@@ -219,11 +219,12 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     self.poseColor = .green
                     self.repCount += 1
 
+                    // Calculate per-joint accuracy (0-1)
                     var jointAccuracies: [String: Double] = [:]
                     for (joint, liveValue) in liveAngles {
                         if let target = baseline[joint] {
                             let error = abs(liveValue - target)
-                            let tolerance = 15.0
+                            let tolerance = 15.0 // You can make this dynamic per joint if desired
                             let score = max(0.0, 1.0 - (error / tolerance))
                             jointAccuracies[joint] = score
                         }

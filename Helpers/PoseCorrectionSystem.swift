@@ -12,16 +12,13 @@ class PoseCorrectionSystem {
     // MARK: - Properties
     private let jointTolerance: Double = 15.0 // Degrees of tolerance for joint angles
     private let stabilityThreshold: Double = 0.8 // Minimum confidence for stable pose
-
     private let difficultyLevels: [Int: PoseDifficulty] = [
         1: PoseDifficulty(baseTolerance: 20.0, requiredAccuracy: 0.7, xpMultiplier: 1.0),
         2: PoseDifficulty(baseTolerance: 15.0, requiredAccuracy: 0.8, xpMultiplier: 1.5),
         3: PoseDifficulty(baseTolerance: 10.0, requiredAccuracy: 0.9, xpMultiplier: 2.0)
     ]
-
     private var currentDifficulty: PoseDifficulty?
     private var userProfile: UserProfile?
-
     // MARK: - Joint Weights
     private let jointWeights: [String: JointWeight] = [
         "spineAngle": JointWeight(name: "Spine", weight: 1.5, criticalThreshold: 10.0),
@@ -38,7 +35,7 @@ class PoseCorrectionSystem {
         "velocityY": JointWeight(name: "Velocity Y", weight: 0.7, criticalThreshold: 0.3),
         "velocityZ": JointWeight(name: "Velocity Z", weight: 0.7, criticalThreshold: 0.3)
     ]
-
+    
     // MARK: - Correction Types
     enum CorrectionType {
         case alignment
@@ -46,12 +43,10 @@ class PoseCorrectionSystem {
         case stability
         case symmetry
     }
-
     private var baselineAngles: [String: Double]?
     private var currentPose: String?
-
+   
     // MARK: - Public Methods
-
     func setCurrentPose(_ pose: String) {
         currentPose = pose
         loadBaselineAngles(for: pose)
