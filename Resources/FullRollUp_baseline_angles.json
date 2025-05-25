@@ -8,7 +8,6 @@
         "rightKneeAngle": 120.0,
         "spineAngle": 180.0,
         "shoulderAlignment": 0.0,
-        "hipAlignment": 0.0,
-        "neckAngle": 0.0
+        "hipAlignment": 0.0
     }
 } 

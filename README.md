@@ -93,6 +93,9 @@ Your `PoseClassifier.mlpackage` (originally trained via `ml_model.py`) works as 
   - `rightElbowAngle`
   - `leftKneeAngle`
   - `rightKneeAngle`
+  - `spineAngle`
+  - `shoulderAlignment`
+  - `hipAlignment`
 
 Example input: `[45.3, 120.5, 90.0, 135.0, 80.0, 110.0]`
 

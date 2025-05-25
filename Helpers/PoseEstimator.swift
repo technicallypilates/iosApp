@@ -31,7 +31,9 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private var lastProcessedTime = Date.distantPast
 
     var poseBaselines: [UUID: [String: Double]]
+    private var previousLeftHip: VNRecognizedPoint?
 
+    // MARK: - Init
     init(poseLabel: Binding<String>,
          poseColor: Binding<Color>,
          startDetection: Binding<Bool>,
@@ -60,23 +62,34 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         do {
             let config = MLModelConfiguration()
             self.model = try PoseClassifier(configuration: config)
+            print("✅ PoseClassifier model loaded.")
         } catch {
-            print("⚠️ Failed to load PoseClassifier:", error)
+            print("❌ Failed to load PoseClassifier:", error)
         }
     }
 
+    // MARK: - Camera Setup
     func startSession() {
         let session = AVCaptureSession()
         session.beginConfiguration()
 
-        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else {
-            print("❌ Failed to access camera input.")
+        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+            print("❌ No available video device.")
+            return
+        }
+
+        print("✅ Using camera: \(videoDevice.localizedName)")
+
+        guard let videoInput = try? AVCaptureDeviceInput(device: videoDevice) else {
+            print("❌ Failed to create AVCaptureDeviceInput.")
             return
         }
 
         if session.canAddInput(videoInput) {
             session.addInput(videoInput)
+            print("✅ Added video input to session.")
+        } else {
+            print("❌ Could not add video input.")
         }
 
         videoDataOutput.alwaysDiscardsLateVideoFrames = true
@@ -84,40 +97,68 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
         if session.canAddOutput(videoDataOutput) {
             session.addOutput(videoDataOutput)
+            print("✅ Added video output to session.")
+        } else {
+            print("❌ Could not add video output.")
         }
 
         if let connection = videoDataOutput.connection(with: .video),
            connection.isVideoOrientationSupported {
             connection.videoOrientation = .portrait
+            print("✅ Set video orientation to portrait.")
         }
 
         session.commitConfiguration()
-        captureSession = session
+        self.captureSession = session
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.captureSession?.startRunning()
-            print("✅ Camera session started.")
+        // Add observer to detect runtime errors in session (optional but useful)
+        NotificationCenter.default.addObserver(
+            forName: .AVCaptureSessionRuntimeError,
+            object: session,
+            queue: .main
+        ) { notification in
+            print("❌ AVCaptureSession runtime error:", notification)
+        }
+
+        // Start session on main thread and confirm status
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            self.captureSession?.startRunning()
+            print("🎥 Attempted to start capture session.")
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                let isRunning = self.captureSession?.isRunning ?? false
+                print("🎥 Confirmed on main thread: session running = \(isRunning)")
+                print("🧪 Inputs: \(session.inputs.count), Outputs: \(session.outputs.count)")
+            }
         }
     }
 
     func stopSession() {
         captureSession?.stopRunning()
         captureSession = nil
-        print("🔁 Capture session stopped.")
+        print("🛑 Capture session stopped.")
     }
 
     func updateState(startDetection: Bool, selectedRoutine: Routine, currentPoseIndex: Int) {
-        self.startDetection = startDetection
-        self.selectedRoutine = selectedRoutine
-        self.currentPoseIndex = currentPoseIndex
+        print("🔄 updateState called: startDetection=\(startDetection), currentPoseIndex=\(currentPoseIndex), routine=\(selectedRoutine.name)")
+        DispatchQueue.main.async {
+            self.startDetection = startDetection
+            self.selectedRoutine = selectedRoutine
+            self.currentPoseIndex = currentPoseIndex
+        }
     }
 
+    // MARK: - Frame Processing
     func captureOutput(_ output: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
         guard startDetection,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
-              let selectedRoutine = selectedRoutine else { return }
+              let selectedRoutine = selectedRoutine else {
+            return
+        }
 
         let now = Date()
         guard now.timeIntervalSince(lastProcessedTime) >= frameProcessingInterval else { return }
@@ -132,20 +173,36 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             self.handlePoseObservation(observation, for: selectedRoutine.poses[self.currentPoseIndex])
         }
 
-        try? VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:]).perform([request])
+        do {
+            try VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:]).perform([request])
+        } catch {
+            print("❌ Vision request failed:", error)
+        }
     }
 
     private func handlePoseObservation(_ observation: VNHumanBodyPoseObservation, for expectedPose: Pose) {
         do {
-            let _ = try extractJointAngles(from: observation)
             guard let recognizedPoints = try? observation.recognizedPoints(.all) else { return }
             let liveAngles = calculateLiveAngles(from: recognizedPoints)
             guard let baseline = poseBaselines[expectedPose.id] else {
                 print("⚠️ No baseline available for pose '\(expectedPose.name)'")
                 return
             }
-            
-            // Use weighted accuracy calculation
+
+            // Velocity Calculation
+            let currentLeftHip = recognizedPoints[.leftHip]
+            var velocityX: Double = 0, velocityY: Double = 0, velocityZ: Double = 0
+            if let previous = previousLeftHip, let current = currentLeftHip {
+                velocityX = Double(current.location.x - previous.location.x)
+                velocityY = Double(current.location.y - previous.location.y)
+            }
+            previousLeftHip = currentLeftHip
+
+            var features = liveAngles
+            features["velocityX"] = velocityX
+            features["velocityY"] = velocityY
+            features["velocityZ"] = velocityZ
+
             let weightedAccuracy = poseCorrectionSystem.computeWeightedAccuracy(liveAngles: liveAngles, baseline: baseline)
             let accuracyScore = Int(weightedAccuracy)
 
@@ -161,6 +218,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     self.poseLabel = expectedPose.name
                     self.poseColor = .green
                     self.repCount += 1
+
                     // Calculate per-joint accuracy (0-1)
                     var jointAccuracies: [String: Double] = [:]
                     for (joint, liveValue) in liveAngles {
@@ -171,6 +229,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                             jointAccuracies[joint] = score
                         }
                     }
+
                     let entry = PoseLogEntry(
                         poseId: expectedPose.id,
                         routineId: self.selectedRoutine?.id ?? UUID(),
@@ -181,62 +240,37 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     )
                     self.logEntries.append(entry)
                     self.onNewEntry(entry)
+                    print("✅ Pose recognized: \(expectedPose.name) | Accuracy: \(accuracyScore)%")
                 } else {
                     self.poseLabel = "Incorrect Pose"
                     self.poseColor = .red
                     self.onComboBroken()
+                    print("❌ Pose not recognized. Accuracy: \(accuracyScore)%")
                 }
             }
         } catch {
-            print("⚠️ Angle extraction or prediction failed:", error)
+            print("⚠️ Error handling pose observation:", error)
         }
-    }
-
-    private func extractJointAngles(from observation: VNHumanBodyPoseObservation) throws -> (leftHip: Double, rightHip: Double, leftElbow: Double, rightElbow: Double) {
-        func angleBetween(_ a: VNHumanBodyPoseObservation.JointName,
-                          _ b: VNHumanBodyPoseObservation.JointName,
-                          _ c: VNHumanBodyPoseObservation.JointName) throws -> Double {
-            guard let pointA = try? observation.recognizedPoint(a),
-                  let pointB = try? observation.recognizedPoint(b),
-                  let pointC = try? observation.recognizedPoint(c),
-                  pointA.confidence > 0.3,
-                  pointB.confidence > 0.3,
-                  pointC.confidence > 0.3 else {
-                throw NSError(domain: "PoseEstimator", code: -1, userInfo: [NSLocalizedDescriptionKey: "Low joint confidence"])
-            }
-
-            let ab = CGVector(dx: pointA.location.x - pointB.location.x, dy: pointA.location.y - pointB.location.y)
-            let cb = CGVector(dx: pointC.location.x - pointB.location.x, dy: pointC.location.y - pointB.location.y)
-
-            let dot = ab.dx * cb.dx + ab.dy * cb.dy
-            let mag = hypot(ab.dx, ab.dy) * hypot(cb.dx, cb.dy)
-            let cosAngle = max(min(dot / mag, 1.0), -1.0)
-
-            return acos(cosAngle) * 180 / Double.pi
-        }
-
-        return (
-            leftHip: try angleBetween(.leftKnee, .leftHip, .leftShoulder),
-            rightHip: try angleBetween(.rightKnee, .rightHip, .rightShoulder),
-            leftElbow: try angleBetween(.leftWrist, .leftElbow, .leftShoulder),
-            rightElbow: try angleBetween(.rightWrist, .rightElbow, .rightShoulder)
-        )
     }
 
     private func calculateLiveAngles(from points: [VNHumanBodyPoseObservation.JointName: VNRecognizedPoint]) -> [String: Double] {
         func angle(between a: VNRecognizedPoint, _ b: VNRecognizedPoint, _ c: VNRecognizedPoint) -> Double {
             let ab = CGVector(dx: a.location.x - b.location.x, dy: a.location.y - b.location.y)
             let cb = CGVector(dx: c.location.x - b.location.x, dy: c.location.y - b.location.y)
-
             let dot = ab.dx * cb.dx + ab.dy * cb.dy
             let mag = hypot(ab.dx, ab.dy) * hypot(cb.dx, cb.dy)
             guard mag > 0 else { return 0 }
-
             let cosAngle = max(min(dot / mag, 1.0), -1.0)
             return acos(cosAngle) * 180 / Double.pi
         }
 
-        return [
+        func alignmentAngle(between a: VNRecognizedPoint, and b: VNRecognizedPoint) -> Double {
+            let dy = a.location.y - b.location.y
+            let dx = a.location.x - b.location.x
+            return atan2(dy, dx) * 180 / .pi
+        }
+
+        var angles: [String: Double] = [
             "leftHipAngle": angle(between: points[.leftShoulder]!, points[.leftHip]!, points[.leftKnee]!),
             "rightHipAngle": angle(between: points[.rightShoulder]!, points[.rightHip]!, points[.rightKnee]!),
             "leftElbowAngle": angle(between: points[.leftShoulder]!, points[.leftElbow]!, points[.leftWrist]!),
@@ -244,23 +278,28 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             "leftKneeAngle": angle(between: points[.leftHip]!, points[.leftKnee]!, points[.leftAnkle]!),
             "rightKneeAngle": angle(between: points[.rightHip]!, points[.rightKnee]!, points[.rightAnkle]!)
         ]
-    }
 
-    private func computeAccuracy(liveAngles: [String: Double], baseline: [String: Double], tolerance: Double = 15.0) -> Int {
-        var totalScore = 0.0
-        var count = 0
-
-        for (key, liveValue) in liveAngles {
-            if let target = baseline[key] {
-                let error = abs(liveValue - target)
-                let score = max(0, 100 - (error / tolerance) * 100)
-                totalScore += score
-                count += 1
-            }
+        // Add spine angle (root to neck)
+        if let root = points[.root], let neck = points[.neck] {
+            let vector = CGVector(dx: neck.location.x - root.location.x,
+                                  dy: neck.location.y - root.location.y)
+            let angle = atan2(vector.dy, vector.dx) * 180 / .pi
+            angles["spineAngle"] = angle
         }
 
-        return count > 0 ? Int(totalScore / Double(count)) : 0
+        // Add shoulder alignment (left-right horizontal tilt)
+        if let left = points[.leftShoulder], let right = points[.rightShoulder] {
+            angles["shoulderAlignment"] = alignmentAngle(between: left, and: right)
+        }
+
+        // Add hip alignment (left-right horizontal tilt)
+        if let left = points[.leftHip], let right = points[.rightHip] {
+            angles["hipAlignment"] = alignmentAngle(between: left, and: right)
+        }
+
+        return angles
     }
+
 }
 
 // MARK: - Baseline Loader
@@ -279,6 +318,7 @@ extension PoseEstimator {
                 result[uuid] = angles
             }
         }
+        print("✅ Loaded \(result.count) baseline poses.")
         return result
     }
 }

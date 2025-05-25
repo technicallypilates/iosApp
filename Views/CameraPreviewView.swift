@@ -19,6 +19,7 @@ struct CameraPreviewView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView()
+
         let poseEstimator = PoseEstimator(
             poseLabel: $poseLabel,
             poseColor: $poseColor,
@@ -33,19 +34,27 @@ struct CameraPreviewView: UIViewRepresentable {
         )
 
         context.coordinator.poseEstimator = poseEstimator
-        view.session = poseEstimator.captureSession
+
+        // Start the session FIRST so captureSession is not nil
         poseEstimator.startSession()
+
+        // Then assign it to the view's preview layer
+        view.session = poseEstimator.captureSession
 
         return view
     }
 
+
     func updateUIView(_ uiView: PreviewView, context: Context) {
-        context.coordinator.poseEstimator?.updateState(
-            startDetection: startDetection,
-            selectedRoutine: selectedRoutine,
-            currentPoseIndex: currentPoseIndex
-        )
+        DispatchQueue.main.async {
+            context.coordinator.poseEstimator?.updateState(
+                startDetection: startDetection,
+                selectedRoutine: selectedRoutine,
+                currentPoseIndex: currentPoseIndex
+            )
+        }
     }
+
 
     func makeCoordinator() -> Coordinator {
         return Coordinator()
@@ -81,6 +90,17 @@ class PreviewView: UIView {
     }
 
     private func setupLayer() {
+        // Configure the preview layer
         videoPreviewLayer.videoGravity = .resizeAspectFill
+
+        // Trigger layout updates — not strictly necessary, but harmless
+        videoPreviewLayer.setNeedsLayout()
+        self.setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        print("📐 PreviewView frame: \(self.frame)")
     }
 }
+

@@ -15,7 +15,7 @@ struct RoutinesView: View {
     var fullRollUpPose: Pose {
         Pose(
             id: UUID(uuidString: "12345678-90AB-CDEF-1234-567890ABCDEF")!,
-            name: "Full Roll-Up",
+            name: "FullRollUp",
             description: "A controlled spinal articulation to strengthen the core.",
             category: "Core",
             difficulty: 2,

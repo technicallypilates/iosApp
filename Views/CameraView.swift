@@ -268,21 +268,30 @@ class CameraViewModel: NSObject, ObservableObject {
     private var currentPose: String?
     
     func checkPermissions() {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        print("🔐 Camera authorization status: \(status.rawValue)") // 3 = authorized
+
+        switch status {
         case .authorized:
             setupCamera()
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
-                if granted {
-                    DispatchQueue.main.async {
+                DispatchQueue.main.async {
+                    print("🔐 Camera permission granted: \(granted)")
+                    if granted {
                         self?.setupCamera()
+                    } else {
+                        print("❌ User denied camera access.")
                     }
                 }
             }
-        default:
-            break
+        case .denied, .restricted:
+            print("❌ Camera access denied or restricted.")
+        @unknown default:
+            print("❓ Unknown camera authorization status.")
         }
     }
+
     
     func setCurrentPose(_ pose: String) {
         currentPose = pose
