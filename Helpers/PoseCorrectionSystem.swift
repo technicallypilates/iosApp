@@ -31,7 +31,8 @@ class PoseCorrectionSystem {
         "rightKneeAngle": JointWeight(name: "Right Knee", weight: 1.0, criticalThreshold: 20.0),
         "spineAngle": JointWeight(name: "Spine", weight: 1.5, criticalThreshold: 10.0),
         "shoulderAlignment": JointWeight(name: "Shoulders", weight: 1.0, criticalThreshold: 20.0),
-        "hipAlignment": JointWeight(name: "Hips", weight: 1.2, criticalThreshold: 15.0)
+        "hipAlignment": JointWeight(name: "Hips", weight: 1.2, criticalThreshold: 15.0),
+        "neckAngle": JointWeight(name: "Neck", weight: 1.3, criticalThreshold: 12.0)
     ]
 
     // MARK: - Public Methods
