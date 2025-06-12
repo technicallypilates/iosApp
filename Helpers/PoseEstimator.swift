@@ -73,7 +73,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         let session = AVCaptureSession()
         session.beginConfiguration()
 
-        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
             print("❌ No available video device.")
             return
         }
