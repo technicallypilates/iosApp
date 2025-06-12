@@ -37,9 +37,18 @@ struct CameraPreviewView: UIViewRepresentable {
 
         // Start the session FIRST so captureSession is not nil
         poseEstimator.startSession()
-
+        
         // Then assign it to the view's preview layer
         view.session = poseEstimator.captureSession
+        
+        // ✅ Immediately update state with detection=true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            poseEstimator.updateState(
+                startDetection: true,
+                selectedRoutine: selectedRoutine,
+                currentPoseIndex: currentPoseIndex
+            )
+        }
 
         return view
     }
