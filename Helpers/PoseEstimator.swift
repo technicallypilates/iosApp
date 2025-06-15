@@ -56,6 +56,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         self.poseBaselines = poseBaselines
         super.init()
         loadModel()
+        print("[PoseEstimator] Initialized")
     }
 
     private func loadModel() {
@@ -70,6 +71,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
     // MARK: - Camera Setup
     func startSession() {
+        print("[PoseEstimator] Starting capture session")
         let session = AVCaptureSession()
         session.beginConfiguration()
 
@@ -111,7 +113,6 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         session.commitConfiguration()
         self.captureSession = session
 
-        // Add observer to detect runtime errors in session (optional but useful)
         NotificationCenter.default.addObserver(
             forName: .AVCaptureSessionRuntimeError,
             object: session,
@@ -120,10 +121,8 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             print("❌ AVCaptureSession runtime error:", notification)
         }
 
-        // Start session on main thread and confirm status
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-
             self.captureSession?.startRunning()
             print("🎥 Attempted to start capture session.")
 
@@ -154,6 +153,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput,
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
+        print("[PoseEstimator] Received frame")
         guard startDetection,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
               let selectedRoutine = selectedRoutine else {
@@ -184,12 +184,17 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         do {
             guard let recognizedPoints = try? observation.recognizedPoints(.all) else { return }
             let liveAngles = calculateLiveAngles(from: recognizedPoints)
+
+            print("[PoseEstimator] Live angles for \(expectedPose.name):")
+            for (joint, angle) in liveAngles {
+                print(" - \(joint): \(String(format: "%.2f", angle))°")
+            }
+
             guard let baseline = poseBaselines[expectedPose.id] else {
                 print("⚠️ No baseline available for pose '\(expectedPose.name)'")
                 return
             }
 
-            // Velocity Calculation
             let currentLeftHip = recognizedPoints[.leftHip]
             var velocityX: Double = 0, velocityY: Double = 0, velocityZ: Double = 0
             if let previous = previousLeftHip, let current = currentLeftHip {
@@ -205,6 +210,8 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
             let weightedAccuracy = poseCorrectionSystem.computeWeightedAccuracy(liveAngles: liveAngles, baseline: baseline)
             let accuracyScore = Int(weightedAccuracy)
+            
+            print("[PoseEstimator] Total pose accuracy = \(accuracyScore)%")
 
             let corrections = poseCorrectionSystem.analyzePose(observation)
 
@@ -219,14 +226,18 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     self.poseColor = .green
                     self.repCount += 1
 
-                    // Calculate per-joint accuracy (0-1)
+                    print("[PoseEstimator] Comparison to baseline:")
                     var jointAccuracies: [String: Double] = [:]
                     for (joint, liveValue) in liveAngles {
                         if let target = baseline[joint] {
                             let error = abs(liveValue - target)
-                            let tolerance = 15.0 // You can make this dynamic per joint if desired
+                            let tolerance = 15.0 // Can be customized per joint
                             let score = max(0.0, 1.0 - (error / tolerance))
                             jointAccuracies[joint] = score
+                            let percent = Int(score * 100)
+                            print(" - \(joint): Live = \(String(format: "%.2f", liveValue))°, Target = \(target)°, Accuracy = \(percent)%")
+                        } else {
+                            print(" - ⚠️ No baseline for \(joint)")
                         }
                     }
 
@@ -240,7 +251,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     )
                     self.logEntries.append(entry)
                     self.onNewEntry(entry)
-                    print("✅ Pose recognized: \(expectedPose.name) | Accuracy: \(accuracyScore)%")
+                    print("[PoseEstimator] Pose detected: \(expectedPose.name)")
                 } else {
                     self.poseLabel = "Incorrect Pose"
                     self.poseColor = .red
@@ -279,7 +290,6 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             "rightKneeAngle": angle(between: points[.rightHip]!, points[.rightKnee]!, points[.rightAnkle]!)
         ]
 
-        // Add spine angle (root to neck)
         if let root = points[.root], let neck = points[.neck] {
             let vector = CGVector(dx: neck.location.x - root.location.x,
                                   dy: neck.location.y - root.location.y)
@@ -287,12 +297,10 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             angles["spineAngle"] = angle
         }
 
-        // Add shoulder alignment (left-right horizontal tilt)
         if let left = points[.leftShoulder], let right = points[.rightShoulder] {
             angles["shoulderAlignment"] = alignmentAngle(between: left, and: right)
         }
 
-        // Add hip alignment (left-right horizontal tilt)
         if let left = points[.leftHip], let right = points[.rightHip] {
             angles["hipAlignment"] = alignmentAngle(between: left, and: right)
         }
@@ -300,26 +308,37 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         return angles
     }
 
-}
-
-// MARK: - Baseline Loader
-extension PoseEstimator {
+    // MARK: - Baseline Loader
     static func loadBaselineAngles(from filename: String = "FullRollUp_baseline_angles.json") -> [UUID: [String: Double]] {
-        guard let url = Bundle.main.url(forResource: filename, withExtension: nil),
-              let data = try? Data(contentsOf: url),
-              let raw = try? JSONSerialization.jsonObject(with: data) as? [String: [String: Double]] else {
-            print("⚠️ Failed to load baseline angles from \(filename)")
+        let baseName = filename.replacingOccurrences(of: ".json", with: "")
+        
+        guard let url = Bundle.main.url(forResource: baseName, withExtension: "json") else {
+            print("⚠️ Could not locate file: \(filename)")
             return [:]
         }
-
-        var result: [UUID: [String: Double]] = [:]
-        for (key, angles) in raw {
-            if let uuid = UUID(uuidString: key) {
-                result[uuid] = angles
+        
+        do {
+            let data = try Data(contentsOf: url)
+            guard let raw = try JSONSerialization.jsonObject(with: data) as? [String: [String: Double]] else {
+                print("⚠️ File structure is invalid for baseline angles in \(filename)")
+                return [:]
             }
+
+            var result: [UUID: [String: Double]] = [:]
+            for (key, angles) in raw {
+                if let uuid = UUID(uuidString: key) {
+                    result[uuid] = angles
+                    print("✅ Loaded baseline for pose ID: \(uuid)")
+                } else {
+                    print("❌ Invalid UUID string in baseline JSON: \(key)")
+                }
+            }
+            print("✅ Loaded \(result.count) baseline pose(s) from \(filename)")
+            return result
+        } catch {
+            print("❌ Error loading or parsing \(filename):", error)
+            return [:]
         }
-        print("✅ Loaded \(result.count) baseline poses.")
-        return result
     }
 }
 
