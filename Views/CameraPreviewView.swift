@@ -30,7 +30,7 @@ struct CameraPreviewView: UIViewRepresentable {
             currentCorrections: $currentCorrections,
             onNewEntry: onNewEntry,
             onComboBroken: onComboBroken,
-            poseBaselines: PoseEstimator.loadBaselineAngles()
+            poseBaselines: PoseEstimator.loadBaselineAngles(from: "FullRollUp_baseline_angles.json")
         )
 
         context.coordinator.poseEstimator = poseEstimator

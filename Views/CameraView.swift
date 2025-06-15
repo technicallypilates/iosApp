@@ -80,6 +80,12 @@ struct CorrectionCard: View {
     }
 }
 
+import SwiftUI
+import AVFoundation
+import Vision
+import Foundation
+import UIKit
+
 struct CameraView: View {
     @StateObject private var viewModel = CameraViewModel()
     @Binding var isActive: Bool
@@ -87,7 +93,7 @@ struct CameraView: View {
     @State private var currentCorrections: [PoseCorrection] = []
     @State private var poseLabel: String = ""
     @State private var poseColor: Color = .green
-    @State private var startDetection: Bool = false
+    @State private var startDetection: Bool = true
     @State private var repCount: Int = 0
     @State private var logEntries: [PoseLogEntry] = []
     @State private var poseAccuracy: Double = 0.0
@@ -95,7 +101,43 @@ struct CameraView: View {
         name: "Default",
         description: "Default routine",
         category: "Default",
-        poses: [],
+        poses: [
+            Pose(
+                id: UUID(uuidString: "12345678-90AB-CDEF-1234-567890ABCDEF")!,
+                name: "Full Roll-Up",
+                description: "A classic Pilates movement that builds core strength and spinal mobility.",
+                category: "Mat",
+                difficulty: 2,
+                instructions: [
+                    "Lie flat on your back with arms overhead.",
+                    "Inhale to prepare, exhale to roll up vertebra by vertebra.",
+                    "Reach towards your toes, then roll back slowly."
+                ],
+                benefits: [
+                    "Improves spinal articulation",
+                    "Strengthens abdominals",
+                    "Increases flexibility"
+                ],
+                modifications: [
+                    "Bend knees slightly if hamstrings are tight",
+                    "Use a resistance band around feet for assistance"
+                ],
+                contraindications: [
+                    "Avoid if you have lower back injuries",
+                    "Not recommended during pregnancy without modification"
+                ],
+                duration: 60.0,
+                repetitions: 3,
+                xpReward: 10,
+                isUnlocked: true,
+                unlockAccuracy: 0.8,
+                requiredAchievement: nil,
+                targetAngles: [
+                    "spineAngle": 90.0,
+                    "hipAlignment": 0.0
+                ]
+            )
+        ],
         duration: 0,
         difficulty: 1
     )
@@ -118,7 +160,6 @@ struct CameraView: View {
                 selectedRoutine: selectedRoutine,
                 currentPoseIndex: currentPoseIndex,
                 onNewEntry: { entry in
-                    // Calculate XP gain using difficulty multiplier
                     let accuracy = Double(entry.accuracyScore) / 100.0
                     let baseXP = 10.0
                     let difficulty = viewModel.poseCorrectionSystem.getCurrentDifficulty()
@@ -126,7 +167,6 @@ struct CameraView: View {
                     xpGained = gained
                     showXPToast = true
                     showConfetti = true
-                    // Hide toast after 2 seconds
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                         showXPToast = false
                         showConfetti = false
@@ -144,7 +184,7 @@ struct CameraView: View {
                     }
                 }
             )
-            
+
             VStack {
                 HStack {
                     Button(action: {
@@ -155,9 +195,9 @@ struct CameraView: View {
                             .foregroundColor(.white)
                             .padding()
                     }
-                    
+
                     Spacer()
-                    
+
                     Button(action: {
                         showDifficultyInfo.toggle()
                     }) {
@@ -166,9 +206,10 @@ struct CameraView: View {
                             .foregroundColor(.white)
                             .padding()
                     }
-                    
+
                     Button(action: {
                         viewModel.togglePoseDetection()
+                        startDetection.toggle()
                     }) {
                         Image(systemName: viewModel.isPoseDetectionActive ? "figure.walk" : "figure.stand")
                             .font(.title)
@@ -176,11 +217,26 @@ struct CameraView: View {
                             .padding()
                     }
                 }
-                
+
                 Spacer()
             }
-            
-            // Difficulty Info Overlay
+
+            // ✅ Pose Accuracy Overlay (top-right corner)
+            VStack {
+                HStack {
+                    Spacer()
+                    Text("Pose Accuracy: \(Int(poseAccuracy * 100))%")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .padding([.top, .trailing], 16)
+                }
+                Spacer()
+            }
+
+            // Difficulty Info
             if showDifficultyInfo {
                 VStack {
                     let difficulty = viewModel.poseCorrectionSystem.getCurrentDifficulty()
@@ -188,27 +244,24 @@ struct CameraView: View {
                         Text("Difficulty Level")
                             .font(.headline)
                             .foregroundColor(.white)
-                        
+
                         HStack {
                             Text("Tolerance:")
                             Spacer()
                             Text("±\(String(format: "%.1f", difficulty.baseTolerance))°")
-                        }
-                        .foregroundColor(.white)
-                        
+                        }.foregroundColor(.white)
+
                         HStack {
                             Text("Required Accuracy:")
                             Spacer()
                             Text("\(Int(difficulty.requiredAccuracy * 100))%")
-                        }
-                        .foregroundColor(.white)
-                        
+                        }.foregroundColor(.white)
+
                         HStack {
                             Text("XP Multiplier:")
                             Spacer()
                             Text("\(String(format: "%.1f", difficulty.xpMultiplier))x")
-                        }
-                        .foregroundColor(.white)
+                        }.foregroundColor(.white)
                     }
                     .padding()
                     .background(Color.black.opacity(0.8))
@@ -217,7 +270,7 @@ struct CameraView: View {
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
-            
+
             // XP Toast
             if showXPToast {
                 VStack {
@@ -238,7 +291,7 @@ struct CameraView: View {
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            
+
             // Confetti
             if showConfetti {
                 ConfettiView()
@@ -247,7 +300,10 @@ struct CameraView: View {
             }
         }
         .onAppear {
+            print("[CameraView] Camera view appeared")
             viewModel.checkPermissions()
+            startDetection = true
+            viewModel.togglePoseDetection()
             if let pose = currentPose {
                 viewModel.setCurrentPose(pose)
             }
@@ -258,18 +314,19 @@ struct CameraView: View {
     }
 }
 
+
 class CameraViewModel: NSObject, ObservableObject {
     @Published var session = AVCaptureSession()
     @Published var isPoseDetectionActive = false
     @Published var currentCorrections: [PoseCorrection] = []
-    
+
     private let poseDetectionQueue = DispatchQueue(label: "com.technicallypilates.poseDetection")
     let poseCorrectionSystem = PoseCorrectionSystem()
     private var currentPose: String?
-    
+
     func checkPermissions() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
-        print("🔐 Camera authorization status: \(status.rawValue)") // 3 = authorized
+        print("🔐 Camera authorization status: \(status.rawValue)")
 
         switch status {
         case .authorized:
@@ -292,40 +349,39 @@ class CameraViewModel: NSObject, ObservableObject {
         }
     }
 
-    
     func setCurrentPose(_ pose: String) {
         currentPose = pose
         poseCorrectionSystem.setCurrentPose(pose)
     }
-    
+
     func setUserProfile(_ profile: UserProfile) {
         poseCorrectionSystem.setUserProfile(profile)
     }
-    
+
     func togglePoseDetection() {
         isPoseDetectionActive.toggle()
     }
-    
+
     private func setupCamera() {
         session.beginConfiguration()
-        
+
         guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
               let videoInput = try? AVCaptureDeviceInput(device: videoDevice),
               session.canAddInput(videoInput) else {
             return
         }
-        
+
         session.addInput(videoInput)
-        
+
         let videoOutput = AVCaptureVideoDataOutput()
         videoOutput.setSampleBufferDelegate(self, queue: poseDetectionQueue)
-        
+
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
         }
-        
+
         session.commitConfiguration()
-        
+
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.session.startRunning()
         }
@@ -338,16 +394,16 @@ extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
-        
+
         let request = VNDetectHumanBodyPoseRequest()
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:])
-        
+
         do {
             try handler.perform([request])
-            
+
             if let observation = request.results?.first as? VNHumanBodyPoseObservation {
                 let corrections = poseCorrectionSystem.analyzePose(observation)
-                
+
                 DispatchQueue.main.async {
                     self.currentCorrections = corrections
                 }
@@ -356,6 +412,53 @@ extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
             print("Error performing pose detection: \(error)")
         }
     }
+    struct CameraPermissionView: View {
+        let status: AVAuthorizationStatus
+        let onRequestPermission: () -> Void
+
+        var body: some View {
+            VStack(spacing: 20) {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.gray)
+
+                Text(status == .denied ? "Camera Access Denied" : "Camera Access Required")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                Text(status == .denied ?
+                     "Please enable camera access in Settings to use pose detection" :
+                     "We need camera access to monitor your Pilates poses")
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.gray)
+
+                if status == .denied {
+                    Button("Open Settings") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                } else {
+                    Button("Allow Camera Access") {
+                        onRequestPermission()
+                    }
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(20)
+            .shadow(radius: 10)
+        }
+    }
+
 }
 
 struct CameraPermissionView: View {
@@ -404,4 +507,3 @@ struct CameraPermissionView: View {
         .shadow(radius: 10)
     }
 }
-
