@@ -412,4 +412,98 @@ extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
             print("Error performing pose detection: \(error)")
         }
     }
+    struct CameraPermissionView: View {
+        let status: AVAuthorizationStatus
+        let onRequestPermission: () -> Void
+
+        var body: some View {
+            VStack(spacing: 20) {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.gray)
+
+                Text(status == .denied ? "Camera Access Denied" : "Camera Access Required")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                Text(status == .denied ?
+                     "Please enable camera access in Settings to use pose detection" :
+                     "We need camera access to monitor your Pilates poses")
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.gray)
+
+                if status == .denied {
+                    Button("Open Settings") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                } else {
+                    Button("Allow Camera Access") {
+                        onRequestPermission()
+                    }
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(20)
+            .shadow(radius: 10)
+        }
+    }
+
+}
+
+struct CameraPermissionView: View {
+    let status: AVAuthorizationStatus
+    let onRequestPermission: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+
+            Text(status == .denied ? "Camera Access Denied" : "Camera Access Required")
+                .font(.title2)
+                .fontWeight(.bold)
+
+            Text(status == .denied ?
+                 "Please enable camera access in Settings to use pose detection" :
+                 "We need camera access to monitor your Pilates poses")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.gray)
+
+            if status == .denied {
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            } else {
+                Button("Allow Camera Access") {
+                    onRequestPermission()
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.9))
+        .cornerRadius(20)
+        .shadow(radius: 10)
+    }
 }
