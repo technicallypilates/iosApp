@@ -3,26 +3,6 @@ import Combine
 import FirebaseFirestore
 import Vision
 
-// MARK: - ChallengeParticipant Struct
-struct ChallengeParticipant: Codable, Identifiable, Equatable {
-    let id: UUID
-    let userId: String
-    let challengeId: UUID
-    let progress: Double
-    let startDate: Date
-    let lastUpdated: Date
-    var status: ChallengeStatus
-
-    enum ChallengeStatus: String, Codable {
-        case active
-        case completed
-        case abandoned
-    }
-
-    var completed: Bool {
-        status == .completed
-    }
-}
 
 // MARK: - ViewModel
 class ViewModel: ObservableObject {
@@ -31,18 +11,22 @@ class ViewModel: ObservableObject {
     @Published var userProfile: UserProfile?
     @Published var poseLog: [PoseLogEntry] = []
     @Published var selectedRoutine: Routine?
-    @Published var userChallengeParticipation: [UUID: ChallengeParticipant] = [:]
-    @Published var challenges: [Challenge] = []
     @Published var users: [UserProfile] = []
-    @Published var challengeLeaderboards: [UUID: [LeaderboardEntry]] = [:]
     private let db = Firestore.firestore()
+    private var routinesListener: ListenerRegistration?
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
+        print("🚀 ViewModel initialized - Instance: \(UUID().uuidString.prefix(8))")
         loadData()
         loadRoutines()
         seedRoutinesIfNeeded()
+    }
+    
+    deinit {
+        // Clean up Firebase listener
+        routinesListener?.remove()
     }
 
     // MARK: - Data Loading
@@ -70,10 +54,18 @@ class ViewModel: ObservableObject {
     }
 
     private func loadRoutines() {
-        db.collection("routines").addSnapshotListener { [weak self] snapshot, error in
+        // Prevent multiple listeners from being created
+        guard routinesListener == nil else { 
+            print("⚠️ Firebase listener already exists, skipping...")
+            return 
+        }
+        
+        print("🔍 Setting up Firebase routines listener...")
+        routinesListener = db.collection("routines").addSnapshotListener { [weak self] snapshot, error in
             guard let self = self,
                   let documents = snapshot?.documents else { return }
 
+            print("📱 Firebase listener triggered with \(documents.count) routines")
             self.routines = documents.compactMap { document in
                 try? Routine(from: document.data())
             }
@@ -81,8 +73,19 @@ class ViewModel: ObservableObject {
     }
 
     private func seedRoutinesIfNeeded() {
-        guard routines.isEmpty else { return }
-
+        // Only seed if we haven't already seeded and routines are empty
+        // Use a UserDefaults flag to track if we've already seeded
+        let hasSeeded = UserDefaults.standard.bool(forKey: "hasSeededRoutines")
+        guard !hasSeeded else { 
+            print("🌱 Routines already seeded, skipping...")
+            return 
+        }
+        
+        print("🌱 Seeding routines for the first time...")
+        
+        // Mark that we've seeded to prevent future seeding
+        UserDefaults.standard.set(true, forKey: "hasSeededRoutines")
+        
         // Example seeding (optional)
         let defaultRoutine = Routine(
             name: "Sample Routine",
@@ -97,6 +100,7 @@ class ViewModel: ObservableObject {
 
         if let data = defaultRoutine.asDictionary {
             db.collection("routines").document(defaultRoutine.id.uuidString).setData(data)
+            print("✅ Seeded routine: \(defaultRoutine.name)")
         }
     }
 
