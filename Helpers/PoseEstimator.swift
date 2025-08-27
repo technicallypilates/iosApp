@@ -23,7 +23,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private var onNewEntry: (PoseLogEntry) -> Void
     private var onComboBroken: () -> Void
 
-    private var model: PoseClassifier?
+    private var model: PoseClassifierSequence?
     private let poseCorrectionSystem = PoseCorrectionSystem()
 
     private let frameProcessingInterval: TimeInterval = 0.2
@@ -62,7 +62,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private func loadModel() {
         do {
             let config = MLModelConfiguration()
-            self.model = try PoseClassifier(configuration: config)
+            self.model = try PoseClassifierSequence(configuration: config)
             print("✅ PoseClassifier model loaded.")
         } catch {
             print("❌ Failed to load PoseClassifier:", error)
@@ -309,7 +309,7 @@ class PoseEstimator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     }
 
     // MARK: - Baseline Loader
-    static func loadBaselineAngles(from filename: String = "FullRollUp_baseline_angles.json") -> [UUID: [String: Double]] {
+    static func loadBaselineAngles(from filename: String = "baseline_angles_sequence.json") -> [UUID: [String: Double]] {
         let baseName = filename.replacingOccurrences(of: ".json", with: "")
         
         guard let url = Bundle.main.url(forResource: baseName, withExtension: "json") else {
