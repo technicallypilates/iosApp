@@ -43,7 +43,6 @@ struct ProfileView: View {
                     performanceSection
                     achievementsSection(user)
                     leaderboardSection
-                    communityChallengesSection
                     shareProgressSection
                     remindersSection
                     destructiveSection
@@ -275,17 +274,6 @@ struct ProfileView: View {
                     Text(user.name)
                     Spacer()
                     Text("XP: \(user.xp)").foregroundColor(.blue)
-                }
-            }
-        }
-    }
-
-    private var communityChallengesSection: some View {
-        Section(header: Text("Community Challenges")) {
-            ForEach(viewModel.challenges) { challenge in
-                VStack(alignment: .leading) {
-                    Text(challenge.title).font(.headline)
-                    Text(challenge.description).font(.caption).foregroundColor(.gray)
                 }
             }
         }

@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var viewModel: ViewModel
     @StateObject private var authManager = AuthManager.shared
-    @StateObject private var viewModel = ViewModel()
     
     @State private var currentPoseIndex: Int = 0
 
@@ -40,7 +40,6 @@ struct ContentView: View {
                             Label("Profile", systemImage: "person")
                         }
                 }
-                .environmentObject(viewModel)
             } else {
                 LoginView()
             }

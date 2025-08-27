@@ -91,8 +91,13 @@ struct RoutinesView: View {
 
 
     var filteredRoutines: [Routine] {
-        let routinesWithTest = [beginnerRoutine] + viewModel.routines
-        return routinesWithTest.filter { routine in
+        // Only include the hardcoded routine if it's not already in the viewModel.routines
+        let allRoutines = viewModel.routines
+        let hasBeginnerRoutine = allRoutines.contains { $0.name == "Beginner's Flow" }
+        
+        let routinesToShow = hasBeginnerRoutine ? allRoutines : [beginnerRoutine] + allRoutines
+        
+        return routinesToShow.filter { routine in
             selectedCategory == nil || routine.category == selectedCategory
         }
     }
